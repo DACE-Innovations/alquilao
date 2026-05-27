@@ -124,3 +124,4 @@ document.querySelectorAll('.cat-card').forEach(card => {
 document.addEventListener('DOMContentLoaded', () => {
   renderCards();
 });
+
