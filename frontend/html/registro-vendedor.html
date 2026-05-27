@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro Propietario – Alquilao'</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,700;1,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --blue:#1A3FDB; --blue-dark:#1230B0; --blue-pale:#EEF1FF;
+      --text:#0D1117; --text-2:#4A5568; --text-3:#8896A5;
+      --white:#FFFFFF; --border:#E2E8F0;
+      --error:#EF4444; --success:#16A34A;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Plus Jakarta Sans',sans-serif;
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:420px 1fr;
+      background:#f0f4ff;
+    }
+
+    /* LEFT — Azul */
+    .left{
+      background:linear-gradient(160deg,#1230B0 0%,#1A3FDB 60%,#2563EB 100%);
+      padding:48px 40px;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      overflow:hidden;
+    }
+    .left::after{
+      content:'';
+      position:absolute;
+      bottom:-80px;right:-80px;
+      width:300px;height:300px;
+      background:rgba(255,255,255,.06);
+      border-radius:50%;
+    }
+    .left-logo img{height:48px;object-fit:contain;}
+    .left-title{
+      font-family:'Fraunces',serif;
+      font-size:clamp(24px,3vw,34px);
+      font-weight:700;color:white;
+      line-height:1.15;letter-spacing:-1px;
+      margin-top:40px;margin-bottom:14px;
+    }
+    .left-desc{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:40px;}
+
+    .benefit{display:flex;align-items:flex-start;gap:16px;margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.12);}
+    .benefit:last-child{border-bottom:none;}
+    .benefit-icon{
+      width:48px;height:48px;flex-shrink:0;
+      background:rgba(255,255,255,.15);
+      border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;color:white;
+    }
+    .benefit-title{font-size:14px;font-weight:700;color:white;margin-bottom:4px;}
+    .benefit-desc{font-size:12px;color:rgba(255,255,255,.65);line-height:1.5;}
+
+    .left-footer{
+      margin-top:auto;
+      display:flex;gap:24px;
+      padding-top:24px;
+      border-top:1px solid rgba(255,255,255,.12);
+    }
+    .left-stat{text-align:center;}
+    .left-stat-num{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:white;}
+    .left-stat-label{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;}
+
+    /* RIGHT */
+    .right{
+      background:white;
+      display:flex;flex-direction:column;justify-content:center;
+      padding:48px 56px;overflow-y:auto;
+      animation:fadeUp .7s ease both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+    .form-top{display:flex;justify-content:flex-end;margin-bottom:32px;font-size:13px;color:var(--text-2);}
+    .form-top a{color:var(--blue);font-weight:600;text-decoration:none;}
+
+    .form-title{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--text);letter-spacing:-1px;margin-bottom:6px;}
+    .form-sub{font-size:14px;color:var(--text-2);margin-bottom:24px;}
+
+    .field{margin-bottom:16px;}
+    .field label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px;}
+    .input-wrap{
+      display:flex;align-items:center;
+      border:1.5px solid var(--border);border-radius:12px;
+      padding:0 14px;gap:10px;background:#FAFBFF;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .input-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,63,219,.1);background:white;}
+    .input-wrap.error{border-color:var(--error);}
+    .input-wrap i{color:var(--text-3);font-size:14px;flex-shrink:0;}
+    .input-wrap input{flex:1;border:none;outline:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);padding:13px 0;}
+    .input-wrap input::placeholder{color:var(--text-3);}
+    .toggle-pass{background:none;border:none;cursor:pointer;color:var(--text-3);font-size:14px;transition:color .2s;}
+    .toggle-pass:hover{color:var(--blue);}
+
+    .field-error{font-size:11px;color:var(--error);margin-top:4px;display:none;}
+    .field-error.show{display:block;}
+
+    .pass-hints{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px;}
+    .hint{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-3);}
+    .hint.ok{color:var(--success);}
+
+    .alert{display:none;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:500;margin-bottom:16px;align-items:center;gap:10px;}
+    .alert.error{background:#FEF2F2;color:var(--error);border:1px solid #FECACA;display:flex;}
+    .alert.success{background:#F0FDF4;color:var(--success);border:1px solid #BBF7D0;display:flex;}
+
+    .btn-submit{
+      width:100%;background:var(--blue);color:white;
+      font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;
+      padding:15px;border-radius:12px;border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      transition:background .22s,box-shadow .22s,transform .22s;
+      margin-top:8px;margin-bottom:14px;
+    }
+    .btn-submit:hover{background:var(--blue-dark);box-shadow:0 8px 24px rgba(26,63,219,.3);transform:translateY(-1px);}
+    .btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+    .form-footer{
+      display:flex;justify-content:center;gap:32px;
+      border-top:1px solid var(--border);padding-top:16px;
+      font-size:12px;color:var(--text-3);
+    }
+    .form-footer span{display:flex;align-items:center;gap:6px;}
+    .form-footer i{color:var(--blue);}
+
+    .login-link{text-align:center;font-size:13px;color:var(--text-2);margin-top:12px;}
+    .login-link a{color:var(--blue);font-weight:600;text-decoration:none;}
+
+    @media(max-width:960px){body{grid-template-columns:1fr;}.left{display:none;}.right{padding:32px 20px;}}
+  </style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="left-logo"><img src="../images/logo_alquilao1.png" alt="Alquilao'"/></div>
+  <h2 class="left-title">Únete a<br/>Alquilao'</h2>
+  <p class="left-desc">La plataforma ideal para agentes y agencias que quieren vender más.</p>
+
+  <div class="benefit">
+    <div class="benefit-icon"><i class="fa-solid fa-building"></i></div>
+    <div><div class="benefit-title">Más Visibilidad</div><div class="benefit-desc">Publica tus propiedades y llega a miles de posibles compradores.</div></div>
+  </div>
+  <div class="benefit">
+    <div class="benefit-icon"><i class="fa-solid fa-shield-halved"></i></div>
+    <div><div class="benefit-title">Confianza y Profesionalismo</div><div class="benefit-desc">Verifica tu agencia y genera confianza en tus clientes.</div></div>
+  </div>
+  <div class="benefit">
+    <div class="benefit-icon"><i class="fa-solid fa-chart-line"></i></div>
+    <div><div class="benefit-title">Gestión Inteligente</div><div class="benefit-desc">Administra tus propiedades, clientes y contactos desde un solo lugar.</div></div>
+  </div>
+  <div class="benefit">
+    <div class="benefit-icon"><i class="fa-solid fa-headset"></i></div>
+    <div><div class="benefit-title">Soporte Dedicado</div><div class="benefit-desc">Nuestro equipo está listo para ayudarte en cada paso del camino.</div></div>
+  </div>
+
+  <div class="left-footer">
+    <div class="left-stat"><div class="left-stat-num">0</div><div class="left-stat-label">Propiedades</div></div>
+    <div class="left-stat"><div class="left-stat-num">0</div><div class="left-stat-label">Agentes</div></div>
+    <div class="left-stat"><div class="left-stat-num">0</div><div class="left-stat-label">Provincias</div></div>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="form-top"><span>¿Ya tienes una cuenta? <a href="login.html">Inicia sesión</a></span></div>
+
+  <h2 class="form-title">Crea tu cuenta</h2>
+  <p class="form-sub">Regístrate como agente o agencia inmobiliaria.</p>
+
+  <div class="alert" id="alert"><i class="fa-solid fa-circle-exclamation"></i><span id="alert-msg"></span></div>
+
+  <div class="field">
+    <label>Nombre completo</label>
+    <div class="input-wrap" id="wrap-nombre">
+      <i class="fa-regular fa-user"></i>
+      <input type="text" id="nombre" placeholder="Ingresa tu nombre completo"/>
+    </div>
+    <span class="field-error" id="err-nombre">Ingresa tu nombre completo.</span>
+  </div>
+
+  <div class="field">
+    <label>Nombre de la agencia inmobiliaria</label>
+    <div class="input-wrap" id="wrap-agencia">
+      <i class="fa-solid fa-building-columns"></i>
+      <input type="text" id="agencia" placeholder="Ingresa el nombre de tu agencia"/>
+    </div>
+    <span class="field-error" id="err-agencia">Ingresa el nombre de tu agencia.</span>
+  </div>
+
+  <div class="field">
+    <label>RNC / Cédula</label>
+    <div class="input-wrap" id="wrap-rnc">
+      <i class="fa-solid fa-id-card"></i>
+      <input type="text" id="rnc" placeholder="Ingresa tu RNC o número de cédula" maxlength="13"/>
+    </div>
+    <span class="field-error" id="err-rnc">Ingresa un RNC o cédula válido.</span>
+  </div>
+
+  <div class="field">
+    <label>Teléfono</label>
+    <div class="input-wrap" id="wrap-tel">
+      <i class="fa-solid fa-phone"></i>
+      <input type="tel" id="tel" placeholder="Ingresa tu número de teléfono" maxlength="12"/>
+    </div>
+    <span class="field-error" id="err-tel">Ingresa un teléfono válido.</span>
+  </div>
+
+  <div class="field">
+    <label>Correo electrónico</label>
+    <div class="input-wrap" id="wrap-correo">
+      <i class="fa-regular fa-envelope"></i>
+      <input type="email" id="correo" placeholder="Ingresa tu correo electrónico"/>
+    </div>
+    <span class="field-error" id="err-correo">Ingresa un correo válido.</span>
+  </div>
+
+  <div class="field">
+    <label>Contraseña</label>
+    <div class="input-wrap" id="wrap-pass">
+      <i class="fa-solid fa-lock"></i>
+      <input type="password" id="pass" placeholder="Crea una contraseña segura" oninput="checkPass()"/>
+      <button class="toggle-pass" type="button" onclick="togglePass()"><i class="fa-regular fa-eye"></i></button>
+    </div>
+    <span class="field-error" id="err-pass">La contraseña no cumple los requisitos.</span>
+    <div class="pass-hints">
+      <div class="hint" id="h-len"><i class="fa-regular fa-circle"></i> Mínimo 8 caracteres</div>
+      <div class="hint" id="h-upper"><i class="fa-regular fa-circle"></i> Incluye mayúsculas</div>
+      <div class="hint" id="h-num"><i class="fa-regular fa-circle"></i> Incluye números y letras</div>
+      <div class="hint" id="h-special"><i class="fa-regular fa-circle"></i> Incluye un carácter especial</div>
+    </div>
+  </div>
+
+  <button class="btn-submit" id="btn-reg" onclick="handleRegistro()">
+    Crear cuenta <i class="fa-solid fa-arrow-right"></i>
+  </button>
+
+  <div class="form-footer">
+    <span><i class="fa-solid fa-lock"></i> Información segura</span>
+    <span><i class="fa-solid fa-shield-halved"></i> Verificación de agencia</span>
+    <span><i class="fa-solid fa-users"></i> Miles de clientes</span>
+  </div>
+
+  <p class="login-link" style="margin-top:14px;">¿Ya tienes una cuenta? <a href="login.html">Inicia sesión</a></p>
+</div>
+
+<script>
+  function togglePass() {
+    const inp = document.getElementById('pass');
+    const ico = document.querySelector('.toggle-pass i');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    ico.className = inp.type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+  }
+
+  function checkPass() {
+    const v = document.getElementById('pass').value;
+    const set = (id, ok) => document.getElementById(id).classList.toggle('ok', ok);
+    set('h-len',     v.length >= 8);
+    set('h-upper',   /[A-Z]/.test(v));
+    set('h-num',     /[0-9]/.test(v));
+    set('h-special', /[^A-Za-z0-9]/.test(v));
+  }
+
+  function validPass(v) {
+    return v.length>=8 && /[A-Z]/.test(v) && /[0-9]/.test(v) && /[^A-Za-z0-9]/.test(v);
+  }
+
+  function showErr(wrap, err, show) {
+    document.getElementById(wrap).classList.toggle('error', show);
+    document.getElementById(err).classList.toggle('show', show);
+  }
+
+  function showAlert(msg, type) {
+    const el = document.getElementById('alert');
+    document.getElementById('alert-msg').textContent = msg;
+    el.className = `alert ${type}`;
+  }
+
+  async function hashPass(pass) {
+    const enc = new TextEncoder().encode(pass);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function handleRegistro() {
+    const nombre  = document.getElementById('nombre').value.trim();
+    const agencia = document.getElementById('agencia').value.trim();
+    const rnc     = document.getElementById('rnc').value.trim();
+    const tel     = document.getElementById('tel').value.trim();
+    const correo  = document.getElementById('correo').value.trim();
+    const pass    = document.getElementById('pass').value;
+
+    let ok = true;
+    if(nombre.length<3)                             {showErr('wrap-nombre','err-nombre',true);ok=false;}  else showErr('wrap-nombre','err-nombre',false);
+    if(agencia.length<3)                            {showErr('wrap-agencia','err-agencia',true);ok=false;} else showErr('wrap-agencia','err-agencia',false);
+    if(rnc.length<9)                                {showErr('wrap-rnc','err-rnc',true);ok=false;}        else showErr('wrap-rnc','err-rnc',false);
+    if(tel.length<10)                               {showErr('wrap-tel','err-tel',true);ok=false;}        else showErr('wrap-tel','err-tel',false);
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {showErr('wrap-correo','err-correo',true);ok=false;}  else showErr('wrap-correo','err-correo',false);
+    if(!validPass(pass))                            {showErr('wrap-pass','err-pass',true);ok=false;}      else showErr('wrap-pass','err-pass',false);
+    if(!ok) return;
+
+    const btn = document.getElementById('btn-reg');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando cuenta...';
+
+    const passHash = await hashPass(pass);
+
+    try {
+      // ── Conectar con backend ──
+      // const res = await fetch('/api/auth/registro', {
+      //   method:'POST',
+      //   headers:{'Content-Type':'application/json'},
+      //   body: JSON.stringify({ nombre, agencia, rnc, telefono:tel, correo, password:passHash, rol:'vendedor' })
+      // });
+      // const data = await res.json();
+      // if(!res.ok) throw new Error(data.mensaje);
+      // sessionStorage.setItem('token', data.token);
+      // window.location.href = '../index.html';
+
+      // ── Demo ──
+      await new Promise(r=>setTimeout(r,1200));
+      showAlert('¡Cuenta creada exitosamente! Redirigiendo...','success');
+      setTimeout(()=>window.location.href='../index.html',1000);
+
+    } catch(e) {
+      showAlert(e.message||'Error al crear cuenta.','error');
+      btn.disabled=false;
+      btn.innerHTML='Crear cuenta <i class="fa-solid fa-arrow-right"></i>';
+    }
+  }
+</script>
+</body>
+</html>
