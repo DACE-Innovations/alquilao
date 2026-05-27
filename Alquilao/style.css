@@ -177,7 +177,7 @@ option { color: var(--text); }
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: url('../images/portada.jpeg') center/cover no-repeat;
+  background: url('../Alquilao/images/portada.jpeg') center/cover no-repeat;
   z-index: 0;
 }
  
