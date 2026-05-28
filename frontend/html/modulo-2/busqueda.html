@@ -814,6 +814,9 @@ function renderLista() {
           <div class="prop-feat"><i class="fa-solid fa-bath"></i> ${prop.banos} baños</div>
           <div class="prop-feat"><i class="fa-solid fa-vector-square"></i> ${prop.area}m²</div>
         </div>
+        <div style="padding:8px 14px 12px">
+          <a href="detalle-propiedad.html" class="popup-btn" style="display:block;text-align:center;padding:8px;border-radius:6px;background:var(--blue);color:#fff;font-size:12px;font-weight:600;text-decoration:none">Ver detalles</a>
+        </div>
       </div>
     </div>
   `).join('');
@@ -832,7 +835,7 @@ function renderGrid() {
   noResults.classList.remove('visible');
 
   container.innerHTML = filteredProps.map(prop => `
-    <div class="prop-grid-card" onclick="alert('Ver detalle de: ${prop.titulo}')">
+    <div class="prop-grid-card" onclick="window.location.href='detalle-propiedad.html'">
       <div class="prop-grid-img">
         <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
         <div class="prop-card-badge" style="position:absolute;top:10px;left:10px">${prop.operacion}</div>

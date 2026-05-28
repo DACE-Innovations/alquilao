@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alquilao — Detalle de Propiedad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+/* ═══════════════════════════════════════
+   VARIABLES — consistentes con el proyecto
+═══════════════════════════════════════ */
+:root {
+  --blue:       #1A3FDB;
+  --blue-dark:  #1230B0;
+  --blue-light: #3B5FFF;
+  --blue-pale:  #EEF1FF;
+  --text:       #0D1117;
+  --text-2:     #4A5568;
+  --text-3:     #8896A5;
+  --white:      #FFFFFF;
+  --bg:         #F7F8FC;
+  --border:     #E2E8F0;
+  --card-shadow: 0 4px 24px rgba(26,63,219,.08);
+  --radius:     14px;
+  --radius-sm:  8px;
+  --transition: .22s cubic-bezier(.4,0,.2,1);
+  --whatsapp:   #25D366;
+  --whatsapp-dark: #1DA851;
+  --success:    #16A34A;
+  --warning:    #D97706;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+img { display: block; max-width: 100%; }
+
+/* ═══════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════ */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 40px;
+  height: 68px;
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.nav-logo img { height: 52px; object-fit: contain; }
+.nav-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  cursor: pointer;
+  background: none;
+}
+.nav-back:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-pale); }
+.nav-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+/* ═══════════════════════════════════════
+   BREADCRUMB
+═══════════════════════════════════════ */
+.breadcrumb {
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+.breadcrumb a { color: var(--blue); font-weight: 500; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb i { font-size: 10px; }
+
+/* ═══════════════════════════════════════
+   LAYOUT PRINCIPAL
+═══════════════════════════════════════ */
+.page-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px 60px;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 32px;
+}
+
+/* ═══════════════════════════════════════
+   GALERÍA
+═══════════════════════════════════════ */
+.gallery {
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+  position: relative;
+}
+.gallery-main {
+  height: 420px;
+  background: #cbd5e1;
+  position: relative;
+  overflow: hidden;
+}
+.gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s ease;
+}
+.gallery-main:hover img { transform: scale(1.02); }
+.gallery-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 6px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.gallery-thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+.gallery-thumb {
+  height: 90px;
+  background: #cbd5e1;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: opacity var(--transition);
+}
+.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-thumb:hover { opacity: .85; }
+.gallery-thumb.more {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gallery-thumb.more::after {
+  content: attr(data-more);
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+/* ═══════════════════════════════════════
+   INFO PROPIEDAD
+═══════════════════════════════════════ */
+.prop-header {
+  margin-bottom: 20px;
+}
+.prop-price {
+  font-family: 'Fraunces', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 6px;
+}
+.prop-price span {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-3);
+}
+.prop-title {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.prop-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+.prop-location i { color: var(--blue); }
+
+.prop-specs {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 20px 0;
+  background: #fff;
+}
+.spec-item {
+  flex: 1;
+  padding: 16px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.spec-item:last-child { border-right: none; }
+.spec-icon { font-size: 20px; color: var(--blue); margin-bottom: 6px; }
+.spec-val { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.spec-label { font-size: 11px; color: var(--text-3); font-weight: 500; }
+
+.section-title-sm {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title-sm i { color: var(--blue); font-size: 14px; }
+
+.prop-desc {
+  font-size: 14.5px;
+  color: var(--text-2);
+  line-height: 1.75;
+  margin-bottom: 24px;
+}
+
+.amenidades-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.amenidad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+.amenidad i { color: var(--blue); font-size: 13px; width: 16px; text-align: center; }
+
+/* ═══════════════════════════════════════
+   SIDEBAR DERECHO
+═══════════════════════════════════════ */
+.sidebar {
+  position: sticky;
+  top: 84px;
+  height: fit-content;
+}
+
+/* ═══════════════════════════════════════
+   CARD CONTACTO — MÓDULO COMUNICACIÓN
+═══════════════════════════════════════ */
+.contact-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 16px;
+}
+
+.contact-card-header {
+  background: linear-gradient(135deg, #0D1B6E 0%, var(--blue) 100%);
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.contact-card-header::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 100px; height: 100px;
+  background: rgba(255,255,255,.07);
+  border-radius: 50%;
+}
+.contact-card-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,.8);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.contact-card-header p {
+  font-size: 12px;
+  color: rgba(255,255,255,.55);
+}
+
+/* Propietario */
+.owner-info {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.owner-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--blue-pale);
+  position: relative;
+}
+.owner-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.owner-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--blue-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--blue);
+}
+.owner-verified {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 18px; height: 18px;
+  background: var(--success);
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.owner-verified i { font-size: 8px; color: #fff; }
+.owner-details { flex: 1; min-width: 0; }
+.owner-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.badge-verified {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--success);
+  background: #DCFCE7;
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+.owner-meta {
+  font-size: 12px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.owner-meta i { font-size: 10px; }
+.owner-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-2);
+  margin-top: 4px;
+}
+.owner-rating i { color: #F59E0B; font-size: 11px; }
+
+/* Botones de contacto */
+.contact-actions {
+  padding: 16px 20px;
+}
+
+/* Estado: NO autenticado */
+.auth-required {
+  display: none;
+  text-align: center;
+  padding: 4px 0 8px;
+}
+.auth-required.visible { display: block; }
+.auth-icon {
+  width: 48px; height: 48px;
+  background: #FEF3C7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 20px;
+  color: var(--warning);
+}
+.auth-required p {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.auth-required p strong { color: var(--text); }
+.btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  margin-bottom: 8px;
+  text-decoration: none;
+}
+.btn-login:hover { background: var(--blue-dark); transform: translateY(-1px); }
+.btn-register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  color: var(--blue);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--blue);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+}
+.btn-register:hover { background: var(--blue-pale); }
+
+/* Estado: autenticado */
+.authenticated-actions { display: none; }
+.authenticated-actions.visible { display: block; }
+
+.btn-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--whatsapp);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  margin-bottom: 10px;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+.btn-whatsapp::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.12);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.btn-whatsapp:hover {
+  background: var(--whatsapp-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37,211,102,.35);
+}
+.btn-whatsapp:hover::before { opacity: 1; }
+.btn-whatsapp:active { transform: translateY(0); }
+
+.whatsapp-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.btn-llamar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  color: var(--blue);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--blue);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+.btn-llamar:hover { background: var(--blue-pale); transform: translateY(-1px); }
+
+.contact-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--blue-pale);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 11.5px;
+  color: var(--blue-dark);
+  line-height: 1.5;
+  margin-top: 6px;
+}
+.contact-note i { flex-shrink: 0; margin-top: 2px; font-size: 12px; }
+
+/* Número oculto para usuarios no autenticados */
+.phone-hidden {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+.phone-hidden i { color: var(--text-3); }
+.phone-blur {
+  font-family: monospace;
+  letter-spacing: 2px;
+  filter: blur(4px);
+  user-select: none;
+}
+
+/* Stats propietario */
+.owner-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--border);
+  padding: 14px 20px;
+}
+.owner-stat {
+  text-align: center;
+  padding: 0 8px;
+  border-right: 1px solid var(--border);
+}
+.owner-stat:last-child { border-right: none; }
+.owner-stat-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--blue);
+  margin-bottom: 2px;
+}
+.owner-stat-label {
+  font-size: 10px;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════
+   CARD COMPARTIR
+═══════════════════════════════════════ */
+.share-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 16px;
+}
+.share-card h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.share-btns {
+  display: flex;
+  gap: 8px;
+}
+.share-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.share-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-pale); }
+.share-btn.whatsapp:hover { border-color: var(--whatsapp); color: var(--whatsapp); background: #F0FDF4; }
+
+/* ═══════════════════════════════════════
+   MODAL MENSAJE WHATSAPP
+═══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.2);
+  transform: translateY(20px);
+  transition: transform var(--transition);
+  overflow: hidden;
+}
+.modal-overlay.visible .modal { transform: translateY(0); }
+
+.modal-header {
+  background: var(--whatsapp);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.modal-header svg { flex-shrink: 0; }
+.modal-header h3 { font-size: 16px; font-weight: 700; color: #fff; }
+.modal-header p { font-size: 12px; color: rgba(255,255,255,.75); margin-top: 2px; }
+.modal-close {
+  margin-left: auto;
+  background: rgba(255,255,255,.2);
+  border: none;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  font-size: 14px;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.modal-close:hover { background: rgba(255,255,255,.3); }
+
+.modal-body { padding: 24px; }
+.modal-owner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+.modal-owner-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--blue-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--blue);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.modal-owner-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.modal-owner-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.modal-owner-info p { font-size: 12px; color: var(--text-3); }
+
+.modal-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.modal-textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  resize: vertical;
+  min-height: 100px;
+  outline: none;
+  transition: border-color var(--transition);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.modal-textarea:focus { border-color: var(--whatsapp); }
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+}
+.btn-cancel {
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-cancel:hover { border-color: var(--blue); color: var(--blue); }
+.btn-send-whatsapp {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--whatsapp);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  text-decoration: none;
+}
+.btn-send-whatsapp:hover { background: var(--whatsapp-dark); transform: translateY(-1px); }
+
+/* ═══════════════════════════════════════
+   TOAST NOTIFICACIÓN
+═══════════════════════════════════════ */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-size: 13.5px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2000;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap;
+}
+.toast.visible { transform: translateX(-50%) translateY(0); }
+.toast i { color: var(--whatsapp); }
+
+/* ═══════════════════════════════════════
+   DEMO TOGGLE (solo para demo)
+═══════════════════════════════════════ */
+.demo-bar {
+  background: linear-gradient(90deg, #0D1B6E, var(--blue));
+  padding: 10px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.demo-bar p {
+  font-size: 13px;
+  color: rgba(255,255,255,.85);
+  font-weight: 500;
+}
+.demo-toggle {
+  display: flex;
+  gap: 8px;
+}
+.demo-btn {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1.5px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.demo-btn:hover { background: rgba(255,255,255,.2); }
+.demo-btn.active { background: #fff; color: var(--blue); border-color: #fff; }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 900px) {
+  .page-layout {
+    grid-template-columns: 1fr;
+    padding: 0 20px 40px;
+  }
+  .sidebar { position: static; }
+  .navbar { padding: 0 20px; }
+  .breadcrumb { padding: 12px 20px; }
+  .demo-bar { padding: 10px 20px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .amenidades-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .gallery-main { height: 260px; }
+  .gallery-thumbs { grid-template-columns: repeat(4, 1fr); }
+  .gallery-thumb { height: 65px; }
+  .prop-specs { flex-wrap: wrap; }
+  .spec-item { min-width: 50%; border-bottom: 1px solid var(--border); }
+  .amenidades-grid { grid-template-columns: 1fr 1fr; }
+  .prop-price { font-size: 26px; }
+  .prop-title { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- DEMO BAR -->
+<div class="demo-bar">
+  <p>🔧 Modo demo — Simula el estado de sesión del usuario:</p>
+  <div class="demo-toggle">
+    <button class="demo-btn active" id="btn-no-auth" onclick="setAuth(false)">Sin sesión</button>
+    <button class="demo-btn" id="btn-auth" onclick="setAuth(true)">Con sesión</button>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="../../pages/index.html" class="nav-logo">
+    <img src="../../images/logo_alquilao1.png" alt="Alquilao" />
+  </a>
+  <button class="nav-back" onclick="history.back()">
+    <i class="fa-solid fa-arrow-left"></i> Volver
+  </button>
+  <span class="nav-title">Detalle de propiedad</span>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="../../pages/index.html">Inicio</a>
+  <i class="fa-solid fa-chevron-right"></i>
+  <a href="busqueda.html">Propiedades</a>
+  <i class="fa-solid fa-chevron-right"></i>
+  <span>Moderno apartamento en Piantini</span>
+</div>
+
+<!-- LAYOUT PRINCIPAL -->
+<div class="page-layout">
+
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="left-col">
+
+    <!-- GALERÍA -->
+    <div class="gallery">
+      <div class="gallery-main">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900&q=80" alt="Propiedad" id="main-img" />
+        <div class="gallery-badge">Alquiler</div>
+      </div>
+      <div class="gallery-thumbs">
+        <div class="gallery-thumb" onclick="changeImg('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80')">
+          <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80" />
+        </div>
+        <div class="gallery-thumb" onclick="changeImg('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80')">
+          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80" />
+        </div>
+        <div class="gallery-thumb" onclick="changeImg('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80')">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80" />
+        </div>
+        <div class="gallery-thumb more" data-more="+5">
+          <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80" />
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO PROPIEDAD -->
+    <div class="prop-header">
+      <div class="prop-price">RD$55,000<span>/mes</span></div>
+      <h1 class="prop-title">Moderno apartamento en Piantini</h1>
+      <div class="prop-location">
+        <i class="fa-solid fa-location-dot"></i>
+        Calle José Amado Soler #45, Piantini, Santo Domingo
+      </div>
+    </div>
+
+    <!-- ESPECIFICACIONES -->
+    <div class="prop-specs">
+      <div class="spec-item">
+        <div class="spec-icon"><i class="fa-solid fa-bed"></i></div>
+        <div class="spec-val">3</div>
+        <div class="spec-label">Habitaciones</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-icon"><i class="fa-solid fa-bath"></i></div>
+        <div class="spec-val">2</div>
+        <div class="spec-label">Baños</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-icon"><i class="fa-solid fa-car"></i></div>
+        <div class="spec-val">2</div>
+        <div class="spec-label">Parqueos</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-icon"><i class="fa-solid fa-vector-square"></i></div>
+        <div class="spec-val">145</div>
+        <div class="spec-label">m²</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-icon"><i class="fa-solid fa-building"></i></div>
+        <div class="spec-val">3</div>
+        <div class="spec-label">Piso</div>
+      </div>
+    </div>
+
+    <!-- DESCRIPCIÓN -->
+    <h3 class="section-title-sm"><i class="fa-solid fa-align-left"></i> Descripción</h3>
+    <p class="prop-desc">
+      Hermoso apartamento completamente amueblado ubicado en el exclusivo sector de Piantini. 
+      Cuenta con amplias habitaciones, cocina equipada con electrodomésticos de última generación, 
+      sala comedor espaciosa y balcón con vista panorámica. El edificio dispone de piscina, 
+      gimnasio, área social y seguridad 24/7. Ideal para profesionales o familias que buscan 
+      confort y tranquilidad en una de las mejores zonas de Santo Domingo.
+    </p>
+
+    <!-- AMENIDADES -->
+    <h3 class="section-title-sm"><i class="fa-solid fa-star"></i> Amenidades</h3>
+    <div class="amenidades-grid">
+      <div class="amenidad"><i class="fa-solid fa-snowflake"></i> Aire acondicionado</div>
+      <div class="amenidad"><i class="fa-solid fa-wifi"></i> Internet incluido</div>
+      <div class="amenidad"><i class="fa-solid fa-dumbbell"></i> Gimnasio</div>
+      <div class="amenidad"><i class="fa-solid fa-person-swimming"></i> Piscina</div>
+      <div class="amenidad"><i class="fa-solid fa-shield-halved"></i> Seguridad 24/7</div>
+      <div class="amenidad"><i class="fa-solid fa-elevator"></i> Ascensor</div>
+      <div class="amenidad"><i class="fa-solid fa-bolt"></i> Planta eléctrica</div>
+      <div class="amenidad"><i class="fa-solid fa-droplet"></i> Cisterna</div>
+      <div class="amenidad"><i class="fa-solid fa-couch"></i> Amueblado</div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR DERECHO -->
+  <div class="sidebar">
+
+    <!-- ═══════════════════════════════
+         CARD CONTACTO — MÓDULO COMUNICACIÓN
+    ════════════════════════════════ -->
+    <div class="contact-card">
+
+      <!-- Header -->
+      <div class="contact-card-header">
+        <h3>Contactar propietario</h3>
+        <p>Comunícate directamente y agenda una visita</p>
+      </div>
+
+      <!-- Info propietario -->
+      <div class="owner-info">
+        <div class="owner-avatar">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos Méndez" />
+          <div class="owner-verified"><i class="fa-solid fa-check"></i></div>
+        </div>
+        <div class="owner-details">
+          <div class="owner-name">
+            Carlos Méndez
+            <span class="badge-verified">✓ Verificado</span>
+          </div>
+          <div class="owner-meta">
+            <i class="fa-solid fa-clock"></i>
+            Responde en menos de 1 hora
+          </div>
+          <div class="owner-rating">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star-half-stroke"></i>
+            <span style="font-size:11px;color:var(--text-3);margin-left:2px">4.8 (23 reseñas)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas propietario -->
+      <div class="owner-stats">
+        <div class="owner-stat">
+          <div class="owner-stat-val">12</div>
+          <div class="owner-stat-label">Propiedades</div>
+        </div>
+        <div class="owner-stat">
+          <div class="owner-stat-val">3 años</div>
+          <div class="owner-stat-label">En plataforma</div>
+        </div>
+        <div class="owner-stat">
+          <div class="owner-stat-val">98%</div>
+          <div class="owner-stat-label">Respuestas</div>
+        </div>
+      </div>
+
+      <!-- Acciones de contacto -->
+      <div class="contact-actions">
+
+        <!-- ESTADO: No autenticado -->
+        <div class="auth-required visible" id="auth-required">
+          <div class="auth-icon">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <p>
+            <strong>Inicia sesión para contactar</strong><br/>
+            El número de WhatsApp del propietario solo es visible para usuarios registrados.
+          </p>
+
+          <!-- Número oculto/borroso -->
+          <div class="phone-hidden">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>+1 (809) </span>
+            <span class="phone-blur">XXX-XXXX</span>
+          </div>
+
+          <a href="../modulo-1/login.html" class="btn-login">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Iniciar sesión
+          </a>
+          <a href="../modulo-1/registro-usuario.html" class="btn-register">
+            <i class="fa-solid fa-user-plus"></i>
+            Crear cuenta gratis
+          </a>
+        </div>
+
+        <!-- ESTADO: Autenticado -->
+        <div class="authenticated-actions" id="authenticated-actions">
+          <button class="btn-whatsapp" onclick="openWhatsAppModal()">
+            <!-- Icono WhatsApp SVG oficial -->
+            <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            Contactar por WhatsApp
+          </button>
+
+          <button class="btn-llamar" onclick="showToast('Número: +1 (809) 555-0123')">
+            <i class="fa-solid fa-phone"></i>
+            Ver teléfono
+          </button>
+
+          <div class="contact-note">
+            <i class="fa-solid fa-shield-halved"></i>
+            Tu información está protegida. Nunca compartimos tus datos sin tu consentimiento.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CARD COMPARTIR -->
+    <div class="share-card">
+      <h4><i class="fa-solid fa-share-nodes" style="color:var(--blue);margin-right:6px"></i> Compartir propiedad</h4>
+      <div class="share-btns">
+        <button class="share-btn whatsapp" onclick="shareWhatsApp()">
+          <i class="fa-brands fa-whatsapp"></i> WhatsApp
+        </button>
+        <button class="share-btn" onclick="copyLink()">
+          <i class="fa-solid fa-link"></i> Copiar enlace
+        </button>
+        <button class="share-btn" onclick="showToast('Compartido en Facebook')">
+          <i class="fa-brands fa-facebook"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL WHATSAPP
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-whatsapp" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      <div>
+        <h3>Enviar mensaje</h3>
+        <p>Personaliza tu mensaje antes de enviar</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-owner">
+        <div class="modal-owner-avatar">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos" />
+        </div>
+        <div class="modal-owner-info">
+          <h4>Carlos Méndez</h4>
+          <p>+1 (809) 555-0123 · Propietario verificado</p>
+        </div>
+      </div>
+      <div class="modal-label">Mensaje automático</div>
+      <textarea class="modal-textarea" id="whatsapp-msg">Hola, estoy interesado en la propiedad que publicaste en Alquilao: "Moderno apartamento en Piantini". ¿Podría obtener más información y coordinar una visita?</textarea>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <a class="btn-send-whatsapp" id="whatsapp-link" href="#" target="_blank" onclick="sendWhatsApp()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Abrir WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="fa-solid fa-circle-check"></i>
+  <span id="toast-msg">Enlace copiado</span>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATOS DE LA PROPIEDAD Y PROPIETARIO
+═══════════════════════════════════════ */
+const propiedad = {
+  titulo: 'Moderno apartamento en Piantini',
+  precio: 55000,
+  sector: 'Piantini',
+};
+
+const propietario = {
+  nombre: 'Carlos Méndez',
+  telefono: '18095550123', // Formato para wa.me (sin +, espacios ni guiones)
+  mensaje: `Hola, estoy interesado en la propiedad que publicaste en Alquilao: "${propiedad.titulo}". ¿Podría obtener más información y coordinar una visita?`
+};
+
+/* ═══════════════════════════════════════
+   ESTADO DE AUTENTICACIÓN
+═══════════════════════════════════════ */
+let isAuthenticated = false;
+
+function setAuth(value) {
+  isAuthenticated = value;
+
+  // Actualizar botones demo
+  document.getElementById('btn-no-auth').classList.toggle('active', !value);
+  document.getElementById('btn-auth').classList.toggle('active', value);
+
+  // Mostrar/ocultar secciones
+  document.getElementById('auth-required').classList.toggle('visible', !value);
+  document.getElementById('authenticated-actions').classList.toggle('visible', value);
+
+  if (value) {
+    showToast('✓ Sesión iniciada — Ahora puedes contactar al propietario');
+  } else {
+    showToast('Sesión cerrada — Inicia sesión para contactar');
+  }
+}
+
+/* ═══════════════════════════════════════
+   MODAL WHATSAPP
+═══════════════════════════════════════ */
+function openWhatsAppModal() {
+  if (!isAuthenticated) {
+    showToast('Debes iniciar sesión para contactar al propietario');
+    return;
+  }
+  // Actualizar mensaje en el textarea
+  document.getElementById('whatsapp-msg').value = propietario.mensaje;
+  // Mostrar modal
+  document.getElementById('modal-whatsapp').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-whatsapp').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-whatsapp')) closeModal();
+}
+
+function sendWhatsApp() {
+  const msg = document.getElementById('whatsapp-msg').value.trim();
+  if (!msg) {
+    showToast('Por favor escribe un mensaje');
+    return;
+  }
+  const encoded = encodeURIComponent(msg);
+  const url = `https://wa.me/${propietario.telefono}?text=${encoded}`;
+  document.getElementById('whatsapp-link').href = url;
+  setTimeout(() => { closeModal(); showToast('Abriendo WhatsApp...'); }, 300);
+}
+
+/* ═══════════════════════════════════════
+   GALERÍA
+═══════════════════════════════════════ */
+function changeImg(src) {
+  const mainImg = document.getElementById('main-img');
+  mainImg.style.opacity = '0';
+  mainImg.style.transition = 'opacity .2s';
+  setTimeout(() => {
+    mainImg.src = src;
+    mainImg.style.opacity = '1';
+  }, 200);
+}
+
+/* ═══════════════════════════════════════
+   COMPARTIR
+═══════════════════════════════════════ */
+function shareWhatsApp() {
+  const msg = `Te comparto esta propiedad en Alquilao: ${propiedad.titulo} - RD$${propiedad.precio.toLocaleString()}/mes en ${propiedad.sector}. ${window.location.href}`;
+  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    showToast('Enlace copiado al portapapeles');
+  }).catch(() => {
+    showToast('No se pudo copiar el enlace');
+  });
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+let toastTimeout;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+/* ═══════════════════════════════════════
+   KEYBOARD: cerrar modal con ESC
+═══════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
