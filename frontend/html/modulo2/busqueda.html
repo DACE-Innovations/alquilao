@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alquilao — Buscar Propiedades</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+  :root {
+    --blue: #1A56DB;
+    --blue-light: #EBF5FF;
+    --blue-mid: #3B82F6;
+    --blue-dark: #1E40AF;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --font: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--gray-50); color: var(--gray-900); }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    height: 62px;
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .logo img { height: 52px; object-fit: contain; }
+  .topbar-back {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    transition: background .15s;
+  }
+  .topbar-back:hover { background: var(--gray-100); }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 62px;
+    z-index: 999;
+  }
+  .filter-select {
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    padding: 8px 32px 8px 12px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-700);
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%236B7280' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .filter-select:focus { border-color: var(--blue-mid); }
+  .filter-search {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: #fff;
+    transition: border-color .15s;
+  }
+  .filter-search:focus-within { border-color: var(--blue-mid); }
+  .filter-search input {
+    flex: 1;
+    border: none;
+    padding: 8px 12px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--gray-900);
+    outline: none;
+  }
+  .filter-search button {
+    background: var(--blue);
+    border: none;
+    color: #fff;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background .15s;
+  }
+  .filter-search button:hover { background: var(--blue-dark); }
+  .btn-filter-clear {
+    background: none;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .btn-filter-clear:hover { border-color: var(--blue-mid); color: var(--blue); }
+
+  /* ── VISTA TOGGLE ── */
+  .view-toggle {
+    display: flex;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .view-btn {
+    background: #fff;
+    border: none;
+    padding: 8px 14px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-500);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all .15s;
+    border-right: 1px solid var(--gray-200);
+  }
+  .view-btn:last-child { border-right: none; }
+  .view-btn.active { background: var(--blue); color: #fff; }
+
+  /* ── RESULTS BAR ── */
+  .results-bar {
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .results-count {
+    font-size: 13px;
+    color: var(--gray-500);
+  }
+  .results-count strong { color: var(--gray-900); font-weight: 700; }
+  .sort-select {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 6px 28px 6px 10px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-700);
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' fill='none' stroke='%236B7280' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main-layout {
+    display: flex;
+    height: calc(100vh - 62px - 57px - 44px);
+  }
+
+  /* ── LISTA ── */
+  .lista-panel {
+    width: 420px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    border-right: 1px solid var(--gray-200);
+    background: var(--gray-50);
+  }
+  .lista-panel::-webkit-scrollbar { width: 4px; }
+  .lista-panel::-webkit-scrollbar-track { background: transparent; }
+  .lista-panel::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 99px; }
+
+  .prop-card {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    cursor: pointer;
+    transition: background .15s;
+    display: flex;
+    gap: 0;
+    overflow: hidden;
+  }
+  .prop-card:hover { background: var(--blue-light); }
+  .prop-card.active { background: var(--blue-light); border-left: 3px solid var(--blue); }
+  .prop-card-img {
+    width: 130px;
+    flex-shrink: 0;
+    background: var(--gray-200);
+    position: relative;
+    overflow: hidden;
+  }
+  .prop-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .prop-card-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .prop-card-body {
+    flex: 1;
+    padding: 12px 14px;
+    min-width: 0;
+  }
+  .prop-card-price {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--blue-dark);
+    margin-bottom: 2px;
+  }
+  .prop-card-price span {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray-400);
+  }
+  .prop-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .prop-card-loc {
+    font-size: 11.5px;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .prop-card-features {
+    display: flex;
+    gap: 10px;
+  }
+  .prop-feat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--gray-500);
+    font-weight: 500;
+  }
+  .prop-feat i { font-size: 10px; color: var(--gray-400); }
+  .prop-card-fav {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--gray-400);
+    box-shadow: 0 1px 4px rgba(0,0,0,.15);
+    transition: all .15s;
+  }
+  .prop-card-fav:hover { color: #EF4444; transform: scale(1.1); }
+  .prop-card-fav.active { color: #EF4444; }
+
+  /* Vista grid (lista completa sin mapa) */
+  .grid-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    display: none;
+  }
+  .grid-panel.active { display: block; }
+  .prop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .prop-grid-card {
+    background: #fff;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--gray-200);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .prop-grid-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+  .prop-grid-img {
+    height: 180px;
+    background: var(--gray-200);
+    position: relative;
+    overflow: hidden;
+  }
+  .prop-grid-img img { width: 100%; height: 100%; object-fit: cover; }
+  .prop-grid-body { padding: 14px; }
+  .prop-grid-price {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--blue-dark);
+    margin-bottom: 4px;
+  }
+  .prop-grid-price span { font-size: 12px; font-weight: 500; color: var(--gray-400); }
+  .prop-grid-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .prop-grid-loc {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .prop-grid-feats {
+    display: flex;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--gray-100);
+  }
+
+  /* ── MAPA ── */
+  .map-panel {
+    flex: 1;
+    position: relative;
+  }
+  #mapa-leaflet {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Vista solo mapa */
+  .map-only .lista-panel { display: none; }
+  .map-only .map-panel { flex: 1; }
+
+  /* Vista solo lista */
+  .list-only .map-panel { display: none; }
+  .list-only .lista-panel { width: 100%; border-right: none; display: none; }
+  .list-only .grid-panel { display: block; }
+
+  /* ── POPUP LEAFLET ── */
+  .leaflet-popup-content-wrapper {
+    border-radius: var(--radius) !important;
+    padding: 0 !important;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15) !important;
+  }
+  .leaflet-popup-content {
+    margin: 0 !important;
+    width: 240px !important;
+  }
+  .popup-img {
+    height: 130px;
+    background: var(--gray-200);
+    overflow: hidden;
+  }
+  .popup-img img { width: 100%; height: 100%; object-fit: cover; }
+  .popup-body { padding: 12px; }
+  .popup-price {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--blue-dark);
+    margin-bottom: 2px;
+  }
+  .popup-price span { font-size: 11px; font-weight: 500; color: var(--gray-400); }
+  .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .popup-loc { font-size: 11px; color: var(--gray-500); margin-bottom: 10px; }
+  .popup-btn {
+    display: block;
+    width: 100%;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background .15s;
+  }
+  .popup-btn:hover { background: var(--blue-dark); }
+
+  /* ── NO RESULTS ── */
+  .no-results {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--gray-400);
+    display: none;
+  }
+  .no-results.visible { display: block; }
+  .no-results i { font-size: 40px; margin-bottom: 12px; display: block; }
+  .no-results h3 { font-size: 15px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; }
+  .no-results p { font-size: 13px; }
+
+  /* Leaflet marker personalizado */
+  .custom-marker {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    border: 2px solid #fff;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .custom-marker:hover { transform: scale(1.1); }
+  .custom-marker.active-marker {
+    background: var(--blue-dark);
+    transform: scale(1.15);
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a class="logo" href="../../pages/index.html">
+    <img src="../../images/logo_alquilao1.png" alt="Alquilao" />
+  </a>
+  <button class="topbar-back" onclick="history.back()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+  </button>
+  <span style="font-size:15px;font-weight:600;color:var(--gray-700)">Buscar propiedades</span>
+</header>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-search">
+    <input type="text" id="search-input" placeholder="Buscar por sector, zona..." />
+    <button onclick="applyFilters()"><i class="fa-solid fa-magnifying-glass"></i></button>
+  </div>
+
+  <select class="filter-select" id="filter-tipo" onchange="applyFilters()">
+    <option value="">🏠 Tipo</option>
+    <option value="apartamento">Apartamento</option>
+    <option value="casa">Casa</option>
+    <option value="villa">Villa</option>
+    <option value="local">Local comercial</option>
+    <option value="oficina">Oficina</option>
+    <option value="solar">Solar</option>
+  </select>
+
+  <select class="filter-select" id="filter-sector" onchange="applyFilters()">
+    <option value="">📍 Sector</option>
+    <option value="naco">Naco</option>
+    <option value="piantini">Piantini</option>
+    <option value="evaristo">Evaristo Morales</option>
+    <option value="bella_vista">Bella Vista</option>
+    <option value="arroyo_hondo">Arroyo Hondo</option>
+    <option value="gazcue">Gazcue</option>
+    <option value="serralles">Serrallés</option>
+    <option value="los_prados">Los Prados</option>
+  </select>
+
+  <select class="filter-select" id="filter-precio" onchange="applyFilters()">
+    <option value="">💰 Precio</option>
+    <option value="0-15000">Hasta RD$15,000</option>
+    <option value="15000-30000">RD$15,000 – 30,000</option>
+    <option value="30000-60000">RD$30,000 – 60,000</option>
+    <option value="60000-999999">RD$60,000+</option>
+  </select>
+
+  <select class="filter-select" id="filter-hab" onchange="applyFilters()">
+    <option value="">🛏 Hab.</option>
+    <option value="1">1 hab.</option>
+    <option value="2">2 hab.</option>
+    <option value="3">3 hab.</option>
+    <option value="4">4+ hab.</option>
+  </select>
+
+  <button class="btn-filter-clear" onclick="clearFilters()">
+    <i class="fa-solid fa-xmark"></i> Limpiar
+  </button>
+
+  <div class="view-toggle" style="margin-left:auto">
+    <button class="view-btn active" id="btn-split" onclick="setView('split')">
+      <i class="fa-solid fa-table-columns"></i> Lista + Mapa
+    </button>
+    <button class="view-btn" id="btn-list" onclick="setView('list')">
+      <i class="fa-solid fa-grip"></i> Lista
+    </button>
+    <button class="view-btn" id="btn-map" onclick="setView('map')">
+      <i class="fa-solid fa-map"></i> Mapa
+    </button>
+  </div>
+</div>
+
+<!-- RESULTS BAR -->
+<div class="results-bar">
+  <span class="results-count"><strong id="count-label">0</strong> propiedades encontradas</span>
+  <select class="sort-select" id="sort-select" onchange="applyFilters()">
+    <option value="precio-asc">Precio: menor a mayor</option>
+    <option value="precio-desc">Precio: mayor a menor</option>
+    <option value="reciente">Más recientes</option>
+  </select>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main-layout" id="main-layout">
+
+  <!-- LISTA -->
+  <div class="lista-panel" id="lista-panel">
+    <div id="lista-cards"></div>
+    <div class="no-results" id="no-results-lista">
+      <i class="fa-solid fa-house-circle-xmark"></i>
+      <h3>Sin resultados</h3>
+      <p>Intenta cambiar los filtros</p>
+    </div>
+  </div>
+
+  <!-- GRID (vista lista completa) -->
+  <div class="grid-panel" id="grid-panel">
+    <div class="prop-grid" id="grid-cards"></div>
+    <div class="no-results" id="no-results-grid">
+      <i class="fa-solid fa-house-circle-xmark"></i>
+      <h3>Sin resultados</h3>
+      <p>Intenta cambiar los filtros</p>
+    </div>
+  </div>
+
+  <!-- MAPA -->
+  <div class="map-panel" id="map-panel">
+    <div id="mapa-leaflet" style="width:100%;height:100%;min-height:calc(100vh - 163px);"></div>
+  </div>
+
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+// ── DATOS DE EJEMPLO ──
+const propiedades = [
+  {
+    id: 1,
+    tipo: 'apartamento',
+    titulo: 'Moderno apartamento en Piantini',
+    sector: 'piantini',
+    sectorLabel: 'Piantini',
+    precio: 55000,
+    habitaciones: 3,
+    banos: 2,
+    area: 145,
+    operacion: 'alquiler',
+    lat: 18.4750,
+    lng: -69.9300,
+    img: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80'
+  },
+  {
+    id: 2,
+    tipo: 'apartamento',
+    titulo: 'Apartamento amueblado en Naco',
+    sector: 'naco',
+    sectorLabel: 'Naco',
+    precio: 38000,
+    habitaciones: 2,
+    banos: 2,
+    area: 110,
+    operacion: 'alquiler',
+    lat: 18.4800,
+    lng: -69.9200,
+    img: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80'
+  },
+  {
+    id: 3,
+    tipo: 'casa',
+    titulo: 'Casa espaciosa en Arroyo Hondo',
+    sector: 'arroyo_hondo',
+    sectorLabel: 'Arroyo Hondo',
+    precio: 75000,
+    habitaciones: 4,
+    banos: 3,
+    area: 280,
+    operacion: 'alquiler',
+    lat: 18.4900,
+    lng: -69.9500,
+    img: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=80'
+  },
+  {
+    id: 4,
+    tipo: 'apartamento',
+    titulo: 'Penthouse en Serrallés con vista al mar',
+    sector: 'serralles',
+    sectorLabel: 'Serrallés',
+    precio: 120000,
+    habitaciones: 4,
+    banos: 4,
+    area: 350,
+    operacion: 'alquiler',
+    lat: 18.4650,
+    lng: -69.9150,
+    img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80'
+  },
+  {
+    id: 5,
+    tipo: 'apartamento',
+    titulo: 'Studio moderno en Gazcue',
+    sector: 'gazcue',
+    sectorLabel: 'Gazcue',
+    precio: 18000,
+    habitaciones: 1,
+    banos: 1,
+    area: 55,
+    operacion: 'alquiler',
+    lat: 18.4700,
+    lng: -69.9050,
+    img: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80'
+  },
+  {
+    id: 6,
+    tipo: 'villa',
+    titulo: 'Villa con piscina en Los Prados',
+    sector: 'los_prados',
+    sectorLabel: 'Los Prados',
+    precio: 95000,
+    habitaciones: 5,
+    banos: 4,
+    area: 420,
+    operacion: 'alquiler',
+    lat: 18.5000,
+    lng: -69.9400,
+    img: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80'
+  },
+  {
+    id: 7,
+    tipo: 'apartamento',
+    titulo: 'Apartamento en Bella Vista',
+    sector: 'bella_vista',
+    sectorLabel: 'Bella Vista',
+    precio: 42000,
+    habitaciones: 2,
+    banos: 2,
+    area: 120,
+    operacion: 'alquiler',
+    lat: 18.4600,
+    lng: -69.9350,
+    img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80'
+  },
+  {
+    id: 8,
+    tipo: 'local',
+    titulo: 'Local comercial en Evaristo Morales',
+    sector: 'evaristo',
+    sectorLabel: 'Evaristo Morales',
+    precio: 28000,
+    habitaciones: 0,
+    banos: 1,
+    area: 80,
+    operacion: 'alquiler',
+    lat: 18.4820,
+    lng: -69.9260,
+    img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80'
+  }
+];
+
+let filteredProps = [...propiedades];
+let currentView = 'split';
+let activeCardId = null;
+let map = null;
+let markers = {};
+let favoritos = new Set();
+
+// ── INICIALIZAR MAPA ──
+function initMap() {
+  map = L.map('mapa-leaflet', {
+    center: [18.4800, -69.9300],
+    zoom: 13,
+    zoomControl: false
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  renderMarkers();
+}
+
+// ── MARCADORES ──
+function renderMarkers() {
+  Object.values(markers).forEach(m => map.removeLayer(m));
+  markers = {};
+
+  filteredProps.forEach(prop => {
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="custom-marker ${prop.id === activeCardId ? 'active-marker' : ''}">
+               RD$${formatPrice(prop.precio)}
+             </div>`,
+      iconAnchor: [40, 16]
+    });
+
+    const marker = L.marker([prop.lat, prop.lng], { icon })
+      .addTo(map)
+      .bindPopup(createPopupHTML(prop), { maxWidth: 240, minWidth: 240 });
+
+    marker.on('click', () => {
+      setActiveCard(prop.id);
+      scrollToCard(prop.id);
+    });
+
+    markers[prop.id] = marker;
+  });
+}
+
+function createPopupHTML(prop) {
+  return `
+    <div>
+      <div class="popup-img">
+        <img src="${prop.img}" alt="${prop.titulo}" />
+      </div>
+      <div class="popup-body">
+        <div class="popup-price">RD$${formatPrice(prop.precio)}<span>/mes</span></div>
+        <div class="popup-title">${prop.titulo}</div>
+        <div class="popup-loc"><i class="fa-solid fa-location-dot" style="color:#6B7280;font-size:10px"></i> ${prop.sectorLabel}</div>
+        <a href="#" class="popup-btn">Ver detalles</a>
+      </div>
+    </div>
+  `;
+}
+
+// ── RENDER LISTA ──
+function renderLista() {
+  const container = document.getElementById('lista-cards');
+  const noResults = document.getElementById('no-results-lista');
+
+  if (filteredProps.length === 0) {
+    container.innerHTML = '';
+    noResults.classList.add('visible');
+    return;
+  }
+  noResults.classList.remove('visible');
+
+  container.innerHTML = filteredProps.map(prop => `
+    <div class="prop-card ${prop.id === activeCardId ? 'active' : ''}" 
+         id="card-${prop.id}" 
+         onclick="setActiveCard(${prop.id})">
+      <div class="prop-card-img">
+        <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
+        <div class="prop-card-badge">${prop.operacion}</div>
+        <button class="prop-card-fav ${favoritos.has(prop.id) ? 'active' : ''}" 
+                onclick="toggleFav(event, ${prop.id})">
+          <i class="fa-${favoritos.has(prop.id) ? 'solid' : 'regular'} fa-heart"></i>
+        </button>
+      </div>
+      <div class="prop-card-body">
+        <div class="prop-card-price">RD$${formatPrice(prop.precio)}<span>/mes</span></div>
+        <div class="prop-card-title">${prop.titulo}</div>
+        <div class="prop-card-loc">
+          <i class="fa-solid fa-location-dot" style="font-size:10px"></i>
+          ${prop.sectorLabel}, Santo Domingo
+        </div>
+        <div class="prop-card-features">
+          ${prop.habitaciones > 0 ? `<div class="prop-feat"><i class="fa-solid fa-bed"></i> ${prop.habitaciones} hab.</div>` : ''}
+          <div class="prop-feat"><i class="fa-solid fa-bath"></i> ${prop.banos} baños</div>
+          <div class="prop-feat"><i class="fa-solid fa-vector-square"></i> ${prop.area}m²</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── RENDER GRID ──
+function renderGrid() {
+  const container = document.getElementById('grid-cards');
+  const noResults = document.getElementById('no-results-grid');
+
+  if (filteredProps.length === 0) {
+    container.innerHTML = '';
+    noResults.classList.add('visible');
+    return;
+  }
+  noResults.classList.remove('visible');
+
+  container.innerHTML = filteredProps.map(prop => `
+    <div class="prop-grid-card" onclick="alert('Ver detalle de: ${prop.titulo}')">
+      <div class="prop-grid-img">
+        <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
+        <div class="prop-card-badge" style="position:absolute;top:10px;left:10px">${prop.operacion}</div>
+        <button class="prop-card-fav ${favoritos.has(prop.id) ? 'active' : ''}"
+                style="position:absolute;top:10px;right:10px"
+                onclick="toggleFav(event, ${prop.id})">
+          <i class="fa-${favoritos.has(prop.id) ? 'solid' : 'regular'} fa-heart"></i>
+        </button>
+      </div>
+      <div class="prop-grid-body">
+        <div class="prop-grid-price">RD$${formatPrice(prop.precio)}<span>/mes</span></div>
+        <div class="prop-grid-title">${prop.titulo}</div>
+        <div class="prop-grid-loc">
+          <i class="fa-solid fa-location-dot" style="font-size:10px"></i>
+          ${prop.sectorLabel}, Santo Domingo
+        </div>
+        <div class="prop-grid-feats">
+          ${prop.habitaciones > 0 ? `<div class="prop-feat"><i class="fa-solid fa-bed"></i> ${prop.habitaciones} hab.</div>` : ''}
+          <div class="prop-feat"><i class="fa-solid fa-bath"></i> ${prop.banos} baños</div>
+          <div class="prop-feat"><i class="fa-solid fa-vector-square"></i> ${prop.area}m²</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── FILTROS ──
+function applyFilters() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const tipo = document.getElementById('filter-tipo').value;
+  const sector = document.getElementById('filter-sector').value;
+  const precio = document.getElementById('filter-precio').value;
+  const hab = document.getElementById('filter-hab').value;
+  const sort = document.getElementById('sort-select').value;
+
+  filteredProps = propiedades.filter(p => {
+    if (search && !p.titulo.toLowerCase().includes(search) && !p.sectorLabel.toLowerCase().includes(search)) return false;
+    if (tipo && p.tipo !== tipo) return false;
+    if (sector && p.sector !== sector) return false;
+    if (precio) {
+      const [min, max] = precio.split('-').map(Number);
+      if (p.precio < min || p.precio > max) return false;
+    }
+    if (hab) {
+      const h = parseInt(hab);
+      if (h === 4) { if (p.habitaciones < 4) return false; }
+      else if (p.habitaciones !== h) return false;
+    }
+    return true;
+  });
+
+  // Ordenar
+  if (sort === 'precio-asc') filteredProps.sort((a, b) => a.precio - b.precio);
+  else if (sort === 'precio-desc') filteredProps.sort((a, b) => b.precio - a.precio);
+
+  document.getElementById('count-label').textContent = filteredProps.length;
+  renderLista();
+  renderGrid();
+  if (map) renderMarkers();
+
+  // Ajustar mapa a resultados
+  if (map && filteredProps.length > 0) {
+    const bounds = L.latLngBounds(filteredProps.map(p => [p.lat, p.lng]));
+    map.fitBounds(bounds, { padding: [40, 40] });
+  }
+}
+
+function clearFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('filter-tipo').value = '';
+  document.getElementById('filter-sector').value = '';
+  document.getElementById('filter-precio').value = '';
+  document.getElementById('filter-hab').value = '';
+  applyFilters();
+}
+
+// ── CARD ACTIVA ──
+function setActiveCard(id) {
+  activeCardId = id;
+  renderLista();
+  if (map) renderMarkers();
+
+  const prop = propiedades.find(p => p.id === id);
+  if (prop && map) {
+    map.setView([prop.lat, prop.lng], 15, { animate: true });
+    if (markers[id]) markers[id].openPopup();
+  }
+}
+
+function scrollToCard(id) {
+  const card = document.getElementById('card-' + id);
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── FAVORITOS ──
+function toggleFav(e, id) {
+  e.stopPropagation();
+  if (favoritos.has(id)) favoritos.delete(id);
+  else favoritos.add(id);
+  renderLista();
+  renderGrid();
+}
+
+// ── VISTAS ──
+function setView(view) {
+  currentView = view;
+  const layout = document.getElementById('main-layout');
+  const listaPanel = document.getElementById('lista-panel');
+  const gridPanel = document.getElementById('grid-panel');
+  const mapPanel = document.getElementById('map-panel');
+
+  layout.classList.remove('map-only', 'list-only');
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+
+  if (view === 'split') {
+    listaPanel.style.display = 'block';
+    gridPanel.style.display = 'none';
+    mapPanel.style.display = 'block';
+    document.getElementById('btn-split').classList.add('active');
+  } else if (view === 'list') {
+    listaPanel.style.display = 'none';
+    gridPanel.style.display = 'block';
+    mapPanel.style.display = 'none';
+    document.getElementById('btn-list').classList.add('active');
+  } else if (view === 'map') {
+    listaPanel.style.display = 'none';
+    gridPanel.style.display = 'none';
+    mapPanel.style.display = 'block';
+    layout.classList.add('map-only');
+    document.getElementById('btn-map').classList.add('active');
+  }
+
+  if (map) setTimeout(() => map.invalidateSize(), 100);
+}
+
+// ── HELPERS ──
+function formatPrice(n) {
+  return n.toLocaleString('es-DO');
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  applyFilters();
+  initMap();
+});
+</script>
+</body>
+</html>
