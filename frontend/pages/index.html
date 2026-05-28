@@ -4,13 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Alquilao' – Tu hogar en República Dominicana</title>
-  <link rel="stylesheet" href="
-  ../css/style.css" />
+  <link rel="stylesheet" href="../css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
- 
+
 <!-- ═══════════════════════════════════════════════
      NAVBAR
 ════════════════════════════════════════════════ -->
@@ -18,20 +17,19 @@
   <div class="nav-inner">
 
     <a href="#" class="nav-logo">
-      <img src="../images/logo_alquilao1.png" alt="Alquilao" style="height: 70px; object-fit:contain;"/>
+      <img src="../images/logo_alquilao1.png" alt="Alquilao" style="height:70px; object-fit:contain;"/>
     </a>
 
     <ul class="nav-links">
       <li><a href="#" class="nav-link active">Inicio</a></li>
-      <li><a href="pages/busqueda.html" class="nav-link">Propiedades</a></li>
+      <li><a href="#" class="nav-link">Propiedades</a></li>
       <li><a href="#" class="nav-link">Alquilar</a></li>
-      <li><a href="#" class="nav-link">Proyectos</a></li>
       <li><a href="#" class="nav-link">Nosotros</a></li>
     </ul>
 
     <div class="nav-actions">
       <a href="#" class="nav-fav"><i class="fa-regular fa-heart"></i> Favoritos</a>
-      <a href="#" class="nav-cuenta"><i class="fa-regular fa-user"></i> Mi cuenta</a>
+      <a href="../html/modulo 1/login.html" class="nav-cuenta"><i class="fa-regular fa-user"></i> Mi cuenta</a>
       <a href="../html/modulo 2/publicar-propiedad.html" class="btn-primary">Publica tu propiedad</a>
     </div>
 
@@ -39,6 +37,7 @@
 
   </div>
 </nav>
+
 <!-- ═══════════════════════════════════════════════
      HERO
 ════════════════════════════════════════════════ -->
@@ -51,7 +50,7 @@
       <div class="shape shape-3"></div>
     </div>
   </div>
- 
+
   <div class="hero-content">
     <span class="hero-badge"><i class="fa-solid fa-star"></i> Tu próximo hogar te espera en República Dominicana</span>
     <h1 class="hero-title">
@@ -59,7 +58,7 @@
       hogar en <em>RD</em>
     </h1>
     <p class="hero-subtitle">Explora las mejores propiedades en alquiler en las principales zonas de la República Dominicana.</p>
- 
+
     <!-- Search Bar -->
     <div class="search-bar">
       <div class="search-field">
@@ -89,7 +88,7 @@
       <div class="search-field">
         <i class="fa-solid fa-tag"></i>
         <select>
-          <option value="">Rango de precio</option>
+          <option value="">Precio mensual</option>
           <option>RD$ 5,000 – 15,000</option>
           <option>RD$ 15,000 – 30,000</option>
           <option>RD$ 30,000 – 60,000</option>
@@ -109,34 +108,34 @@
       </div>
       <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Buscar propiedades</button>
     </div>
- 
+
     <!-- Stats -->
     <div class="hero-stats">
-  <div class="stat"><span class="stat-num" id="stat-propiedades">0</span><span class="stat-label">Propiedades</span></div>
-  <div class="stat-sep"></div>
-  <div class="stat"><span class="stat-num" id="stat-provincias">0</span><span class="stat-label">Provincias</span></div>
-  <div class="stat-sep"></div>
-  <div class="stat"><span class="stat-num" id="stat-usuarios">0</span><span class="stat-label">Usuarios activos</span></div>
-</div>
+      <div class="stat"><span class="stat-num" id="stat-propiedades">0</span><span class="stat-label">Propiedades</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num" id="stat-provincias">0</span><span class="stat-label">Provincias</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num" id="stat-usuarios">0</span><span class="stat-label">Usuarios activos</span></div>
+    </div>
+  </div>
 </section>
 
- 
 <!-- ═══════════════════════════════════════════════
      PROPIEDADES DESTACADAS
 ════════════════════════════════════════════════ -->
 <section class="section propiedades">
   <div class="section-header">
     <span class="section-tag">SELECCIÓN ESPECIAL</span>
-    <h2 class="section-title">Propiedades Destacadas</h2>
+    <h2 class="section-title">Propiedades en Alquiler</h2>
     <p class="section-sub">Descubre nuestras propiedades más destacadas en las mejores ubicaciones.</p>
-    <a href="pages/busqueda.html" class="btn-outline">Ver todas las propiedades <i class="fa-solid fa-arrow-right"></i></a>
+    <a href="#" class="btn-outline">Ver todas las propiedades <i class="fa-solid fa-arrow-right"></i></a>
   </div>
- 
+
   <div class="cards-grid" id="cards-grid">
     <!-- Cards injected by JS -->
   </div>
 </section>
- 
+
 <!-- ═══════════════════════════════════════════════
      CATEGORIAS
 ════════════════════════════════════════════════ -->
@@ -154,7 +153,7 @@
     <div class="cat-card"><i class="fa-solid fa-warehouse"></i><span>Depósitos</span></div>
   </div>
 </section>
- 
+
 <!-- ═══════════════════════════════════════════════
      CTA PUBLICAR
 ════════════════════════════════════════════════ -->
@@ -164,20 +163,20 @@
       <h2>¿Tienes una propiedad para alquilar?</h2>
       <p>Publica gratis y llega a miles de personas buscando su próximo hogar en RD.</p>
     </div>
-   <a href="../html/modulo 2/publicar-propiedad.html" class="btn-primary btn-lg">Publicar mi propiedad</a>
+    <a href="../html/modulo 2/publicar-propiedad.html" class="btn-primary btn-lg">
       <i class="fa-solid fa-plus"></i> Publicar mi propiedad
     </a>
   </div>
 </section>
- 
+
 <!-- ═══════════════════════════════════════════════
      FOOTER
 ════════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <a href="#" class="nav-logo">
-       <img src="../images/logo_alquilao1.png" alt="Alquilao" style="height:100px; object-fit:contain;"/>
+      <a href="#">
+        <img src="../images/logo_alquilao1.png" alt="Alquilao" style="height:80px; object-fit:contain;"/>
       </a>
       <p>Tu plataforma de confianza para alquilar propiedades en República Dominicana.</p>
     </div>
@@ -191,9 +190,9 @@
     <div class="footer-links">
       <h4>Empresa</h4>
       <a href="#">Nosotros</a>
-      <a href="#">Blog</a>
       <a href="#">Contacto</a>
       <a href="#">Términos</a>
+      <a href="#">Privacidad</a>
     </div>
     <div class="footer-links">
       <h4>Síguenos</h4>
@@ -206,7 +205,7 @@
     <span>© 2025 Alquilao'. Todos los derechos reservados.</span>
   </div>
 </footer>
- 
+
 <script src="../js/app.js"></script>
 </body>
-</html> 
+</html>

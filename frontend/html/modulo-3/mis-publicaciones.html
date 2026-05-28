@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mis Publicaciones – Alquilao'</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --blue: #1A3FDB;
+      --blue-dark: #1230B0;
+      --blue-pale: #EEF1FF;
+      --text: #0D1117;
+      --text-2: #4A5568;
+      --text-3: #8896A5;
+      --white: #FFFFFF;
+      --border: #E2E8F0;
+      --bg: #F7F8FC;
+      --success: #16A34A;
+      --success-bg: #F0FDF4;
+      --warning: #D97706;
+      --warning-bg: #FFFBEB;
+      --sidebar-w: 260px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR CON FONDO BLANCO ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 10;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo img { height: 44px; object-fit: contain; }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: var(--text-2);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background .2s, color .2s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: var(--bg); color: var(--blue); }
+    .nav-item.active { background: var(--blue-pale); color: var(--blue); font-weight: 700; }
+    .nav-item i { width: 18px; text-align: center; font-size: 16px; }
+
+    .sidebar-footer {
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .topbar-bell {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 15px;
+      transition: background .2s;
+    }
+    .topbar-bell:hover { background: var(--blue-pale); color: var(--blue); }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 10px;
+      transition: background .2s;
+    }
+    .topbar-user:hover { background: var(--bg); }
+    .topbar-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .topbar-name { font-size: 14px; font-weight: 600; color: var(--text); }
+
+    /* CONTENT */
+    .content {
+      padding: 32px;
+      flex: 1;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .page-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -1px; margin-bottom: 4px; }
+    .page-sub { font-size: 14px; color: var(--text-3); }
+
+    .btn-nueva {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s;
+      text-decoration: none;
+    }
+    .btn-nueva:hover { background: var(--blue-dark); }
+
+    /* LISTA DE PUBLICACIONES */
+    .publications-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .pub-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .pub-img {
+      width: 200px;
+      height: 130px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .pub-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pub-header-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pub-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .status-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 50px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .status-badge.activa { background: var(--success-bg); color: var(--success); }
+    .status-badge.activa::before { background: var(--success); }
+    .status-badge.pausada { background: var(--warning-bg); color: var(--warning); }
+    .status-badge.pausada::before { background: var(--warning); }
+
+    .pub-location {
+      font-size: 13px;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pub-price {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-top: 4px;
+    }
+
+    .pub-date {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    /* ACCIONES DE TARJETA CLEAN */
+    .pub-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-editar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 1.5px solid var(--border);
+      color: var(--text-2);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      text-decoration: none;
+    }
+    .btn-editar:hover { border-color: var(--blue); color: var(--blue); }
+
+    .btn-options {
+      background: none;
+      border: none;
+      color: var(--text-3);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, color .2s;
+    }
+    .btn-options:hover { background: var(--bg); color: var(--text); }
+
+    /* PAGINACIÓN */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+    }
+    .page-link {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-2);
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .page-link:hover { border-color: var(--blue); color: var(--blue); }
+    .page-link.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+    @media(max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .pub-card { flex-direction: column; align-items: flex-start; }
+      .pub-img { width: 100%; height: 180px; }
+      .pub-header-info { width: 100%; }
+      .pub-actions { width: 100%; justify-content: flex-end; }
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="../../images/logo_alquilao1.png" alt="Alquilao'"/>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../pages/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
+    <a href="#" class="nav-item"><i class="fa-regular fa-comment"></i> Mensajes</a>
+    <a href="#" class="nav-item"><i class="fa-regular fa-heart"></i> Favoritos</a>
+    <a href="mis-publicaciones.html" class="nav-item active"><i class="fa-solid fa-building"></i> Mis Publicaciones</a>
+    <a href="#" class="nav-item"><i class="fa-solid fa-plus"></i> Nueva Publicación</a>
+    <a href="perfil.html" class="nav-item"><i class="fa-regular fa-user"></i> Perfil</a>
+    <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="nav-item" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
+  </div>
+</aside>
+
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-bell"><i class="fa-regular fa-bell"></i></div>
+    <div class="topbar-user">
+      <div class="topbar-avatar">JP</div>
+      <span class="topbar-name">Juan Pérez</span>
+      <i class="fa-solid fa-chevron-down" style="font-size:12px;color:var(--text-3)"></i>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="header-row">
+      <div>
+        <h1 class="page-title">Mis Publicaciones</h1>
+        <p class="page-sub">Administra tus propiedades publicadas en Alquilao'.</p>
+      </div>
+      <a href="#" class="btn-nueva"><i class="fa-solid fa-plus"></i> Nueva publicación</a>
+    </div>
+
+    <div class="publications-list">
+
+      <div class="pub-card">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&auto=format&fit=crop&q=60" alt="Apartamento en Bella Vista" class="pub-img">
+        <div class="pub-details">
+          <div class="pub-header-info">
+            <h2 class="pub-title">Apartamento en Bella Vista</h2>
+            <span class="status-badge activa">Activa</span>
+          </div>
+          <p class="pub-location"><i class="fa-solid fa-location-dot"></i> Bella Vista, Ciudad de Panamá</p>
+          <p class="pub-price">$850 / mes</p>
+          <p class="pub-date">Publicado el 20 may. 2024</p>
+        </div>
+        <div class="pub-actions">
+          <a href="#" class="btn-editar"><i class="fa-regular fa-pen-to-square"></i> Editar</a>
+          <button class="btn-options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        </div>
+      </div>
+
+      <div class="pub-card">
+        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&auto=format&fit=crop&q=60" alt="Casa en Costa Sur" class="pub-img">
+        <div class="pub-details">
+          <div class="pub-header-info">
+            <h2 class="pub-title">Casa en Costa Sur</h2>
+            <span class="status-badge pausada">Pausada</span>
+          </div>
+          <p class="pub-location"><i class="fa-solid fa-location-dot"></i> Costa Sur, Ciudad de Panamá</p>
+          <p class="pub-price">$1,500 / mes</p>
+          <p class="pub-date">Publicado el 15 may. 2024</p>
+        </div>
+        <div class="pub-actions">
+          <a href="#" class="btn-editar"><i class="fa-regular fa-pen-to-square"></i> Editar</a>
+          <button class="btn-options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        </div>
+      </div>
+
+      <div class="pub-card">
+        <img src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=500&auto=format&fit=crop&q=60" alt="Apartamento en San Francisco" class="pub-img">
+        <div class="pub-details">
+          <div class="pub-header-info">
+            <h2 class="pub-title">Apartamento en San Francisco</h2>
+            <span class="status-badge activa">Activa</span>
+          </div>
+          <p class="pub-location"><i class="fa-solid fa-location-dot"></i> San Francisco, Ciudad de Panamá</p>
+          <p class="pub-price">$1,200 / mes</p>
+          <p class="pub-date">Publicado el 10 may. 2024</p>
+        </div>
+        <div class="pub-actions">
+          <a href="#" class="btn-editar"><i class="fa-regular fa-pen-to-square"></i> Editar</a>
+          <button class="btn-options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        </div>
+      </div>
+
+      <div class="pub-card">
+        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&auto=format&fit=crop&q=60" alt="Estudio en El Cangrejo" class="pub-img">
+        <div class="pub-details">
+          <div class="pub-header-info">
+            <h2 class="pub-title">Estudio en El Cangrejo</h2>
+            <span class="status-badge pausada">Pausada</span>
+          </div>
+          <p class="pub-location"><i class="fa-solid fa-location-dot"></i> El Cangrejo, Ciudad de Panamá</p>
+          <p class="pub-price">$600 / mes</p>
+          <p class="pub-date">Publicado el 5 may. 2024</p>
+        </div>
+        <div class="pub-actions">
+          <a href="#" class="btn-editar"><i class="fa-regular fa-pen-to-square"></i> Editar</a>
+          <button class="btn-options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pagination">
+      <a href="#" class="page-link"><i class="fa-solid fa-chevron-left"></i></a>
+      <a href="#" class="page-link active">1</a>
+      <a href="#" class="page-link">2</a>
+      <a href="#" class="page-link"><i class="fa-solid fa-chevron-right"></i></a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function cerrarSesion() {
+    sessionStorage.clear();
+    window.location.href = '../modulo 1/login.html';
+  }
+</script>
+</body>
+</html>
