@@ -975,6 +975,12 @@ function formatPrice(n) {
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
+  // Leer parámetro ?tipo= de la URL
+  const params = new URLSearchParams(window.location.search);
+  const tipo = params.get('tipo');
+  if (tipo) {
+    document.getElementById('filter-tipo').value = tipo;
+  }
   applyFilters();
   initMap();
 });
