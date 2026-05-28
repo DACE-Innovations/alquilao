@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Perfil – Alquilao'</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --blue: #1A3FDB;
+      --blue-dark: #1230B0;
+      --blue-pale: #EEF1FF;
+      --text: #0D1117;
+      --text-2: #4A5568;
+      --text-3: #8896A5;
+      --white: #FFFFFF;
+      --border: #E2E8F0;
+      --bg: #F7F8FC;
+      --error: #EF4444;
+      --success: #16A34A;
+      --sidebar-w: 260px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR CON FONDO BLANCO ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 10;
+      padding: 0;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo img { height: 44px; object-fit: contain; }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: var(--text-2);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background .2s, color .2s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: var(--bg); color: var(--blue); }
+    .nav-item.active { background: var(--blue-pale); color: var(--blue); font-weight: 700; }
+    .nav-item i { width: 18px; text-align: center; font-size: 16px; }
+
+    .sidebar-footer {
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .topbar-bell {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 15px;
+      transition: background .2s;
+    }
+    .topbar-bell:hover { background: var(--blue-pale); color: var(--blue); }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 10px;
+      transition: background .2s;
+    }
+    .topbar-user:hover { background: var(--bg); }
+    .topbar-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .topbar-name { font-size: 14px; font-weight: 600; color: var(--text); }
+
+    /* CONTENT */
+    .content {
+      padding: 32px;
+      flex: 1;
+    }
+
+    .page-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -1px; margin-bottom: 4px; }
+    .page-sub { font-size: 14px; color: var(--text-3); margin-bottom: 28px; }
+
+    /* CARD */
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 32px;
+    }
+
+    /* FOTO */
+    .foto-section { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .foto-title { font-size: 16px; font-weight: 700; color: var(--text); align-self: flex-start; }
+
+    .foto-upload {
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      border: 2px dashed var(--border);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .foto-upload:hover { border-color: var(--blue); background: var(--blue-pale); }
+    .foto-upload i { font-size: 28px; color: var(--blue); }
+    .foto-upload span { font-size: 13px; font-weight: 600; color: var(--text-2); }
+    .foto-upload small { font-size: 11px; color: var(--text-3); text-align: center; line-height: 1.4; }
+    .foto-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .foto-preview {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+
+    .btn-seleccionar {
+      background: none;
+      border: 1.5px solid var(--blue);
+      color: var(--blue);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 10px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .btn-seleccionar:hover { background: var(--blue); color: white; }
+
+    /* FORM */
+    .form-section { display: flex; flex-direction: column; gap: 20px; }
+
+    .rol-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue-pale);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 50px;
+      width: fit-content;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .input-wrap {
+      display: flex; align-items: center;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0 14px; gap: 10px;
+      background: var(--bg);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .input-wrap:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,63,219,.1); background: white; }
+    .input-wrap i { color: var(--text-3); font-size: 14px; flex-shrink: 0; }
+    .input-wrap input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: var(--text);
+      padding: 13px 0;
+    }
+
+    .pass-row { display: flex; align-items: center; gap: 12px; }
+    .pass-row .input-wrap { flex: 1; }
+    .btn-cambiar-pass {
+      display: flex; align-items: center; gap: 8px;
+      background: none; border: 1.5px solid var(--border);
+      color: var(--text-2); font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 600; padding: 13px 16px;
+      border-radius: 12px; cursor: pointer; white-space: nowrap;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-cambiar-pass:hover { border-color: var(--blue); color: var(--blue); }
+
+    .form-footer { display: flex; justify-content: flex-end; padding-top: 8px; }
+    .btn-guardar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--blue); color: white;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px;
+      padding: 14px 28px; border-radius: 12px; border: none; cursor: pointer;
+      transition: background .2s, box-shadow .2s, transform .2s;
+    }
+    .btn-guardar:hover { background: var(--blue-dark); box-shadow: 0 8px 24px rgba(26,63,219,.3); transform: translateY(-1px); }
+
+    .alert { display: none; padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; margin-bottom: 20px; align-items: center; gap: 10px; }
+    .alert.success { background: #F0FDF4; color: var(--success); border: 1px solid #BBF7D0; display: flex; }
+    .alert.error { background: #FEF2F2; color: var(--error); border: 1px solid #FECACA; display: flex; }
+
+    @media(max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .profile-grid { grid-template-columns: 1fr; }
+      .content { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="../../images/logo_alquilao1.png" alt="Alquilao'"/>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../pages/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
+    <a href="#" class="nav-item"><i class="fa-regular fa-comment"></i> Mensajes</a>
+    <a href="#" class="nav-item"><i class="fa-regular fa-heart"></i> Favoritos</a>
+    <a href="mis-publicaciones.html" class="nav-item"><i class="fa-solid fa-building"></i> Mis Publicaciones</a>
+    <a href="publicar-propiedades.html" class="nav-item"><i class="fa-solid fa-plus"></i> Nueva Publicación</a>
+    <a href="perfil.html" class="nav-item active"><i class="fa-regular fa-user"></i> Perfil</a>
+    <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="nav-item" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-bell"><i class="fa-regular fa-bell"></i></div>
+    <div class="topbar-user">
+      <div class="topbar-avatar" id="avatar-inicial">JP</div>
+      <span class="topbar-name" id="topbar-nombre">Juan Pérez</span>
+      <i class="fa-solid fa-chevron-down" style="font-size:12px;color:var(--text-3)"></i>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1 class="page-title">Mi Perfil</h1>
+    <p class="page-sub">Administra tu información personal y preferencias.</p>
+
+    <div class="alert" id="alert"><i class="fa-solid fa-circle-check"></i><span id="alert-msg"></span></div>
+
+    <div class="card">
+      <div class="profile-grid">
+        <div class="foto-section">
+          <div class="foto-title">Foto de perfil</div>
+          <div class="foto-upload" onclick="document.getElementById('foto-input').click()">
+            <img class="foto-preview" id="foto-preview" alt="Foto de perfil"/>
+            <i class="fa-regular fa-camera" id="foto-icon"></i>
+            <span id="foto-text">Sube tu foto</span>
+            <small id="foto-small">JPG, PNG o GIF<br/>Máx. 5MB</small>
+            <input type="file" id="foto-input" accept="image/*" onchange="previewFoto(this)"/>
+          </div>
+          <button class="btn-seleccionar" onclick="document.getElementById('foto-input').click()">
+            <i class="fa-solid fa-upload"></i> Seleccionar archivo
+          </button>
+        </div>
+
+        <div class="form-section">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;">Rol de usuario</div>
+            <div class="rol-badge" id="rol-badge"><i class="fa-regular fa-user"></i> <span id="rol-texto">Propietario</span></div>
+          </div>
+
+          <div class="field">
+            <label>Nombre completo</label>
+            <div class="input-wrap">
+              <i class="fa-regular fa-user"></i>
+              <input type="text" id="nombre" placeholder="Tu nombre completo"/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Correo electrónico</label>
+            <div class="input-wrap">
+              <i class="fa-regular fa-envelope"></i>
+              <input type="email" id="correo" placeholder="tu@correo.com"/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Teléfono</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-phone"></i>
+              <input type="tel" id="telefono" placeholder="829-000-0000"/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Contraseña</label>
+            <div class="pass-row">
+              <div class="input-wrap">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="pass" value="••••••••••••" readonly/>
+              </div>
+              <button class="btn-cambiar-pass" onclick="cambiarPass()">
+                <i class="fa-solid fa-lock"></i> Cambiar contraseña
+              </button>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <button class="btn-guardar" onclick="guardarCambios()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const usuario = {
+      nombre: 'Juan Pérez',
+      correo: 'juan.perez@email.com',
+      telefono: '829-123-4567',
+      rol: 'propietario'
+    };
+    cargarUsuario(usuario);
+  });
+
+  function cargarUsuario(u) {
+    document.getElementById('nombre').value = u.nombre;
+    document.getElementById('correo').value = u.correo;
+    document.getElementById('telefono').value = u.telefono;
+    document.getElementById('topbar-nombre').textContent = u.nombre;
+    document.getElementById('avatar-inicial').textContent = u.nombre.charAt(0).toUpperCase();
+    document.getElementById('rol-texto').textContent = 'Propietario';
+  }
+
+  function previewFoto(input) {
+    if (input.files && input.files[0]) {
+      if (input.files[0].size > 5 * 1024 * 1024) {
+        showAlert('La imagen no puede superar 5MB.', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = e => {
+        const preview = document.getElementById('foto-preview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        document.getElementById('foto-icon').style.display = 'none';
+        document.getElementById('foto-text').style.display = 'none';
+        document.getElementById('foto-small').style.display = 'none';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  async function guardarCambios() {
+    const nombre   = document.getElementById('nombre').value.trim();
+    const correo   = document.getElementById('correo').value.trim();
+    if (!nombre || !correo) { showAlert('Nombre y correo son obligatorios.', 'error'); return; }
+    await new Promise(r => setTimeout(r, 800));
+    showAlert('¡Perfil actualizado correctamente!', 'success');
+  }
+
+  function cambiarPass() { window.location.href = '../modulo 1/recuperar-password.html'; }
+  function cerrarSesion() { sessionStorage.clear(); window.location.href = '../modulo 1/login.html'; }
+  function showAlert(msg, type) {
+    const el = document.getElementById('alert');
+    document.getElementById('alert-msg').textContent = msg;
+    el.className = `alert ${type}`;
+    setTimeout(() => el.className = 'alert', 3000);
+  }
+</script>
+</body>
+</html>
