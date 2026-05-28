@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alquilao — Publicar Propiedad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../css/style.css">
+ 
+
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a class="logo" href="#">
+   <a class="logo" href="#">
+  <img src="../../images/logo_alquilao1.png" alt="Alquilao" style="height: 70px; object-fit: contain;" />
+</a> 
+  </a>
+  <div class="topbar-title">
+    <button onclick="goBack()" title="Volver">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    Publicar propiedad
+  </div>
+  <div class="topbar-right">
+    <button class="btn-save-draft" onclick="saveDraft()">Guardar borrador</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Publicar propiedad</div>
+    <button class="step-item done" data-step="1" onclick="jumpTo(1)">
+      <div class="step-num"><span class="step-num-digit">1</span><svg class="done-check" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="1 6 5 10 11 2"/></svg></div>
+      Información básica
+    </button>
+    <button class="step-item" data-step="2" onclick="jumpTo(2)">
+      <div class="step-num"><span class="step-num-digit">2</span><svg class="done-check" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="1 6 5 10 11 2"/></svg></div>
+      Ubicación
+    </button>
+    <button class="step-item" data-step="3" onclick="jumpTo(3)">
+      <div class="step-num"><span class="step-num-digit">3</span><svg class="done-check" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="1 6 5 10 11 2"/></svg></div>
+      Fotos
+    </button>
+    <button class="step-item" data-step="4" onclick="jumpTo(4)">
+      <div class="step-num"><span class="step-num-digit">4</span><svg class="done-check" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="1 6 5 10 11 2"/></svg></div>
+      Detalles
+    </button>
+    <button class="step-item" data-step="5" onclick="jumpTo(5)">
+      <div class="step-num"><span class="step-num-digit">5</span><svg class="done-check" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="1 6 5 10 11 2"/></svg></div>
+      Precio
+    </button>
+    <button class="step-item" data-step="6" onclick="jumpTo(6)">
+      <div class="step-num"><span class="step-num-digit">6</span><svg class="done-check" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><polyline points="1 6 5 10 11 2"/></svg></div>
+      Revisión
+    </button>
+
+    <div class="sidebar-progress">
+      <div class="progress-label"><span>Progreso</span><span id="pct">17%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:17%"></div></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main-content">
+
+    <!-- STEP 1 — Información básica -->
+    <div class="step-panel active" id="step-1">
+      <div class="step-header">
+        <div class="step-badge">Paso 1 de 6</div>
+        <h1>Información básica</h1>
+        <p>Cuéntanos el tipo de propiedad y la operación que deseas realizar.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de propiedad</label>
+        <div class="tipo-grid">
+          <div class="tipo-card selected" data-tipo="apartamento">
+            <span class="tipo-card-icon">🏢</span>
+            <div class="tipo-card-label">Apartamento</div>
+          </div>
+          <div class="tipo-card" data-tipo="casa">
+            <span class="tipo-card-icon">🏡</span>
+            <div class="tipo-card-label">Casa</div>
+          </div>
+          <div class="tipo-card" data-tipo="villa">
+            <span class="tipo-card-icon">🏖️</span>
+            <div class="tipo-card-label">Villa</div>
+          </div>
+          <div class="tipo-card" data-tipo="local">
+            <span class="tipo-card-icon">🏪</span>
+            <div class="tipo-card-label">Local comercial</div>
+          </div>
+          <div class="tipo-card" data-tipo="oficina">
+            <span class="tipo-card-icon">🏗️</span>
+            <div class="tipo-card-label">Oficina</div>
+          </div>
+          <div class="tipo-card" data-tipo="solar">
+            <span class="tipo-card-icon">🌿</span>
+            <div class="tipo-card-label">Solar / Terreno</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de operación</label>
+        <div class="operacion-row">
+          <button class="op-btn selected" data-op="alquiler">🔑 Alquiler</button>
+          <button class="op-btn" data-op="venta">💰 Venta</button>
+          <button class="op-btn" data-op="ambos">✨ Ambos</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Título del anuncio</label>
+        <input type="text" placeholder="Ej: Amplio apartamento moderno en Piantini" maxlength="80" id="titulo-input" />
+        <div class="form-hint">Máximo 80 caracteres. Sé descriptivo y atractivo.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea placeholder="Describe tu propiedad: características especiales, entorno, ventajas..." rows="4" id="descripcion-input"></textarea>
+        <div class="form-hint">Mínimo 100 caracteres recomendados para mayor visibilidad.</div>
+      </div>
+
+      <div class="step-nav">
+        <span></span>
+        <button class="btn-next" onclick="nextStep()">Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+
+    <!-- STEP 2 — Ubicación -->
+    <div class="step-panel" id="step-2">
+      <div class="step-header">
+        <div class="step-badge">Paso 2 de 6</div>
+        <h1>Ubicación</h1>
+        <p>Indica la ubicación exacta de tu propiedad para que las personas interesadas puedan encontrarla fácilmente.</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Provincia</label>
+          <select id="provincia-sel" onchange="updateMunicipios()">
+            <option value="">Seleccionar provincia</option>
+            <option value="sd" selected>Santo Domingo</option>
+            <option value="dn">Distrito Nacional</option>
+            <option value="stgo">Santiago</option>
+            <option value="la_altagracia">La Altagracia</option>
+            <option value="la_romana">La Romana</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Municipio</label>
+          <select id="municipio-sel" onchange="updateSectores()">
+            <option value="">Seleccionar municipio</option>
+            <option value="sdg" selected>Santo Domingo de Guzmán</option>
+            <option value="sdeste">Santo Domingo Este</option>
+            <option value="sdnorte">Santo Domingo Norte</option>
+            <option value="sdoeste">Santo Domingo Oeste</option>
+            <option value="boca_chica">Boca Chica</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Sector</label>
+        <select id="sector-sel">
+          <option value="">Seleccionar sector</option>
+          <option value="naco" selected>Naco</option>
+          <option value="piantini">Piantini</option>
+          <option value="evaristo">Evaristo Morales</option>
+          <option value="bella_vista">Bella Vista</option>
+          <option value="arroyo_hondo">Arroyo Hondo</option>
+          <option value="gazcue">Gazcue</option>
+          <option value="serralles">Serrallés</option>
+          <option value="la_esperilla">La Esperilla</option>
+          <option value="los_prados">Los Prados</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Dirección exacta</label>
+        <input type="text" id="direccion-input" value="Calle Lope de Vega #25, Naco, Santo Domingo, República Dominicana" placeholder="Calle, número, referencia cercana..." />
+        <div class="form-hint">Sé lo más específico posible (calle, número, referencia, etc.)</div>
+      </div>
+
+      <div class="form-group">
+        <label>Ubicación en el mapa</label>
+        <div class="map-placeholder" id="mapa">
+          <!-- Mapa simulado con SVG -->
+          <svg width="100%" height="100%" viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+            <rect width="700" height="280" fill="#e8f0e0"/>
+            <rect x="0" y="0" width="700" height="280" fill="#f0ebe0" opacity=".3"/>
+            <!-- calles -->
+            <line x1="0" y1="140" x2="700" y2="140" stroke="#fff" stroke-width="8"/>
+            <line x1="350" y1="0" x2="350" y2="280" stroke="#fff" stroke-width="8"/>
+            <line x1="0" y1="70" x2="700" y2="70" stroke="#fff" stroke-width="4" opacity=".7"/>
+            <line x1="0" y1="210" x2="700" y2="210" stroke="#fff" stroke-width="4" opacity=".7"/>
+            <line x1="175" y1="0" x2="175" y2="280" stroke="#fff" stroke-width="4" opacity=".7"/>
+            <line x1="525" y1="0" x2="525" y2="280" stroke="#fff" stroke-width="4" opacity=".7"/>
+            <!-- manzanas -->
+            <rect x="10" y="10" width="155" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="190" y="10" width="145" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="355" y="10" width="155" height="50" rx="3" fill="#cfe0c4" opacity=".8"/>
+            <rect x="540" y="10" width="145" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="10" y="80" width="155" height="50" rx="3" fill="#e0d9c4" opacity=".8"/>
+            <rect x="190" y="80" width="145" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="355" y="80" width="155" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="540" y="80" width="145" height="50" rx="3" fill="#e0d9c4" opacity=".8"/>
+            <rect x="10" y="150" width="155" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="190" y="150" width="145" height="50" rx="3" fill="#e0d9c4" opacity=".8"/>
+            <rect x="355" y="150" width="155" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="540" y="150" width="145" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="10" y="220" width="155" height="50" rx="3" fill="#e0d9c4" opacity=".8"/>
+            <rect x="190" y="220" width="145" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <rect x="355" y="220" width="155" height="50" rx="3" fill="#e0d9c4" opacity=".8"/>
+            <rect x="540" y="220" width="145" height="50" rx="3" fill="#d9e5c8" opacity=".8"/>
+            <!-- Pin -->
+            <circle cx="350" cy="130" r="14" fill="#1A56DB" stroke="white" stroke-width="2.5"/>
+            <circle cx="350" cy="130" r="5" fill="white"/>
+            <circle cx="350" cy="155" r="4" fill="rgba(26,86,219,.25)"/>
+          </svg>
+          <div class="map-search">
+            <input type="text" placeholder="Buscar ubicación..." value="Calle Lope de Vega #25, Naco" />
+            <button class="map-search-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-hint" style="margin-top:6px">Haz clic en el mapa o escribe la dirección para ajustar el marcador.</div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-prev" onclick="prevStep()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Anterior</button>
+        <button class="btn-next" onclick="nextStep()">Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+
+    <!-- STEP 3 — Fotos -->
+    <div class="step-panel" id="step-3">
+      <div class="step-header">
+        <div class="step-badge">Paso 3 de 6</div>
+        <h1>Fotos</h1>
+        <p>Agrega fotos de tu propiedad. Puedes subir hasta 20 imágenes. La primera será la portada.</p>
+      </div>
+
+      <div class="dropzone" id="dropzone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('file-input').click()">
+        <div class="dropzone-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" color="#3B82F6"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+        </div>
+        <h3>Arrastra y suelta tus fotos aquí</h3>
+        <p>o <a onclick="event.stopPropagation()">haz clic para seleccionar archivos</a></p>
+        <p style="margin-top:6px">Formatos permitidos: JPG, PNG, WEBP · Tamaño máximo: 10MB por imagen</p>
+      </div>
+      <input type="file" id="file-input" multiple accept="image/*" onchange="handleFileSelect(event)" />
+
+      <div id="fotos-container">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span class="fotos-count" id="fotos-count-label">Fotos subidas: 0 / 20</span>
+          <span style="font-size:12px;color:var(--gray-400)">La primera foto será la portada</span>
+        </div>
+        <div class="fotos-grid" id="fotos-grid"></div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-prev" onclick="prevStep()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Anterior</button>
+        <button class="btn-next" onclick="nextStep()">Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+
+    <!-- STEP 4 — Detalles -->
+    <div class="step-panel" id="step-4">
+      <div class="step-header">
+        <div class="step-badge">Paso 4 de 6</div>
+        <h1>Detalles de la propiedad</h1>
+        <p>Especifica las características y comodidades que ofrece tu propiedad.</p>
+      </div>
+
+      <div class="counter-row">
+        <div class="counter-card">
+          <label>Habitaciones</label>
+          <div class="counter-ctrl">
+            <button class="counter-btn" onclick="adjustCounter('habitaciones', -1)">−</button>
+            <span class="counter-val" id="val-habitaciones">3</span>
+            <button class="counter-btn" onclick="adjustCounter('habitaciones', 1)">+</button>
+          </div>
+        </div>
+        <div class="counter-card">
+          <label>Baños</label>
+          <div class="counter-ctrl">
+            <button class="counter-btn" onclick="adjustCounter('banos', -1)">−</button>
+            <span class="counter-val" id="val-banos">2</span>
+            <button class="counter-btn" onclick="adjustCounter('banos', 1)">+</button>
+          </div>
+        </div>
+        <div class="counter-card">
+          <label>Parqueos</label>
+          <div class="counter-ctrl">
+            <button class="counter-btn" onclick="adjustCounter('parqueos', -1)">−</button>
+            <span class="counter-val" id="val-parqueos">1</span>
+            <button class="counter-btn" onclick="adjustCounter('parqueos', 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Área (m²)</label>
+          <input type="number" id="area-input" value="120" min="1" placeholder="Ej: 120" />
+        </div>
+        <div class="form-group">
+          <label>Año de construcción</label>
+          <input type="number" id="year-input" value="2018" min="1900" max="2026" placeholder="Ej: 2018" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nivel de piso</label>
+        <select id="piso-sel">
+          <option value="">Seleccionar</option>
+          <option value="pb">Planta baja</option>
+          <option value="1">Piso 1</option>
+          <option value="2">Piso 2</option>
+          <option value="3" selected>Piso 3</option>
+          <option value="4">Piso 4</option>
+          <option value="5+">Piso 5+</option>
+          <option value="penthouse">Penthouse</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Amenidades y características</label>
+        <div class="amenidades-grid" id="amenidades-grid">
+          <!-- Se genera por JS -->
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-prev" onclick="prevStep()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Anterior</button>
+        <button class="btn-next" onclick="nextStep()">Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+
+    <!-- STEP 5 — Precio -->
+    <div class="step-panel" id="step-5">
+      <div class="step-header">
+        <div class="step-badge">Paso 5 de 6</div>
+        <h1>Precio</h1>
+        <p>Define el precio de tu propiedad. Puedes indicar el período de pago si es un alquiler.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Período</label>
+        <div class="periodo-tabs">
+          <button class="periodo-tab active" data-periodo="mensual" onclick="selectPeriodo(this)">Mensual</button>
+          <button class="periodo-tab" data-periodo="semanal" onclick="selectPeriodo(this)">Semanal</button>
+          <button class="periodo-tab" data-periodo="diario" onclick="selectPeriodo(this)">Diario</button>
+          <button class="periodo-tab" data-periodo="unico" onclick="selectPeriodo(this)">Precio único</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Precio</label>
+        <div class="price-input-wrap">
+          <span class="price-prefix">$</span>
+          <input type="number" id="precio-input" value="45000" placeholder="0.00" min="0" step="500" />
+        </div>
+        <div class="form-hint">Precio en pesos dominicanos (DOP). Ingresa solo números.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Moneda</label>
+        <select id="moneda-sel">
+          <option value="DOP" selected>DOP — Peso dominicano</option>
+          <option value="USD">USD — Dólar americano</option>
+          <option value="EUR">EUR — Euro</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Depósito (opcional)</label>
+          <div class="price-input-wrap">
+            <span class="price-prefix">$</span>
+            <input type="number" id="deposito-input" placeholder="0.00" min="0" step="500" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Meses de depósito</label>
+          <select id="meses-dep-sel">
+            <option value="1">1 mes</option>
+            <option value="2" selected>2 meses</option>
+            <option value="3">3 meses</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);background:#fff">
+        <input type="checkbox" id="negociable" style="width:auto;padding:0;margin:0" />
+        <label for="negociable" style="margin:0;font-size:13.5px;font-weight:500;color:var(--gray-700);cursor:pointer">Precio negociable</label>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-prev" onclick="prevStep()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Anterior</button>
+        <button class="btn-next" onclick="nextStep()">Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+
+    <!-- STEP 6 — Revisión -->
+    <div class="step-panel" id="step-6">
+      <div class="step-header">
+        <div class="step-badge">Paso 6 de 6</div>
+        <h1>Revisión final</h1>
+        <p>Revisa todos los datos antes de publicar tu propiedad.</p>
+      </div>
+
+      <div class="alert-info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        Tu publicación será revisada por nuestro equipo antes de aparecer en línea. El proceso tarda hasta 24 horas.
+      </div>
+
+      <div class="review-card">
+        <div class="review-card-header">
+          <h3>📋 Información básica</h3>
+          <button class="edit-link" onclick="jumpTo(1)">Editar</button>
+        </div>
+        <div class="review-row"><span class="review-row-label">Tipo</span><span class="review-row-val" id="rv-tipo">Apartamento</span></div>
+        <div class="review-row"><span class="review-row-label">Operación</span><span class="review-row-val" id="rv-op">Alquiler</span></div>
+        <div class="review-row"><span class="review-row-label">Título</span><span class="review-row-val" id="rv-titulo">—</span></div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-card-header">
+          <h3>📍 Ubicación</h3>
+          <button class="edit-link" onclick="jumpTo(2)">Editar</button>
+        </div>
+        <div class="review-row"><span class="review-row-label">Provincia</span><span class="review-row-val">Santo Domingo</span></div>
+        <div class="review-row"><span class="review-row-label">Municipio</span><span class="review-row-val">Santo Domingo de Guzmán</span></div>
+        <div class="review-row"><span class="review-row-label">Sector</span><span class="review-row-val">Naco</span></div>
+        <div class="review-row"><span class="review-row-label">Dirección</span><span class="review-row-val" id="rv-dir">Calle Lope de Vega #25, Naco</span></div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-card-header">
+          <h3>🖼️ Fotos</h3>
+          <button class="edit-link" onclick="jumpTo(3)">Editar</button>
+        </div>
+        <div id="rv-fotos-wrap">
+          <span style="font-size:13px;color:var(--gray-400)">Sin fotos agregadas</span>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-card-header">
+          <h3>🏠 Detalles</h3>
+          <button class="edit-link" onclick="jumpTo(4)">Editar</button>
+        </div>
+        <div class="review-row"><span class="review-row-label">Habitaciones</span><span class="review-row-val" id="rv-hab">3</span></div>
+        <div class="review-row"><span class="review-row-label">Baños</span><span class="review-row-val" id="rv-ban">2</span></div>
+        <div class="review-row"><span class="review-row-label">Parqueos</span><span class="review-row-val" id="rv-par">1</span></div>
+        <div class="review-row"><span class="review-row-label">Área</span><span class="review-row-val" id="rv-area">120 m²</span></div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-card-header">
+          <h3>💰 Precio</h3>
+          <button class="edit-link" onclick="jumpTo(5)">Editar</button>
+        </div>
+        <div class="review-row"><span class="review-row-label">Precio</span><span class="review-row-val" id="rv-precio">$45,000 DOP / mes</span></div>
+        <div class="review-row"><span class="review-row-label">Negociable</span><span class="review-row-val" id="rv-neg">No</span></div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-prev" onclick="prevStep()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Anterior</button>
+        <button class="btn-submit" onclick="submitForm()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Finalizar publicación
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SUCCESS -->
+  <main class="main" id="success-screen">
+    <div class="success-icon">✅</div>
+    <h2>¡Propiedad enviada!</h2>
+    <p>Tu anuncio fue enviado correctamente y será revisado por nuestro equipo. Te notificaremos cuando esté activo.</p>
+    <button class="btn-dashboard" onclick="resetForm()">Publicar otra propiedad</button>
+  </main>
+
+</div><!-- /layout -->
+<script src="../../js/app.js"></script>
+<script src="../../js/publicar-propiedad.js"></script>
+
+</body>
+</html>
