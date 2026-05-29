@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nosotros – Alquilao'</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --blue: #1A3FDB;
+      --blue-dark: #1230B0;
+      --blue-pale: #EEF1FF;
+      --text: #0D1117;
+      --text-2: #4A5568;
+      --text-3: #8896A5;
+      --white: #FFFFFF;
+      --border: #E2E8F0;
+      --bg: #F7F8FC;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      background: var(--white); 
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-logo img { 
+      height: 44px; 
+      object-fit: contain; 
+    }
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    .navbar-menu a {
+      text-decoration: none;
+      color: var(--text-2);
+      font-size: 14px;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .navbar-menu a:hover, .navbar-menu a.active {
+      color: var(--blue);
+      font-weight: 600;
+    }
+    .btn-nav-primary {
+      background: var(--blue);
+      color: white !important;
+      padding: 10px 20px;
+      border-radius: 10px;
+      transition: background .2s !important;
+    }
+    .btn-nav-primary:hover {
+      background: var(--blue-dark);
+    }
+
+    /* ── HERO SECTION ── */
+    .hero {
+      background: linear-gradient(180deg, var(--blue-pale) 0%, rgba(238,241,255,0) 100%);
+      padding: 80px 20px;
+      text-align: center;
+    }
+    .hero-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .badge {
+      background: var(--white);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 50px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .hero-title {
+      font-family: 'Fraunces', serif;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+    .hero-title span {
+      color: var(--blue);
+    }
+    .hero-subtitle {
+      color: var(--text-2);
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ── SECCIÓN PROPÓSITO ── */
+    .section-about {
+      padding: 80px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .about-content h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 32px;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+    .about-content p {
+      color: var(--text-2);
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    
+    .about-visual {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+    .visual-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 10px 25px rgba(26,63,219,0.03);
+    }
+    .visual-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: var(--blue-pale);
+      color: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .visual-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .visual-text p { font-size: 12px; color: var(--text-3); }
+
+    /* ── PILARES / VALORES ── */
+    .pillars-bg {
+      background: var(--bg);
+      padding: 80px 40px;
+    }
+    .pillars-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .section-header h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 32px;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+    }
+    .section-header p {
+      color: var(--text-3);
+      font-size: 14px;
+    }
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .pillar-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: transform .2s;
+    }
+    .pillar-card:hover {
+      transform: translateY(-4px);
+    }
+    .pillar-num {
+      font-family: 'Fraunces', serif;
+      font-size: 36px;
+      color: rgba(26, 63, 219, 0.2);
+      margin-bottom: 12px;
+    }
+    .pillar-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .pillar-card p {
+      color: var(--text-2);
+      font-size: 13px;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 40px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-3);
+      background: var(--white);
+    }
+    .footer-flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-2);
+      background: var(--bg);
+      padding: 4px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .footer-flag img {
+      width: 18px;
+      height: 12px;
+      object-fit: cover;
+      border-radius: 2px;
+    }
+
+    @media (max-width: 860px) {
+      .navbar { padding: 0 20px; }
+      .navbar-menu { display: none; }
+      .section-about { grid-template-columns: 1fr; gap: 40px; padding: 40px 20px; }
+      .pillars-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-logo">
+      <img src="../../images/logo_alquilao1.png" alt="Alquilao'"/>
+    </div>
+    <ul class="navbar-menu">
+      <li><a href="http://127.0.0.1:5500/frontend/pages/index.html">Inicio</a></li>
+      <li><a href="nosotros.html" class="active">Nosotros</a></li>
+      <li><a href="../modulo-2/busqueda.html">Propiedades</a></li>
+      <li><a href="#">Contacto</a></li>
+      <li><a href="../modulo-1/login.html" class="btn-nav-primary">Ingresar</a></li>
+    </ul>
+  </header>
+
+  <section class="hero">
+    <div class="hero-container">
+      <div class="badge">
+        <i class="fa-solid fa-bullseye"></i> Redefiniendo el sector inmobiliario
+      </div>
+      <h1 class="hero-title">Conectamos personas con su próximo espacio en <span>República Dominicana</span></h1>
+      <p class="hero-subtitle">
+        Alquilao' nace con la misión de transformar la forma en la que buscamos y publicamos propiedades de alquiler, eliminando las fricciones tradicionales.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-about">
+    <div class="about-content">
+      <h2>¿Quiénes Somos?</h2>
+      <p>
+        Somos una plataforma digital optimizada y moderna, diseñada específicamente para centralizar la oferta y demanda de bienes raíces en el mercado dominicano. Ofrecemos a los usuarios una experiencia limpia, intuitiva y sumamente veloz.
+      </p>
+      <p>
+        Entendemos que buscar un inmueble o intentar captar inquilinos calificados suele ser un proceso tedioso. Por eso, en Alquilao' unificamos las herramientas tecnológicas necesarias para que tanto los propietarios independientes como las agencias puedan conectar de forma directa con los inquilinos ideales.
+      </p>
+    </div>
+    
+    <div class="about-visual">
+      <div class="visual-box">
+        <div class="visual-icon"><i class="fa-solid fa-house-chimney"></i></div>
+        <div class="visual-text">
+          <h4>Búsqueda sin Esfuerzo</h4>
+          <p>Casas, apartamentos y locales a un solo clic de distancia.</p>
+        </div>
+      </div>
+      <div class="visual-box">
+        <div class="visual-icon"><i class="fa-solid fa-key"></i></div>
+        <div class="visual-text">
+          <h4>Propietarios Autónomos</h4>
+          <p>Herramientas avanzadas para publicar y gestionar listados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pillars-bg">
+    <div class="pillars-container">
+      <div class="section-header">
+        <h2>Nuestros Pilares</h2>
+        <p>Los valores bajo los cuales construimos tecnología inmobiliaria.</p>
+      </div>
+      
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <div class="pillar-num">01</div>
+          <h3>Simplicidad</h3>
+          <p>Menos clicks, interfaces más limpias y cero complicaciones en el proceso de arrendamiento.</p>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">02</div>
+          <h3>Transparencia</h3>
+          <p>Fomentamos conexiones directas y honestas entre propietarios, agentes y clientes finales.</p>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">03</div>
+          <h3>Enfoque Local</h3>
+          <p>Desarrollado a la medida de las necesidades del mercado de República Dominicana.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 Alquilao'. Todos los derechos reservados.</p>
+    <div class="footer-flag">
+      <img src="https://flagcdn.com/w40/do.png" alt="República Dominicana"/>
+      <span>Hecho para República Dominicana</span>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -90,10 +90,11 @@ function toggleFav(e, btn) {
   }
 }
  
-// --- VER DETALLE ---
-function verDetalle(id) {
-  window.location.href = `pages/detalle.html?id=${id}`;
-}
+// RUTA CORREGIDA DIRECTA PARA EL MÓDULO 2
+  function verDetalle(id) {
+    window.location.href = `detalle-propiedad.html?id=${id}`;
+  }
+
  
 // --- NAVBAR SCROLL ---
 const navbar = document.getElementById('navbar');
