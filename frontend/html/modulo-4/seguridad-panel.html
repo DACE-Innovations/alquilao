@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script src="../../js/seguridad.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de Seguridad – Alquilao'</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --blue:#1A3FDB;--blue-dark:#1230B0;--blue-pale:#EEF1FF;
+      --text:#0D1117;--text-2:#4A5568;--text-3:#8896A5;
+      --border:#E2E8F0;--bg:#F7F8FC;
+      --success:#16A34A;--error:#EF4444;--warning:#D97706;
+      --sidebar-w:240px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);display:flex;min-height:100vh;color:var(--text);}
+
+    .sidebar{width:var(--sidebar-w);background:var(--blue);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10;}
+    .sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,.1);}
+    .sidebar-logo img{height:40px;object-fit:contain;}
+    .sidebar-nav{flex:1;padding:12px 0;overflow-y:auto;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;text-decoration:none;transition:all .2s;cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+    .nav-item:hover{background:rgba(255,255,255,.08);color:white;}
+    .nav-item.active{background:rgba(255,255,255,.15);color:white;font-weight:700;border-left:3px solid white;}
+    .nav-item i{width:16px;text-align:center;font-size:15px;flex-shrink:0;}
+    .nav-divider{height:1px;background:rgba(255,255,255,.1);margin:8px 20px;}
+    .sidebar-footer{padding:12px 0;border-top:1px solid rgba(255,255,255,.1);}
+
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{background:white;border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;}
+    .topbar-left{display:flex;align-items:center;gap:12px;}
+    .topbar-title{font-size:15px;font-weight:700;}
+    .topbar-right{display:flex;align-items:center;gap:12px;}
+    .topbar-avatar{width:34px;height:34px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+
+    .content{padding:32px;flex:1;}
+    .page-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;letter-spacing:-1px;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:var(--text-3);margin-bottom:28px;}
+
+    /* STATS CARDS */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+    .stat-card{background:white;border:1px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:16px;}
+    .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .stat-icon.blue{background:var(--blue-pale);color:var(--blue);}
+    .stat-icon.green{background:#F0FDF4;color:var(--success);}
+    .stat-icon.red{background:#FEF2F2;color:var(--error);}
+    .stat-icon.yellow{background:#FFFBEB;color:var(--warning);}
+    .stat-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700;line-height:1;}
+    .stat-label{font-size:12px;color:var(--text-3);margin-top:3px;}
+
+    /* PANEL CARDS */
+    .panels{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+    .panel{background:white;border:1px solid var(--border);border-radius:14px;padding:24px;}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .panel-title{font-size:15px;font-weight:700;}
+    .panel-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;}
+    .panel-badge.ok{background:#F0FDF4;color:var(--success);}
+    .panel-badge.warn{background:#FFFBEB;color:var(--warning);}
+    .panel-badge.danger{background:#FEF2F2;color:var(--error);}
+
+    /* SECURITY ITEMS */
+    .sec-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .sec-item:last-child{border-bottom:none;}
+    .sec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .sec-dot.ok{background:var(--success);}
+    .sec-dot.warn{background:var(--warning);}
+    .sec-dot.danger{background:var(--error);}
+    .sec-text{flex:1;font-size:13px;}
+    .sec-value{font-size:12px;font-weight:700;color:var(--text-3);}
+
+    /* LOGS TABLE */
+    .logs-panel{background:white;border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+    .logs-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .logs-filters{display:flex;gap:8px;}
+    .filter-btn{font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:none;cursor:pointer;transition:all .2s;color:var(--text-2);}
+    .filter-btn.active{background:var(--blue);color:white;border-color:var(--blue);}
+    .filter-btn:hover:not(.active){border-color:var(--blue);color:var(--blue);}
+    .btn-limpiar{font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1.5px solid var(--error);background:none;cursor:pointer;color:var(--error);transition:all .2s;}
+    .btn-limpiar:hover{background:var(--error);color:white;}
+
+    .log-table{width:100%;border-collapse:collapse;}
+    .log-table th{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);}
+    .log-table td{font-size:13px;padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text-2);}
+    .log-table tr:last-child td{border-bottom:none;}
+    .log-table tr:hover td{background:var(--bg);}
+
+    .log-tipo{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;}
+    .log-tipo.SESION{background:#EEF1FF;color:var(--blue);}
+    .log-tipo.SEGURIDAD{background:#FEF2F2;color:var(--error);}
+    .log-tipo.ACCESO{background:#FFFBEB;color:var(--warning);}
+    .log-tipo.SISTEMA{background:#F0FDF4;color:var(--success);}
+    .log-tipo.ERROR{background:#FEF2F2;color:var(--error);}
+
+    .empty-logs{text-align:center;padding:40px;color:var(--text-3);font-size:14px;}
+    .empty-logs i{font-size:32px;display:block;margin-bottom:10px;opacity:.4;}
+
+    /* ROLES */
+    .roles-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+    .rol-card{border:1px solid var(--border);border-radius:10px;padding:14px;}
+    .rol-name{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+    .rol-nivel{font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:var(--blue-pale);color:var(--blue);}
+    .rol-permisos{display:flex;flex-wrap:wrap;gap:4px;}
+    .permiso-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--bg);color:var(--text-3);border:1px solid var(--border);}
+
+    @media(max-width:1024px){.stats-row{grid-template-columns:1fr 1fr;}.panels{grid-template-columns:1fr;}}
+    @media(max-width:768px){.sidebar{display:none;}.main{margin-left:0;}.content{padding:16px;}}
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo"><img src="../../images/logo_alquilao_blanco.png" alt="Alquilao'"/></div>
+  <nav class="sidebar-nav">
+    <a href="../../pages/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
+    <div class="nav-divider"></div>
+    <a href="../modulo-2/admin.html" class="nav-item"><i class="fa-solid fa-users"></i> Usuarios</a>
+    <a href="../modulo-2/busqueda.html" class="nav-item"><i class="fa-solid fa-building"></i> Propiedades</a>
+    <a href="../modulo-2/admin.html" class="nav-item"><i class="fa-solid fa-flag"></i> Reportes</a>
+    <div class="nav-divider"></div>
+    <a href="seguridad-panel.html" class="nav-item active"><i class="fa-solid fa-shield-halved"></i> Seguridad</a>
+    <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="nav-item" onclick="Seguridad.cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <i class="fa-solid fa-shield-halved" style="color:var(--blue);font-size:18px;"></i>
+      <span class="topbar-title">Panel de Seguridad</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-avatar">A</div>
+      <span style="font-size:14px;font-weight:600;">Admin</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1 class="page-title">Panel de Seguridad</h1>
+    <p class="page-sub">Monitoreo de actividad, roles y estado del sistema.</p>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-file-lines"></i></div>
+        <div><div class="stat-num" id="total-logs">0</div><div class="stat-label">Logs registrados</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div><div class="stat-num" id="total-alertas">0</div><div class="stat-label">Alertas de seguridad</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow"><i class="fa-solid fa-ban"></i></div>
+        <div><div class="stat-num" id="total-bloqueados">0</div><div class="stat-label">Accesos bloqueados</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+        <div><div class="stat-num" id="total-sesiones">0</div><div class="stat-label">Sesiones activas</div></div>
+      </div>
+    </div>
+
+    <!-- PANELS -->
+    <div class="panels">
+
+      <!-- ESTADO DEL SISTEMA -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fa-solid fa-server" style="color:var(--blue);margin-right:8px;"></i>Estado del sistema</div>
+          <span class="panel-badge ok">Operativo</span>
+        </div>
+        <div class="sec-item">
+          <div class="sec-dot ok"></div>
+          <div class="sec-text">Cifrado de contraseñas</div>
+          <div class="sec-value">SHA-256 + Salt</div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-dot ok"></div>
+          <div class="sec-text">Tokens JWT simulados</div>
+          <div class="sec-value">24h expiración</div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-dot ok"></div>
+          <div class="sec-text">Protección CSRF</div>
+          <div class="sec-value">Activo</div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-dot ok"></div>
+          <div class="sec-text">Sanitización XSS</div>
+          <div class="sec-value">Activo</div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-dot ok"></div>
+          <div class="sec-text">Control fuerza bruta</div>
+          <div class="sec-value">5 intentos / 15min</div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-dot ok"></div>
+          <div class="sec-text">Cierre por inactividad</div>
+          <div class="sec-value">30 minutos</div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-dot warn"></div>
+          <div class="sec-text">2FA (autenticación doble)</div>
+          <div class="sec-value">Próximamente</div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-dot warn"></div>
+          <div class="sec-text">bcrypt / Argon2</div>
+          <div class="sec-value">Requiere backend</div>
+        </div>
+      </div>
+
+      <!-- ROLES Y PERMISOS -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fa-solid fa-user-shield" style="color:var(--blue);margin-right:8px;"></i>Roles del sistema</div>
+        </div>
+        <div class="roles-grid" id="roles-grid"></div>
+      </div>
+
+    </div>
+
+    <!-- LOGS -->
+    <div class="logs-panel">
+      <div class="logs-header">
+        <div class="panel-title"><i class="fa-solid fa-list-check" style="color:var(--blue);margin-right:8px;"></i>Registro de actividad</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="logs-filters">
+            <button class="filter-btn active" onclick="filtrarLogs('todos', this)">Todos</button>
+            <button class="filter-btn" onclick="filtrarLogs('SEGURIDAD', this)">Seguridad</button>
+            <button class="filter-btn" onclick="filtrarLogs('SESION', this)">Sesiones</button>
+            <button class="filter-btn" onclick="filtrarLogs('ACCESO', this)">Acceso</button>
+          </div>
+          <button class="btn-limpiar" onclick="limpiarLogs()"><i class="fa-solid fa-trash"></i> Limpiar</button>
+        </div>
+      </div>
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Mensaje</th>
+            <th>URL</th>
+            <th>Fecha y hora</th>
+          </tr>
+        </thead>
+        <tbody id="logs-tbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script src="../../js/seguridad.js"></script>
+<script>
+  let filtroActual = 'todos';
+
+  function renderLogs(filtro = 'todos') {
+    const logs = Seguridad.getLogs();
+    const filtered = filtro === 'todos' ? logs : logs.filter(l => l.tipo === filtro);
+    const tbody = document.getElementById('logs-tbody');
+
+    // Stats
+    document.getElementById('total-logs').textContent = logs.length;
+    document.getElementById('total-alertas').textContent = logs.filter(l => l.tipo === 'SEGURIDAD').length;
+    document.getElementById('total-bloqueados').textContent = logs.filter(l => l.mensaje.includes('bloqueada') || l.mensaje.includes('denegado')).length;
+    document.getElementById('total-sesiones').textContent = logs.filter(l => l.tipo === 'SESION' && l.mensaje.includes('iniciada')).length;
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-logs"><i class="fa-solid fa-shield-halved"></i>Sin registros de actividad aún.</div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(log => `
+      <tr>
+        <td><span class="log-tipo ${log.tipo}">${log.tipo}</span></td>
+        <td>${log.mensaje}</td>
+        <td style="font-size:11px;color:var(--text-3);">${log.url || '—'}</td>
+        <td style="font-size:11px;color:var(--text-3);">${new Date(log.timestamp).toLocaleString('es-DO')}</td>
+      </tr>
+    `).join('');
+  }
+
+  function filtrarLogs(tipo, btn) {
+    filtroActual = tipo;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderLogs(tipo);
+  }
+
+  function limpiarLogs() {
+    if (!confirm('¿Seguro que deseas limpiar todos los logs?')) return;
+    localStorage.removeItem('alquilao_logs');
+    renderLogs();
+  }
+
+  function renderRoles() {
+    const grid = document.getElementById('roles-grid');
+    const roles = Seguridad.ROLES;
+    const permisos = Seguridad.PERMISOS;
+
+    grid.innerHTML = Object.entries(roles).map(([key, rol]) => {
+      const misPermisos = Object.entries(permisos)
+        .filter(([, r]) => r.includes(key))
+        .map(([p]) => p);
+
+      return `
+        <div class="rol-card">
+          <div class="rol-name">
+            <i class="fa-solid fa-user-tag" style="color:var(--blue);"></i>
+            ${rol.label}
+            <span class="rol-nivel">Nivel ${rol.nivel}</span>
+          </div>
+          <div class="rol-permisos">
+            ${misPermisos.map(p => `<span class="permiso-tag">${p}</span>`).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    renderRoles();
+    renderLogs();
+    // Refrescar cada 5 segundos
+    setInterval(() => renderLogs(filtroActual), 5000);
+  });
+</script>
+</body>
+</html>
