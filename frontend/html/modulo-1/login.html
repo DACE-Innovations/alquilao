@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar Sesión – Alquilao'</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,700;1,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --blue: #1A3FDB;
+      --blue-dark: #1230B0;
+      --blue-pale: #EEF1FF;
+      --text: #0D1117;
+      --text-2: #4A5568;
+      --text-3: #8896A5;
+      --white: #FFFFFF;
+      --border: #E2E8F0;
+      --error: #EF4444;
+      --success: #16A34A;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      background: #f0f4ff;
+    }
+
+    /* LEFT — BG IMAGE */
+    .left {
+      position: relative;
+      overflow: hidden;
+    }
+    .left-bg {
+      position: absolute;
+      inset: 0;
+     background: url('../../images/portada3.jpg') center/cover no-repeat;
+      filter: brightness(0.75);
+    }
+    .left-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(13,27,110,0.55) 0%, rgba(26,63,219,0.35) 100%);
+    }
+    .left-content {
+      position: relative;
+      z-index: 1;
+      padding: 40px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .left-logo img { height: 100px; object-fit: contain; }
+
+    .left-badges {
+      margin-top: auto;
+      display: flex;
+      gap: 24px;
+      padding-bottom: 40px;
+    }
+    .left-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: white;
+    }
+    .left-badge i { font-size: 18px; color: #7EB3FF; }
+    .left-badge strong { display: block; font-size: 13px; font-weight: 700; }
+    .left-badge span { font-size: 11px; opacity: .75; }
+
+    /* RIGHT — FORM */
+    .right {
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 48px;
+      animation: fadeUp .7s ease both;
+      overflow-y: auto;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-top {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 48px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .form-top a { color: var(--blue); font-weight: 600; text-decoration: none; }
+    .form-top a:hover { text-decoration: underline; }
+
+    .form-title {
+      font-family: 'Fraunces', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+    .form-sub {
+      font-size: 15px;
+      color: var(--text-2);
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+
+    /* INPUTS */
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0 16px;
+      gap: 10px;
+      transition: border-color .2s, box-shadow .2s;
+      background: #FAFBFF;
+    }
+    .input-wrap:focus-within {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,63,219,.1);
+      background: white;
+    }
+    .input-wrap.error { border-color: var(--error); }
+    .input-wrap i { color: var(--text-3); font-size: 15px; flex-shrink: 0; }
+    .input-wrap input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      padding: 14px 0;
+    }
+    .input-wrap input::placeholder { color: var(--text-3); }
+    .toggle-pass {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-3);
+      font-size: 15px;
+      padding: 0;
+      transition: color .2s;
+    }
+    .toggle-pass:hover { color: var(--blue); }
+
+    .field-error {
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.show { display: block; }
+
+    .forgot {
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 28px;
+    }
+    .forgot a {
+      font-size: 13px;
+      color: var(--blue);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .forgot a:hover { text-decoration: underline; }
+
+    /* ALERT */
+    .alert {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert.error { background: #FEF2F2; color: var(--error); border: 1px solid #FECACA; display: flex; }
+    .alert.success { background: #F0FDF4; color: var(--success); border: 1px solid #BBF7D0; display: flex; }
+
+    /* SUBMIT */
+    .btn-submit {
+      width: 100%;
+      background: var(--blue);
+      color: white;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: background .22s, box-shadow .22s, transform .22s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .btn-submit:hover {
+      background: var(--blue-dark);
+      box-shadow: 0 8px 24px rgba(26,63,219,.30);
+      transform: translateY(-1px);
+    }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      color: var(--text-3);
+      font-size: 13px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .form-bottom {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-2);
+    }
+    .form-bottom a { color: var(--blue); font-weight: 600; text-decoration: none; }
+    .form-bottom a:hover { text-decoration: underline; }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; }
+      .left { display: none; }
+      .right { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="left-bg"></div>
+  <div class="left-overlay"></div>
+  <div class="left-content">
+    <div class="left-logo">
+     <img src="../../images/logo_alquilao1.png" alt="Alquilao'"/>
+    </div>
+    <div class="left-badges">
+      <div class="left-badge">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div><strong>Seguro y confiable</strong><span>Tu información está protegida</span></div>
+      </div>
+      <div class="left-badge">
+        <i class="fa-solid fa-house"></i>
+        <div><strong>Miles de opciones</strong><span>Encuentra el lugar ideal</span></div>
+      </div>
+      <div class="left-badge">
+        <i class="fa-solid fa-headset"></i>
+        <div><strong>Soporte personalizado</strong><span>Estamos aquí para ayudarte</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="form-top">
+    <span>¿Ya tienes cuenta? <a href="bienvenida.html">Regístrate</a></span>
+  </div>
+
+  <h1 class="form-title">Hola, encuentra<br/>tu hogar</h1>
+  <p class="form-sub">Inicia sesión para explorar las mejores opciones de alquiler para ti.</p>
+
+  <div class="alert" id="alert"><i class="fa-solid fa-circle-exclamation"></i><span id="alert-msg"></span></div>
+
+  <div class="field">
+    <label>Correo electrónico</label>
+    <div class="input-wrap" id="wrap-correo">
+      <i class="fa-regular fa-envelope"></i>
+      <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email"/>
+    </div>
+    <span class="field-error" id="err-correo">Ingresa un correo válido.</span>
+  </div>
+
+  <div class="field">
+    <label>Contraseña</label>
+    <div class="input-wrap" id="wrap-pass">
+      <i class="fa-solid fa-lock"></i>
+      <input type="password" id="pass" placeholder="Ingresa tu contraseña" autocomplete="current-password"/>
+      <button class="toggle-pass" onclick="togglePass('pass', this)" type="button">
+        <i class="fa-regular fa-eye"></i>
+      </button>
+    </div>
+    <span class="field-error" id="err-pass">La contraseña debe tener al menos 8 caracteres.</span>
+  </div>
+
+  <div class="forgot"><a href="recuperar-password.html">¿Olvidaste tu contraseña?</a></div>
+
+  <button class="btn-submit" id="btn-login" onclick="handleLogin()">
+    <span>Iniciar sesión</span>
+    <i class="fa-solid fa-arrow-right"></i>
+  </button>
+
+  <div class="divider">o</div>
+
+  <div class="form-bottom">¿No tienes cuenta? <a href="bienvenida.html">Regístrate</a></div>
+</div>
+
+<script>
+  // ── Toggle contraseña ──────────────────────
+  function togglePass(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'fa-regular fa-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'fa-regular fa-eye';
+    }
+  }
+
+  // ── Validaciones ───────────────────────────
+  function validarCorreo(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+  function validarPass(v)   { return v.length >= 8; }
+
+  function showError(wrapId, errId, show) {
+    document.getElementById(wrapId).classList.toggle('error', show);
+    document.getElementById(errId).classList.toggle('show', show);
+  }
+
+  function showAlert(msg, type) {
+    const el = document.getElementById('alert');
+    document.getElementById('alert-msg').textContent = msg;
+    el.className = `alert ${type}`;
+  }
+
+  // ── Login ──────────────────────────────────
+  async function handleLogin() {
+    const correo = document.getElementById('correo').value.trim();
+    const pass   = document.getElementById('pass').value;
+
+    let valid = true;
+    if (!validarCorreo(correo)) { showError('wrap-correo','err-correo', true); valid = false; }
+    else showError('wrap-correo','err-correo', false);
+
+    if (!validarPass(pass)) { showError('wrap-pass','err-pass', true); valid = false; }
+    else showError('wrap-pass','err-pass', false);
+
+    if (!valid) return;
+
+    const btn = document.getElementById('btn-login');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Iniciando sesión...';
+
+    try {
+      // ── Conectar con backend cuando esté listo ──
+      // const res  = await fetch('/api/auth/login', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ correo, password: pass })
+      // });
+      // const data = await res.json();
+      // if (!res.ok) throw new Error(data.mensaje || 'Credenciales incorrectas');
+      // sessionStorage.setItem('token', data.token);
+      // sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
+      // window.location.href = data.usuario.rol === 'vendedor' ? '../index.html' : '../index.html';
+
+      // ── Demo sin backend ──
+      await new Promise(r => setTimeout(r, 1200));
+      showAlert('¡Bienvenido! Redirigiendo...', 'success');
+      setTimeout(() => window.location.href = '../index.html', 1000);
+
+    } catch(e) {
+      showAlert(e.message || 'Error al iniciar sesión. Intenta de nuevo.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<span>Iniciar sesión</span><i class="fa-solid fa-arrow-right"></i>';
+    }
+  }
+
+  // ── Enter key ──────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+
+  // ── Sesión activa ──────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const token = sessionStorage.getItem('token');
+    if (token) window.location.href = '../index.html';
+  });
+</script>
+</body>
+</html>

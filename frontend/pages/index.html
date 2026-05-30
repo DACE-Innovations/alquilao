@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alquilao' – Tu hogar en República Dominicana</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+
+    <a href="#" class="nav-logo">
+      <img src="../images/logo_alquilao1.png" alt="Alquilao" style="height:70px; object-fit:contain;"/>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active">Inicio</a></li>
+      <li><a href="../html/modulo-2/busqueda.html" class="nav-link">Propiedades</a></li>
+      
+      <li><a href="#" class="nav-link">Alquilar</a></li>
+      <li><a href="#" class="nav-link">Nosotros</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <a href="#" class="nav-fav"><i class="fa-regular fa-heart"></i> Favoritos</a>
+      <a href="../html/modulo-1/login.html" class="nav-cuenta"><i class="fa-regular fa-user"></i> Mi cuenta</a>
+      <a href="../html/modulo-2/publicar-propiedad.html" class="btn-primary">Publica tu propiedad</a>
+      
+    </div>
+
+    <button class="nav-burger" id="burger"><i class="fa-solid fa-bars"></i></button>
+
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-overlay"></div>
+    <div class="hero-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <span class="hero-badge"><i class="fa-solid fa-star"></i> Tu próximo hogar te espera en República Dominicana</span>
+    <h1 class="hero-title">
+      Encuentra tu<br/>
+      hogar en <em>RD</em>
+    </h1>
+    <p class="hero-subtitle">Explora las mejores propiedades en alquiler en las principales zonas de la República Dominicana.</p>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <div class="search-field">
+        <i class="fa-solid fa-house"></i>
+        <select>
+          <option value="">Tipo de propiedad</option>
+          <option>Apartamento</option>
+          <option>Casa</option>
+          <option>Local comercial</option>
+          <option>Villa</option>
+          <option>Penthouse</option>
+        </select>
+      </div>
+      <div class="search-divider"></div>
+      <div class="search-field">
+        <i class="fa-solid fa-location-dot"></i>
+        <select>
+          <option value="">Ubicación</option>
+          <option>Santo Domingo</option>
+          <option>Santiago</option>
+          <option>Punta Cana</option>
+          <option>La Romana</option>
+          <option>Puerto Plata</option>
+        </select>
+      </div>
+      <div class="search-divider"></div>
+      <div class="search-field">
+        <i class="fa-solid fa-tag"></i>
+        <select>
+          <option value="">Precio mensual</option>
+          <option>RD$ 5,000 – 15,000</option>
+          <option>RD$ 15,000 – 30,000</option>
+          <option>RD$ 30,000 – 60,000</option>
+          <option>RD$ 60,000+</option>
+        </select>
+      </div>
+      <div class="search-divider"></div>
+      <div class="search-field">
+        <i class="fa-solid fa-vector-square"></i>
+        <select>
+          <option value="">Área (m²)</option>
+          <option>0 – 60 m²</option>
+          <option>60 – 120 m²</option>
+          <option>120 – 200 m²</option>
+          <option>200 m²+</option>
+        </select>
+      </div>
+      <a href="../html/modulo-2/busqueda.html" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Buscar propiedades</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num" id="stat-propiedades">0</span><span class="stat-label">Propiedades</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num" id="stat-provincias">0</span><span class="stat-label">Provincias</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num" id="stat-usuarios">0</span><span class="stat-label">Usuarios activos</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     PROPIEDADES DESTACADAS
+════════════════════════════════════════════════ -->
+<section class="section propiedades">
+  <div class="section-header">
+    <span class="section-tag">SELECCIÓN ESPECIAL</span>
+    <h2 class="section-title">Propiedades en Alquiler</h2>
+    <p class="section-sub">Descubre nuestras propiedades más destacadas en las mejores ubicaciones.</p>
+    <a href="../html/modulo-2/busqueda.html" class="btn-outline">Ver todas las propiedades <i class="fa-solid fa-arrow-right"></i></a>
+  </div>
+
+  <div class="cards-grid" id="cards-grid">
+    <!-- Cards injected by JS -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     CATEGORIAS
+════════════════════════════════════════════════ -->
+<section class="section categorias">
+  <div class="section-header centered">
+    <span class="section-tag">EXPLORAR</span>
+    <h2 class="section-title">Busca por categoría</h2>
+  </div>
+  <div class="cat-grid">
+  <a href="../html/modulo-2/busqueda.html?tipo=apartamento" class="cat-card"><i class="fa-solid fa-building"></i><span>Apartamentos</span></a>
+  <a href="../html/modulo-2/busqueda.html?tipo=casa" class="cat-card"><i class="fa-solid fa-house"></i><span>Casas</span></a>
+  <a href="../html/modulo-2/busqueda.html?tipo=local" class="cat-card"><i class="fa-solid fa-store"></i><span>Locales</span></a>
+  <a href="../html/modulo-2/busqueda.html?tipo=villa" class="cat-card"><i class="fa-solid fa-umbrella-beach"></i><span>Villas</span></a>
+  <a href="../html/modulo-2/busqueda.html?tipo=apartamento" class="cat-card"><i class="fa-solid fa-city"></i><span>Penthouse</span></a>
+  <a href="../html/modulo-2/busqueda.html?tipo=solar" class="cat-card"><i class="fa-solid fa-warehouse"></i><span>Depósitos</span></a>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     CTA PUBLICAR
+════════════════════════════════════════════════ -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-text">
+      <h2>¿Tienes una propiedad para alquilar?</h2>
+      <p>Publica gratis y llega a miles de personas buscando su próximo hogar en RD.</p>
+    </div>
+   <a href="../html/modulo-2/publicar-propiedad.html" class="btn-primary btn-lg"><i class="fa-solid fa-plus"></i> Publicar mi propiedad</a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#">
+        <img src="../images/logo_alquilao1.png" alt="Alquilao" style="height:80px; object-fit:contain;"/>
+      </a>
+      <p>Tu plataforma de confianza para alquilar propiedades en República Dominicana.</p>
+    </div>
+    <div class="footer-links">
+      <h4>Propiedades</h4>
+      <a href="#">Apartamentos</a>
+      <a href="#">Casas</a>
+      <a href="#">Locales</a>
+      <a href="#">Villas</a>
+    </div>
+    <div class="footer-links">
+      <h4>Empresa</h4>
+      <a href="#">Nosotros</a>
+      <a href="#">Contacto</a>
+      <a href="#">Términos</a>
+      <a href="#">Privacidad</a>
+    </div>
+    <div class="footer-links">
+      <h4>Síguenos</h4>
+      <a href="#"><i class="fa-brands fa-instagram"></i> Instagram</a>
+      <a href="#"><i class="fa-brands fa-facebook"></i> Facebook</a>
+      <a href="#"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Alquilao'. Todos los derechos reservados.</span>
+  </div>
+</footer>
+
+<script src="../js/app.js"></script>
+</body>
+</html>
