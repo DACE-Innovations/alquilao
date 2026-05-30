@@ -374,28 +374,37 @@
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Iniciando sesión...';
 
     try {
-      // ── Conectar con backend cuando esté listo ──
-      // const res  = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ correo, password: pass })
-      // });
-      // const data = await res.json();
-      // if (!res.ok) throw new Error(data.mensaje || 'Credenciales incorrectas');
-      // sessionStorage.setItem('token', data.token);
-      // sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
-      // window.location.href = data.usuario.rol === 'vendedor' ? '../index.html' : '../index.html';
+  const res = await fetch('http://localhost:3000/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: correo, password: pass })
+  });
+  const data = await res.json();
 
-      // ── Demo sin backend ──
-      await new Promise(r => setTimeout(r, 1200));
-      showAlert('¡Bienvenido! Redirigiendo...', 'success');
-      setTimeout(() => window.location.href = '../index.html', 1000);
+  if (!res.ok) throw new Error(data.error || 'Credenciales incorrectas');
 
-    } catch(e) {
-      showAlert(e.message || 'Error al iniciar sesión. Intenta de nuevo.', 'error');
-      btn.disabled = false;
-      btn.innerHTML = '<span>Iniciar sesión</span><i class="fa-solid fa-arrow-right"></i>';
+  // Guardar token y usuario
+  sessionStorage.setItem('token', data.token);
+  sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+  showAlert('¡Bienvenido ' + data.usuario.nombre + '! Redirigiendo...', 'success');
+
+  // Redirigir según el rol
+  setTimeout(() => {
+    if (data.usuario.rol === 'admin') {
+      window.location.href = '../modulo-2/admin.html';
+    } else {
+      window.location.href = '../../pages/index.html';
     }
+  }, 1000);
+
+} catch(e) {
+  showAlert(e.message || 'Error al iniciar sesión. Intenta de nuevo.', 'error');
+  btn.disabled = false;
+  btn.innerHTML = '<span>Iniciar sesión</span><i class="fa-solid fa-arrow-right"></i>';
+}
   }
 
   // ── Enter key ──────────────────────────────
