@@ -125,3 +125,35 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCards();
 });
 
+// ── VERIFICAR SESIÓN ──
+function verificarSesion() {
+  const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+  const usuario = JSON.parse(sessionStorage.getItem('usuario') || localStorage.getItem('usuario') || 'null');
+  return { token, usuario, autenticado: !!token };
+}
+
+// ── ACTUALIZAR NAVBAR SEGÚN SESIÓN ──
+function actualizarNavbar() {
+  const { usuario, autenticado } = verificarSesion();
+  const navCuenta = document.querySelector('.nav-cuenta');
+  if (!navCuenta) return;
+
+  if (autenticado && usuario) {
+    navCuenta.innerHTML = `<i class="fa-regular fa-user"></i> ${usuario.nombre}`;
+    navCuenta.href = '#';
+    navCuenta.onclick = () => {
+      if (confirm('¿Deseas cerrar sesión?')) {
+        sessionStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+        window.location.reload();
+      }
+    };
+  } else {
+    navCuenta.innerHTML = `<i class="fa-regular fa-user"></i> Mi cuenta`;
+    navCuenta.href = '../html/modulo-1/login.html';
+  }
+}
+
+// Ejecutar al cargar
+document.addEventListener('DOMContentLoaded', actualizarNavbar);
