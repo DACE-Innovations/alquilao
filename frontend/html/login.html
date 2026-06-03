@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script src="../../js/seguridad.js"></script>
+  <script src="../js/seguridad.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Iniciar Sesión – Alquilao'</title>
@@ -37,7 +37,7 @@
     .left-bg {
       position: absolute;
       inset: 0;
-     background: url('../../images/portada3.jpg') center/cover no-repeat;
+     background: url('../images/portada3.jpg') center/cover no-repeat;
       filter: brightness(0.75);
     }
     .left-overlay {
@@ -255,6 +255,7 @@
     }
   </style>
 </head>
+<script src="../js/seguridad.js"></script>
 <body>
 
 <!-- LEFT -->
@@ -263,7 +264,7 @@
   <div class="left-overlay"></div>
   <div class="left-content">
     <div class="left-logo">
-     <img src="../../images/logo_alquilao_blanco.png" alt="Alquilao'"/>
+     <img src="../images/logo_alquilao_blanco.png" alt="Alquilao'"/>
     </div>
     <div class="left-badges">
       <div class="left-badge">
@@ -326,11 +327,15 @@
   <div class="form-bottom">¿No tienes cuenta? <a href="bienvenida.html">Regístrate</a></div>
 </div>
 
+
+<script src="../js/seguridad.js"></script>
+
 <script>
   // ── Toggle contraseña ──────────────────────
   function togglePass(inputId, btn) {
     const input = document.getElementById(inputId);
     const icon = btn.querySelector('i');
+
     if (input.type === 'password') {
       input.type = 'text';
       icon.className = 'fa-regular fa-eye-slash';
@@ -341,8 +346,13 @@
   }
 
   // ── Validaciones ───────────────────────────
-  function validarCorreo(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-  function validarPass(v)   { return v.length >= 8; }
+  function validarCorreo(v) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  function validarPass(v) {
+    return v.length >= 8;
+  }
 
   function showError(wrapId, errId, show) {
     document.getElementById(wrapId).classList.toggle('error', show);
@@ -361,11 +371,20 @@
     const pass   = document.getElementById('pass').value;
 
     let valid = true;
-    if (!validarCorreo(correo)) { showError('wrap-correo','err-correo', true); valid = false; }
-    else showError('wrap-correo','err-correo', false);
 
-    if (!validarPass(pass)) { showError('wrap-pass','err-pass', true); valid = false; }
-    else showError('wrap-pass','err-pass', false);
+    if (!validarCorreo(correo)) {
+      showError('wrap-correo','err-correo', true);
+      valid = false;
+    } else {
+      showError('wrap-correo','err-correo', false);
+    }
+
+    if (!validarPass(pass)) {
+      showError('wrap-pass','err-pass', true);
+      valid = false;
+    } else {
+      showError('wrap-pass','err-pass', false);
+    }
 
     if (!valid) return;
 
@@ -374,37 +393,46 @@
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Iniciando sesión...';
 
     try {
-  const res = await fetch('http://localhost:3000/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: correo, password: pass })
-  });
-  const data = await res.json();
+      const res = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: correo,
+          password: pass
+        })
+      });
 
-  if (!res.ok) throw new Error(data.error || 'Credenciales incorrectas');
+      const data = await res.json();
 
-  // Guardar token y usuario
-  sessionStorage.setItem('token', data.token);
-  sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
-  localStorage.setItem('token', data.token);
-  localStorage.setItem('usuario', JSON.stringify(data.usuario));
+      if (!res.ok) {
+        throw new Error(data.error || 'Credenciales incorrectas');
+      }
 
-  showAlert('¡Bienvenido ' + data.usuario.nombre + '! Redirigiendo...', 'success');
+      // 🔥 FIX CORRECTO (SISTEMA CENTRAL)
+      Seguridad.guardarSesion(data.usuario, data.token);
 
-  // Redirigir según el rol
-  setTimeout(() => {
-    if (data.usuario.rol === 'admin') {
-      window.location.href = '../modulo-2/admin.html';
-    } else {
-      window.location.href = '../../pages/index.html';
+      showAlert(
+        '¡Bienvenido ' + data.usuario.nombre + '! Redirigiendo...',
+        'success'
+      );
+
+      setTimeout(() => {
+        if (data.usuario.rol === 'admin') {
+          window.location.href = '../html/admin.html';
+        } else {
+          window.location.href = '../html/index.html';
+        }
+      }, 1000);
+
+    } catch (e) {
+      showAlert(
+        e.message || 'Error al iniciar sesión. Intenta de nuevo.',
+        'error'
+      );
+
+      btn.disabled = false;
+      btn.innerHTML = '<span>Iniciar sesión</span><i class="fa-solid fa-arrow-right"></i>';
     }
-  }, 1000);
-
-} catch(e) {
-  showAlert(e.message || 'Error al iniciar sesión. Intenta de nuevo.', 'error');
-  btn.disabled = false;
-  btn.innerHTML = '<span>Iniciar sesión</span><i class="fa-solid fa-arrow-right"></i>';
-}
   }
 
   // ── Enter key ──────────────────────────────
@@ -414,9 +442,15 @@
 
   // ── Sesión activa ──────────────────────────
   window.addEventListener('DOMContentLoaded', () => {
-    const token = sessionStorage.getItem('token');
-    if (token) window.location.href = '../index.html';
+    const sesion = Seguridad.getSesion();
+
+    if (sesion) {
+      window.location.href = '../html/index.html';
+    }
   });
+
+  //  IMPORTANTE: EXPONER FUNCIONES AL HTML
+  window.handleLogin = handleLogin;
+  window.togglePass = togglePass;
+
 </script>
-</body>
-</html>

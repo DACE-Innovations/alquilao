@@ -1,14 +1,155 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script src="../../js/seguridad.js"></script>
+  <script src="../js/seguridad.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Alquilao' – Tu hogar en República Dominicana</title>
   <link rel="stylesheet" href="../css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- ═══════════════════════════════════════════════
+       AJUSTES EXCLUSIVOS EN HTML (CSS INMUBTABLE)
+       ═══════════════════════════════════════════════ -->
+  <style>
+    /* Controla que el fondo no se trague la pantalla entera */
+    .hero {
+      min-height: 75vh !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 60px 20px !important;
+    }
+    
+    /* Agrupa y acerca los textos reduciendo la separación */
+    .hero-content {
+      max-width: 950px !important;
+      margin: 0 auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+    }
+
+    .hero-badge {
+      margin-bottom: 16px !important; /* Más junta */
+    }
+
+    /* Agranda las letras del título principal */
+    .hero-title {
+      font-size: clamp(2.6rem, 4.5vw, 4rem) !important;
+      line-height: 1.15 !important;
+      margin: 0 0 12px 0 !important; /* Reduce espacio con el subtítulo */
+      font-weight: 800 !important;
+    }
+
+    /* Agranda y acomoda el subtítulo */
+    .hero-subtitle {
+      font-size: clamp(1.1rem, 1.8vw, 1.3rem) !important;
+      max-width: 700px !important;
+      margin: 0 0 36px 0 !important; /* Distancia perfecta hacia la barra */
+    }
+
+    /* Convierte la barra en una caja unificada y sólida de venta */
+    .search-bar {
+      background: #ffffff !important;
+      padding: 12px 16px !important;
+      border-radius: 16px !important;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25) !important;
+      display: flex !important;
+      align-items: center !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin-bottom: 40px !important;
+    }
+
+    .search-field {
+      padding: 8px 12px !important;
+    }
+
+    /* Agranda las opciones de los selectores */
+    .search-field select {
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      color: #0f172a !important;
+    }
+
+    /* Agranda el botón de búsqueda para que sea el llamado a la acción principal */
+    .search-btn {
+      font-size: 1.1rem !important;
+      font-weight: 700 !important;
+      padding: 16px 32px !important;
+      border-radius: 12px !important;
+      white-space: nowrap !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+
+    /* Hace más legibles y grandes los números de estadísticas */
+    .hero-stats {
+      margin-top: 10px !important;
+      gap: 32px !important;
+    }
+
+    .stat-num {
+      font-size: 1.7rem !important;
+      font-weight: 800 !important;
+    }
+
+    .stat-label {
+      font-size: 0.88rem !important;
+      font-weight: 500 !important;
+    }
+
+    /* Adaptación óptima para dispositivos móviles */
+    @media (max-width: 768px) {
+      .hero {
+        min-height: auto !important;
+        padding: 40px 16px !important;
+      }
+      .search-bar {
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 16px !important;
+      }
+      .search-field {
+        width: 100% !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+      }
+      .search-divider {
+        display: none !important;
+      }
+      .search-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        margin-top: 8px !important;
+      }
+    }
+  </style>
 </head>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const burgerBtn = document.querySelector(".nav-burger");
+    const navMenu = document.querySelector(".nav-menu");
+
+    // Al hacer clic en la hamburguesa, añade o quita la clase 'show'
+    if (burgerBtn && navMenu) {
+      burgerBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Evita conflictos con otros clics
+        navMenu.classList.toggle("show");
+      });
+    }
+
+    // Si hacen clic fuera del menú, este se cierra solo
+    document.addEventListener("click", (e) => {
+      if (navMenu && navMenu.classList.contains("show") && !navMenu.contains(e.target) && !burgerBtn.contains(e.target)) {
+        navMenu.classList.remove("show");
+      }
+    });
+  });
+</script>
 <body>
 
 <!-- ═══════════════════════════════════════════════
@@ -16,20 +157,37 @@
 ════════════════════════════════════════════════ -->
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
-    <a href="#" class="nav-logo">
+
+    <a href="../html/index.html" class="nav-logo">
       <img src="../images/logo_alquilao1.png" alt="Alquilao" style="height:70px; object-fit:contain;"/>
     </a>
-    <ul class="nav-links">
-      <li><a href="#" class="nav-link active">Inicio</a></li>
-      <li><a href="../html/modulo-2/busqueda.html" class="nav-link">Propiedades</a></li>
-      <li><a href="../html/modulo-3/nosotros.html" class="nav-link">Nosotros</a></li>
-    </ul>
-    <div class="nav-actions">
-      <a href="../html/modulo-3/favoritos.html" class="nav-fav"><i class="fa-regular fa-heart"></i> Favoritos</a>
-      <a href="../html/modulo-1/bienvenida.html" class="nav-cuenta"><i class="fa-regular fa-user"></i> Mi cuenta</a>
-      <a href="../html/modulo-2/publicar-propiedad.html" class="btn-primary">Publica tu propiedad</a>
+
+    <div class="nav-menu" id="nav-menu">
+      <ul class="nav-links">
+        <li><a href="../html/index.html" class="nav-link active">Inicio</a></li>
+        <li><a href="../html/busqueda.html" class="nav-link">Propiedades</a></li>
+        <li><a href="../html/nosotros.html" class="nav-link">Nosotros</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="../html/favoritos.html" class="nav-fav">
+          <i class="fa-regular fa-heart"></i> Favoritos
+        </a>
+
+        <a href="../html/bienvenida.html" class="nav-cuenta">
+          <i class="fa-regular fa-user"></i> Mi cuenta
+        </a>
+
+        <a href="../html/publicar-propiedad.html" class="btn-primary">
+          Publica tu propiedad
+        </a>
+      </div>
     </div>
-    <button class="nav-burger" id="burger"><i class="fa-solid fa-bars"></i></button>
+
+    <button class="nav-burger" id="burger">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
   </div>
 </nav>
 
@@ -101,7 +259,7 @@
           <option>200 m²+</option>
         </select>
       </div>
-      <a href="../html/modulo-2/busqueda.html" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Buscar propiedades</a>
+      <a href="../html/busqueda.html" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Buscar propiedades</a>
     </div>
 
     <!-- Stats -->
@@ -123,7 +281,7 @@
     <span class="section-tag">SELECCIÓN ESPECIAL</span>
     <h2 class="section-title">Propiedades en Alquiler</h2>
     <p class="section-sub">Descubre nuestras propiedades más destacadas en las mejores ubicaciones.</p>
-    <a href="../html/modulo-2/busqueda.html" class="btn-outline">Ver todas las propiedades <i class="fa-solid fa-arrow-right"></i></a>
+    <a href="../html/busqueda.html" class="btn-outline">Ver todas las propiedades <i class="fa-solid fa-arrow-right"></i></a>
   </div>
 
   <div class="cards-grid" id="cards-grid">
@@ -140,13 +298,13 @@
     <h2 class="section-title">Busca por categoría</h2>
   </div>
   <div class="cat-grid">
-  <a href="../html/modulo-2/busqueda.html?tipo=apartamento" class="cat-card"><i class="fa-solid fa-building"></i><span>Apartamentos</span></a>
-  <a href="../html/modulo-2/busqueda.html?tipo=casa" class="cat-card"><i class="fa-solid fa-house"></i><span>Casas</span></a>
-  <a href="../html/modulo-2/busqueda.html?tipo=local" class="cat-card"><i class="fa-solid fa-store"></i><span>Locales</span></a>
-  <a href="../html/modulo-2/busqueda.html?tipo=villa" class="cat-card"><i class="fa-solid fa-umbrella-beach"></i><span>Villas</span></a>
-  <a href="../html/modulo-2/busqueda.html?tipo=apartamento" class="cat-card"><i class="fa-solid fa-city"></i><span>Penthouse</span></a>
-  <a href="../html/modulo-2/busqueda.html?tipo=solar" class="cat-card"><i class="fa-solid fa-warehouse"></i><span>Depósitos</span></a>
-</div>
+    <a href="../html/busqueda.html?tipo=apartamento" class="cat-card"><i class="fa-solid fa-building"></i><span>Apartamentos</span></a>
+    <a href="../html/busqueda.html?tipo=casa" class="cat-card"><i class="fa-solid fa-house"></i><span>Casas</span></a>
+    <a href="../html/busqueda.html?tipo=local" class="cat-card"><i class="fa-solid fa-store"></i><span>Locales</span></a>
+    <a href="../html/busqueda.html?tipo=villa" class="cat-card"><i class="fa-solid fa-umbrella-beach"></i><span>Villas</span></a>
+    <a href="../html/busqueda.html?tipo=apartamento" class="cat-card"><i class="fa-solid fa-city"></i><span>Penthouse</span></a>
+    <a href="../html/busqueda.html?tipo=solar" class="cat-card"><i class="fa-solid fa-warehouse"></i><span>Depósitos</span></a>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════
@@ -158,7 +316,7 @@
       <h2>¿Tienes una propiedad para alquilar?</h2>
       <p>Publica gratis y llega a miles de personas buscando su próximo hogar en RD.</p>
     </div>
-   <a href="../html/modulo-2/publicar-propiedad.html" class="btn-primary btn-lg"><i class="fa-solid fa-plus"></i> Publicar mi propiedad</a>
+   <a href="../html/publicar-propiedad.html" class="btn-primary btn-lg"><i class="fa-solid fa-plus"></i> Publicar mi propiedad</a>
   </div>
 </section>
 

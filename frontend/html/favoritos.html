@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script src="../../js/seguridad.js"></script>
+  <script src="../.js/seguridad.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Favoritos – Alquilao'</title>
@@ -172,10 +172,10 @@
 
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <img src="../../images/logo_alquilao1.png" alt="Alquilao'"/>
+    <img src="../images/logo_alquilao1.png" alt="Alquilao'"/>
   </div>
   <nav class="sidebar-nav">
-    <a href="../../pages/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
+    <a href="../html/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
     <a href="#" class="nav-item"><i class="fa-regular fa-comment"></i> Mensajes</a>
     <a href="favoritos.html" class="nav-item active"><i class="fa-regular fa-heart"></i> Favoritos</a>
     <a href="mis-publicaciones.html" class="nav-item"><i class="fa-solid fa-building"></i> Mis Publicaciones</a>
@@ -213,7 +213,7 @@
       <div class="empty-icon"><i class="fa-regular fa-heart"></i></div>
       <h3>No tienes favoritos aún</h3>
       <p>Explora propiedades y guarda las que más te interesen.</p>
-      <a href="../modulo 1/index.html" class="btn-explorar">
+      <a href="../html/index.html" class="btn-explorar">
         <i class="fa-solid fa-magnifying-glass"></i> Explorar propiedades
       </a>
     </div>
@@ -267,14 +267,14 @@
 
 function verDetalle(id) {
   // Salimos de modulo-3 con "../" y entramos a modulo-2
-  window.location.href = `../modulo-2/detalle-propiedad.html?id=${id}`;
+  window.location.href = `../html/detalle-propiedad.html?id=${id}`;
 
 
   }
 
   function cerrarSesion() {
     sessionStorage.clear();
-    window.location.href = '../modulo 1/login.html';
+    window.location.href = '../html/login.html';
   }
 
   window.addEventListener('DOMContentLoaded', () => {

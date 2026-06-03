@@ -92,7 +92,7 @@ function toggleFav(e, btn) {
  
  // RUTA CORREGIDA DIRECTA PARA EL MÓDULO 2
  function verDetalle(id) {
-  window.location.href = `../html/modulo-2/detalle-propiedad.html?id=${id}`;
+  window.location.href = `../html/detalle-propiedad.html?id=${id}`;
 }
  
 // --- NAVBAR SCROLL ---
@@ -109,14 +109,14 @@ window.addEventListener('scroll', () => {
 const searchBtn = document.querySelector('.search-btn');
 if (searchBtn) {
   searchBtn.addEventListener('click', () => {
-    window.location.href = 'pages/busqueda.html';
+    window.location.href = '../html/busqueda.html';
   });
 }
  
 // --- CATEGORY CARDS ---
 document.querySelectorAll('.cat-card').forEach(card => {
   card.addEventListener('click', () => {
-    window.location.href = 'pages/busqueda.html';
+    window.location.href = '../html/busqueda.html';
   });
 });
  
@@ -151,9 +151,27 @@ function actualizarNavbar() {
     };
   } else {
     navCuenta.innerHTML = `<i class="fa-regular fa-user"></i> Mi cuenta`;
-    navCuenta.href = '../html/modulo-1/login.html';
+    navCuenta.href = '../html/login.html';
   }
 }
 
-// Ejecutar al cargar
-document.addEventListener('DOMContentLoaded', actualizarNavbar);
+document.addEventListener("DOMContentLoaded", () => {
+
+    const menuBtn = document.getElementById("burger");
+    const navMenu = document.getElementById("nav-menu");
+
+    if (menuBtn && navMenu) {
+        menuBtn.addEventListener("click", () => {
+            navMenu.classList.toggle("active");
+        });
+    }
+
+    const btn = document.getElementById("btn-login");
+
+    if (btn) {
+        btn.addEventListener("click", () => {
+            // código login
+        });
+    }
+
+});

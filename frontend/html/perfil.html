@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script src="../../js/seguridad.js"></script>
+  <script src="../js/seguridad.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mi Perfil – Alquilao'</title>
@@ -87,15 +87,15 @@
 <body>
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <img src="../../images/logo_alquilao1.png" alt="Alquilao'"/>
+    <img src="../images/logo_alquilao1.png" alt="Alquilao'"/>
   </div>
   <nav class="sidebar-nav">
-    <a href="../../pages/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
+    <a href="../html/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
     <a href="mensajes.html" class="nav-item"><i class="fa-regular fa-comment-dots"></i> Mensajes</a>
     <a href="favoritos.html" class="nav-item"><i class="fa-regular fa-heart"></i> Favoritos</a>
     <div class="nav-divider"></div>
     <a href="mis-publicaciones.html" class="nav-item vendor-only"><i class="fa-solid fa-list"></i> Mis Publicaciones</a>
-   <a href="../modulo-2/publicar-propiedad.html" class="nav-item vendor-only"><i class="fa-solid fa-plus"></i> Nueva Publicación</a>
+   <a href="../html/publicar-propiedad.html" class="nav-item vendor-only"><i class="fa-solid fa-plus"></i> Nueva Publicación</a>
     <div class="nav-divider"></div>
     <a href="perfil.html" class="nav-item active"><i class="fa-regular fa-user"></i> Mi Perfil</a>
     <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
@@ -152,7 +152,7 @@
             <label>Contraseña</label>
             <div class="pass-row">
               <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="pass" value="••••••••••" readonly/></div>
-              <button class="btn-cambiar-pass" onclick="window.location.href='../modulo 1/recuperar-password.html'"><i class="fa-solid fa-lock"></i> Cambiar</button>
+              <button class="btn-cambiar-pass" onclick="window.location.href='../html/recuperar-password.html'"><i class="fa-solid fa-lock"></i> Cambiar</button>
             </div>
           </div>
           <div class="form-footer">
@@ -199,7 +199,7 @@
     showAlert('¡Perfil actualizado correctamente!','success');
     btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Guardar cambios';
   }
-  function cerrarSesion() { sessionStorage.clear(); window.location.href='../modulo 1/login.html'; }
+  function cerrarSesion() { sessionStorage.clear(); window.location.href='../html/login.html'; }
   function showAlert(msg,type) {
     const el=document.getElementById('alert');
     document.getElementById('alert-msg').textContent=msg;

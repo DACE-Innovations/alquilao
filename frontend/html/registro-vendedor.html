@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head> 
-  <script src="../../js/seguridad.js"></script>
+  <script src="../js/seguridad.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro Propietario – Alquilao'</title>
@@ -143,7 +143,7 @@
 
 <!-- LEFT -->
 <div class="left">
-  <div class="left-logo"><img src="../../images/logo_alquilao_blanco.png" alt="Alquilao'"/></div>
+  <div class="left-logo"><img src="../images/logo_alquilao_blanco.png" alt="Alquilao'"/></div>
   <h2 class="left-title">Únete a<br/>Alquilao'</h2>
   <p class="left-desc">La plataforma ideal para agentes y agencias que quieren vender más.</p>
 
@@ -330,7 +330,7 @@
       // ── Demo ──
       await new Promise(r=>setTimeout(r,1200));
       showAlert('¡Cuenta creada exitosamente! Redirigiendo...','success');
-      setTimeout(()=>window.location.href='../index.html',1000);
+      setTimeout(()=>window.location.href='../html/index.html',1000);
 
     } catch(e) {
       showAlert(e.message||'Error al crear cuenta.','error');
