@@ -278,30 +278,32 @@ const Seguridad = (() => {
 
   // ── PROTECCIÓN DE RUTAS ──────────────────────────────────
   function protegerRuta() {
-    const paginaActual = window.location.pathname.split('/').pop();
-    const rolesPermitidos = RUTAS_PROTEGIDAS[paginaActual];
+  const paginaActual = window.location.pathname.split('/').pop().split('?')[0];
 
-    if (!rolesPermitidos) return; // ruta pública
+  const rolesPermitidos = RUTAS_PROTEGIDAS[paginaActual];
 
-    if (!estaAutenticado()) {
-      log('ACCESO', `Acceso denegado sin autenticación: ${paginaActual}`);
-      window.location.href = obtenerRutaLogin();
-      return;
-    }
+  if (!rolesPermitidos) return;
 
-    const usuario = getUsuario();
-    if (!rolesPermitidos.includes(usuario.rol)) {
-      log('ACCESO', `Permiso insuficiente: ${usuario.rol} en ${paginaActual}`);
-      window.location.href = obtenerRutaLogin();
-    }
+  const sesion = getSesion();
+  if (!sesion) {
+    window.location.href = obtenerRutaLogin();
+    return;
   }
+
+  const usuario = sesion.usuario;
+
+  if (!usuario || !rolesPermitidos.includes(usuario.rol)) {
+    log('ACCESO', `Acceso denegado: ${usuario?.rol} en ${paginaActual}`);
+    window.location.href = obtenerRutaLogin();
+  }
+}
 
   function obtenerRutaLogin() {
     const ruta = window.location.pathname;
     const niveles = (ruta.match(/\//g) || []).length;
-    if (niveles >= 3) return '../modulo-1/login.html';
-    if (niveles === 2) return 'html/modulo-1/login.html';
-    return 'frontend/html/modulo-1/login.html';
+    if (niveles >= 3) return '../html/login.html';
+    if (niveles === 2) return '../html/login.html';
+    return '../html/login.html';
   }
 
   // ── CSRF TOKEN ───────────────────────────────────────────

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1780367872411,
+    "nombre": "Cesar",
+    "email": "cesar@test.com",
+    "password": "$2b$10$AV4W3rh8zyj5hctM8YfyXOqVKOa5Vh5Z7LM6xNS2E00Y0hslNdDYa",
+    "telefono": "8091234567",
+    "rol": "usuario"
+  },
+  {
+    "id": 1780449840822,
+    "nombre": "Cesar",
+    "email": "admin@test.com",
+    "password": "$2b$10$e6DDMmTTQCh8HjuCptTtYeUKDpko62iYlJIlJvJCLhBVZwxFHpMUC",
+    "telefono": null,
+    "rol": "admin"
+  }
+]

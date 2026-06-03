@@ -187,15 +187,15 @@
 
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <img src="../../images/logo_alquilao1.png" alt="Alquilao'"/>
+    <img src="../images/logo_alquilao1.png" alt="Alquilao'"/>
   </div>
   <nav class="sidebar-nav">
-    <a href="../../pages/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
+    <a href="../html/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
     <a href="#" class="nav-item"><i class="fa-regular fa-comment"></i> Mensajes</a>
     <a href="favoritos.html" class="nav-item"><i class="fa-regular fa-heart"></i> Favoritos</a>
     <a href="mis-publicaciones.html" class="nav-item active"><i class="fa-solid fa-building"></i> Mis Publicaciones</a>
-    <a href="../modulo-2/publicar-propiedad.html" class="nav-item"><i class="fa-solid fa-plus"></i> Nueva Publicación</a>
-    <a href="../modulo-2/perfil.html" class="nav-item"><i class="fa-regular fa-user"></i> Perfil</a>
+    <a href="../html/publicar-propiedad.html" class="nav-item"><i class="fa-solid fa-plus"></i> Nueva Publicación</a>
+    <a href="../html/perfil.html" class="nav-item"><i class="fa-regular fa-user"></i> Perfil</a>
     <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
   </nav>
   <div class="sidebar-footer">
@@ -228,7 +228,7 @@
       <div class="empty-icon"><i class="fa-solid fa-building"></i></div>
       <h3>No tienes publicaciones creadas</h3>
       <p>Empieza a publicar tus inmuebles para que otros puedan rentarlos.</p>
-      <a href="../modulo-2/publicar-propiedades.html" class="btn-publicar">
+      <a href="../html/publicar-propiedad.html" class="btn-publicar">
         <i class="fa-solid fa-plus"></i> Crear publicación
       </a>
     </div>
@@ -278,12 +278,12 @@
 
   // FUNCIÓN CON EL SALTO CORRECTO SALIENDO AL MÓDULO 2
   function verDetalle(id) {
-    window.location.href = `../modulo-2/detalle-propiedad.html?id=${id}`;
+    window.location.href = `../html/detalle-propiedad.html?id=${id}`;
   }
 
   function cerrarSesion() {
     sessionStorage.clear();
-    window.location.href = '../modulo 1/login.html';
+    window.location.href = '../html/login.html';
   }
 
   window.addEventListener('DOMContentLoaded', () => {

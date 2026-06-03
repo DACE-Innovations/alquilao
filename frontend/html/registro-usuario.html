@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script src="../../js/seguridad.js"></script>
+  <script src="../js/seguridad.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro Usuario – Alquilao'</title>
@@ -173,7 +173,7 @@
 
 <!-- LEFT -->
 <div class="left">
-  <div class="left-logo"><img src="../../images/logo_alquilao1.png" alt="Alquilao'"/></div>
+  <div class="left-logo"><img src="../images/logo_alquilao1.png" alt="Alquilao'"/></div>
   <div class="left-main">
     <h1 class="left-title">Encuentra tu<br/>próximo hogar</h1>
     <p class="left-desc">Regístrate como comprador o inquilino y accede a las mejores propiedades en los sectores que te interesan.</p>
@@ -354,7 +354,7 @@ localStorage.setItem('token', data.token);
 localStorage.setItem('usuario', JSON.stringify(data.usuario));
 
 showAlert('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
-setTimeout(() => window.location.href = '../../pages/index.html', 1500);
+setTimeout(() => window.location.href = '../html/index.html', 1500);
 
     } catch(e) {
       showAlert(e.message || 'Error al crear cuenta.', 'error');
