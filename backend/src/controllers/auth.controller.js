@@ -1,65 +1,37 @@
-const fs = require('fs');
-const path = require('path');
+const sql = require('mssql');
+const poolPromise = require('../config/db'); // Importamos la promesa del pool centralizado
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// ===================== ARCHIVO USUARIOS =====================
-const filePath = path.join(__dirname, '../data/usuarios.json');
-
-function leerUsuarios() {
-  if (!fs.existsSync(filePath)) return [];
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-}
-
-function guardarUsuarios(data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-}
-
-// ===================== REGISTRO =====================
+// ==========================================
+// 1. FUNCIÓN: REGISTRO DE USUARIOS (Usando SP)
+// ==========================================
 const registro = async (req, res) => {
   try {
     const { nombre, email, password, telefono } = req.body;
 
-    const usuarios = leerUsuarios();
-
-    // Validaciones
     if (!nombre || !email || !password) {
-      return res.status(400).json({
-        error: 'Nombre, email y contraseña son requeridos'
-      });
+      return res.status(400).json({ error: 'Nombre, email y contraseña son requeridos' });
     }
 
-    // Verificar si existe
-    const usuarioExiste = usuarios.find(u => u.email === email);
-    if (usuarioExiste) {
-      return res.status(400).json({
-        error: 'El email ya está registrado'
-      });
-    }
-
-    // Encriptar contraseña
+    // Hash de alta seguridad para la contraseña antes de mandarla al SP
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Crear usuario
-    const nuevoUsuario = {
-      id: Date.now(),
-      nombre,
-      email,
-      password: passwordHash,
-      telefono: telefono || null,
-      rol: 'usuario'
-    };
+    const pool = await poolPromise; // Esperamos la conexión activa
+    
+    // Ejecutamos tu procedimiento almacenado de registro
+    const result = await pool.request()
+        .input('nombre', sql.NVarChar, nombre)
+        .input('correo', sql.NVarChar, email)
+        .input('contrasena', sql.NVarChar, passwordHash)
+        .input('telefono', sql.NVarChar, telefono || null)
+        .execute('procedimientos.sp_RegistrarUsuario'); // 👈 Tu SP nativo
 
-    usuarios.push(nuevoUsuario);
-    guardarUsuarios(usuarios);
+    const usuarioCreado = result.recordset[0];
 
-    // Token
+    // Generar Token JWT firmado
     const token = jwt.sign(
-      {
-        id: nuevoUsuario.id,
-        email: nuevoUsuario.email,
-        rol: nuevoUsuario.rol
-      },
+      { id: usuarioCreado.id_usuario, email: usuarioCreado.correo, rol: 'usuario' },
       'alquilao_secret_key_2026',
       { expiresIn: process.env.JWT_EXPIRES || '1h' }
     );
@@ -67,59 +39,56 @@ const registro = async (req, res) => {
     return res.status(201).json({
       mensaje: 'Usuario registrado correctamente',
       token,
-      usuario: {
-        id: nuevoUsuario.id,
-        nombre: nuevoUsuario.nombre,
-        email: nuevoUsuario.email,
-        rol: nuevoUsuario.rol
-      }
+      usuario: usuarioCreado
     });
 
   } catch (err) {
     console.error('ERROR REGISTRO:', err);
+    // Si el SP tira el error de "El correo ya está registrado", lo capturamos limpio aquí
     return res.status(500).json({ error: err.message });
   }
 };
 
-// ===================== LOGIN =====================
+// ==========================================
+// 2. FUNCIÓN: LOGIN DE USUARIOS (Usando SP)
+// ==========================================
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const usuarios = leerUsuarios();
-
-    // Validación
     if (!email || !password) {
-      return res.status(400).json({
-        error: 'Email y contraseña son requeridos'
-      });
+      return res.status(400).json({ error: 'Email y contraseña son requeridos' });
     }
 
-    // Buscar usuario
-    const usuario = usuarios.find(u => u.email === email);
+    const pool = await poolPromise;
+    
+    // Ejecutamos tu procedimiento de Login
+    const result = await pool.request()
+        .input('correo', sql.NVarChar, email)
+        .execute('procedimientos.sp_LoginUsuario'); // 👈 Tu SP nativo
 
-    if (!usuario) {
-      return res.status(400).json({
-        error: 'Credenciales incorrectas'
-      });
+    // Si el recordset viene vacío, el correo no existe o está inactivo
+    if (result.recordset.length === 0) {
+      return res.status(400).json({ error: 'Credenciales incorrectas o usuario inactivo' });
     }
 
-    // Verificar contraseña
-    const passwordValida = await bcrypt.compare(password, usuario.password);
+const usuario = result.recordset[0];
 
-    if (!passwordValida) {
-      return res.status(400).json({
-        error: 'Credenciales incorrectas'
-      });
-    }
+let passwordValida = false;
 
-    // Token
+// 🛠️ Mantenemos la lógica que te funcionó, pero sin ensuciar la consola
+if (usuario && usuario.rol === 'admin') {
+  passwordValida = (password === usuario.contrasena); 
+} else if (usuario) {
+  passwordValida = await bcrypt.compare(password, usuario.contrasena);
+}
+
+if (!passwordValida) {
+  return res.status(400).json({ error: 'Credenciales incorrectas' });
+}
+    // Generar el Token JWT con la información del SP
     const token = jwt.sign(
-      {
-        id: usuario.id,
-        email: usuario.email,
-        rol: usuario.rol
-      },
+      { id: usuario.id_usuario, email: usuario.correo, rol: usuario.rol },
       'alquilao_secret_key_2026',
       { expiresIn: process.env.JWT_EXPIRES || '1h' }
     );
@@ -128,10 +97,11 @@ const login = async (req, res) => {
       mensaje: 'Login exitoso',
       token,
       usuario: {
-        id: usuario.id,
+        id: usuario.id_usuario,
         nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol
+        email: usuario.correo,
+        rol: usuario.rol,
+        foto_perfil: usuario.foto_perfil
       }
     });
 
@@ -141,4 +111,66 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { registro, login }; 
+// ==========================================
+// 3. FUNCIÓN: OBTENER PERFIL DEL USUARIO
+// ==========================================
+const obtenerPerfil = async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('id_usuario', sql.UniqueIdentifier, req.user.id) // ID extraído del JWT por el middleware
+        .query(`
+            SELECT U.id_usuario, U.nombre, U.correo, U.telefono, U.foto_perfil, R.nombre_rol AS rol 
+            FROM tablas.USUARIOS U
+            INNER JOIN tablas.ROLES R ON U.id_rol = R.id_rol 
+            WHERE U.id_usuario = @id_usuario
+        `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    return res.json(result.recordset[0]);
+  } catch (err) {
+    console.error('ERROR OBTENER PERFIL:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// ==========================================
+// 4. FUNCIÓN: ACTUALIZAR PERFIL EN BD
+// ==========================================
+const actualizarPerfil = async (req, res) => {
+  try {
+    const { nombre, correo, telefono } = req.body;
+
+    if (!nombre || !correo) {
+      return res.status(400).json({ error: 'El nombre y correo son obligatorios' });
+    }
+
+    const pool = await poolPromise;
+    await pool.request()
+        .input('id_usuario', sql.UniqueIdentifier, req.user.id)
+        .input('nombre', sql.NVarChar, nombre)
+        .input('correo', sql.NVarChar, correo)
+        .input('telefono', sql.NVarChar, telefono || null)
+        .query(`
+            UPDATE tablas.USUARIOS 
+            SET nombre = @nombre, correo = @correo, telefono = @telefono 
+            WHERE id_usuario = @id_usuario
+        `);
+
+    return res.json({ mensaje: 'Perfil actualizado con éxito en SQL Server' });
+  } catch (err) {
+    console.error('ERROR ACTUALIZAR PERFIL:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// 📦 EXPORTACIÓN ÚNICA ACTUALIZADA (Reemplaza la que tenías antes)
+module.exports = { 
+  registro, 
+  login, 
+  obtenerPerfil, 
+  actualizarPerfil 
+};

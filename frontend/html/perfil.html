@@ -87,7 +87,7 @@
 <body>
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <img src="../images/logo_alquilao1.png" alt="Alquilao'"/>
+    <img src="../images/logo_alquilao_blanco.png" alt="Alquilao'"/>
   </div>
   <nav class="sidebar-nav">
     <a href="../html/index.html" class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
@@ -95,7 +95,7 @@
     <a href="favoritos.html" class="nav-item"><i class="fa-regular fa-heart"></i> Favoritos</a>
     <div class="nav-divider"></div>
     <a href="mis-publicaciones.html" class="nav-item vendor-only"><i class="fa-solid fa-list"></i> Mis Publicaciones</a>
-   <a href="../html/publicar-propiedad.html" class="nav-item vendor-only"><i class="fa-solid fa-plus"></i> Nueva Publicación</a>
+    <a href="../html/publicar-propiedad.html" class="nav-item vendor-only"><i class="fa-solid fa-plus"></i> Nueva Publicación</a>
     <div class="nav-divider"></div>
     <a href="perfil.html" class="nav-item active"><i class="fa-regular fa-user"></i> Mi Perfil</a>
     <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
@@ -109,8 +109,8 @@
   <div class="topbar">
     <div class="topbar-bell"><i class="fa-regular fa-bell"></i></div>
     <div class="topbar-user">
-      <div class="topbar-avatar" id="avatar-inicial">JP</div>
-      <span class="topbar-name" id="topbar-nombre">Juan Pérez</span>
+      <div class="topbar-avatar" id="avatar-inicial">...</div>
+      <span class="topbar-name" id="topbar-nombre">Cargando...</span>
       <i class="fa-solid fa-chevron-down" style="font-size:11px;color:var(--text-3);margin-left:4px"></i>
     </div>
   </div>
@@ -134,7 +134,7 @@
         <div class="form-section">
           <div>
             <div class="rol-label">Rol de usuario</div>
-            <div class="rol-badge"><i class="fa-regular fa-user"></i><span id="rol-texto">Inquilino</span></div>
+            <div class="rol-badge"><i class="fa-regular fa-user"></i><span id="rol-texto">...</span></div>
           </div>
           <div class="field">
             <label>Nombre completo</label>
@@ -165,17 +165,69 @@
 </div>
 
 <script>
-  window.addEventListener('DOMContentLoaded', () => {
-    cargarUsuario({ nombre:'Juan Pérez', correo:'juan@email.com', telefono:'829-123-4567', rol:'vendedor' });
+  // URL base centralizada de tu API
+  const API_URL = 'http://localhost:3000/api';
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    // 1. Intentar capturar el token de sessionStorage o localStorage
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    
+    if (!token) {
+      window.location.href = '../html/login.html';
+      return;
+    }
+
+    try {
+      // 2. Hacer la petición real a tu backend para extraer el perfil activo
+      const response = await fetch(`${API_URL}/auth/perfil`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Token inválido o sesión expirada');
+      }
+
+      const usuario = await response.json();
+      cargarUsuario(usuario);
+
+    } catch (error) {
+      console.error('Error cargando perfil:', error);
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = '../html/login.html';
+    }
   });
+
   function cargarUsuario(u) {
-    document.getElementById('nombre').value = u.nombre;
-    document.getElementById('correo').value = u.correo;
-    document.getElementById('telefono').value = u.telefono;
-    document.getElementById('topbar-nombre').textContent = u.nombre;
-    document.getElementById('avatar-inicial').textContent = u.nombre.charAt(0).toUpperCase();
-    document.getElementById('rol-texto').textContent = (u.rol==='vendedor'||u.rol==='propietario') ? 'Propietario / Agente' : 'Inquilino';
+    document.getElementById('nombre').value = u.nombre || '';
+    document.getElementById('correo').value = u.correo || '';
+    document.getElementById('telefono').value = u.telefono || '';
+    document.getElementById('topbar-nombre').textContent = u.nombre || 'Usuario';
+    document.getElementById('avatar-inicial').textContent = u.nombre ? u.nombre.charAt(0).toUpperCase() : '?';
+    
+    // Mapeo dinámico del rol
+    const rolActual = String(u.rol).toLowerCase();
+    if (rolActual === 'admin') {
+      document.getElementById('rol-texto').textContent = 'Administrador Global';
+    } else if (rolActual === 'vendedor' || rolActual === 'propietario') {
+      document.getElementById('rol-texto').textContent = 'Propietario / Agente';
+    } else {
+      document.getElementById('rol-texto').textContent = 'Inquilino';
+    }
+
+    // Cargar foto si ya tiene una en base de datos
+    if (u.foto_perfil) {
+      const p = document.getElementById('foto-preview');
+      p.src = u.foto_perfil;
+      p.style.display = 'block';
+      ['foto-icon','foto-text','foto-small'].forEach(id => document.getElementById(id).style.display='none');
+    }
   }
+
   function previewFoto(input) {
     if (!input.files[0]) return;
     if (input.files[0].size > 5*1024*1024) return showAlert('La imagen no puede superar 5MB.','error');
@@ -187,19 +239,56 @@
     };
     reader.readAsDataURL(input.files[0]);
   }
+
   async function guardarCambios() {
     const nombre = document.getElementById('nombre').value.trim();
     const correo = document.getElementById('correo').value.trim();
-    if (!nombre||!correo) return showAlert('Nombre y correo son obligatorios.','error');
+    const telefono = document.getElementById('telefono').value.trim();
+    
+    if (!nombre || !correo) return showAlert('Nombre y correo son obligatorios.','error');
+    
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
     const btn = document.getElementById('btn-guardar');
-    btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
-    await new Promise(r=>setTimeout(r,900));
-    document.getElementById('topbar-nombre').textContent = nombre;
-    document.getElementById('avatar-inicial').textContent = nombre.charAt(0).toUpperCase();
-    showAlert('¡Perfil actualizado correctamente!','success');
-    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Guardar cambios';
+    
+    btn.disabled = true; 
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+    try {
+      // 3. Petición PUT real al backend para actualizar los datos en SQL Server
+      const response = await fetch(`${API_URL}/auth/actualizar-perfil`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nombre, correo, telefono })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al actualizar perfil');
+      }
+
+      // Actualizar interfaz superior
+      document.getElementById('topbar-nombre').textContent = nombre;
+      document.getElementById('avatar-inicial').textContent = nombre.charAt(0).toUpperCase();
+      showAlert('¡Perfil actualizado correctamente!','success');
+
+    } catch (error) {
+      showAlert(error.message, 'error');
+    } finally {
+      btn.disabled = false; 
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cambios';
+    }
   }
-  function cerrarSesion() { sessionStorage.clear(); window.location.href='../html/login.html'; }
+
+  function cerrarSesion() { 
+    sessionStorage.clear(); 
+    localStorage.clear(); // Limpieza profunda
+    window.location.href = 'login.html'; // Si perfil.html y login.html están en la misma carpeta html
+  }
+
   function showAlert(msg,type) {
     const el=document.getElementById('alert');
     document.getElementById('alert-msg').textContent=msg;
@@ -208,4 +297,4 @@
   }
 </script>
 </body>
-</html>
+</html> 

@@ -45,84 +45,75 @@ const propiedades = [
   }
 ];
  
-// --- RENDER CARDS ---
-function renderCards() {
+// --- RENDER CARDS DINÁMICO (DESDE LA BASE DE DATOS) ---
+function renderCards(listaPropiedades) {
   const grid = document.getElementById('cards-grid');
   if (!grid) return;
+  
+  if (listaPropiedades.length === 0) {
+    grid.innerHTML = `<p style="color: white; text-align: center; grid-column: 1/-1;">No hay propiedades disponibles en este momento.</p>`;
+    return;
+  }
  
-  grid.innerHTML = propiedades.map(p => `
-    <div class="prop-card" onclick="verDetalle(${p.id})">
-      <div class="card-img">
-        <div class="card-img-placeholder">${p.emoji}</div>
-        <span class="card-badge ${p.badgeClass}">${p.badge}</span>
-        <button class="card-fav" onclick="toggleFav(event, this)" aria-label="Favorito">
-          <i class="fa-regular fa-heart"></i>
-        </button>
-      </div>
-      <div class="card-body">
-        <h3 class="card-title">${p.title}</h3>
-        <p class="card-loc"><i class="fa-solid fa-location-dot"></i> ${p.location}</p>
-        <div class="card-specs">
-          <span class="card-spec"><i class="fa-solid fa-bed"></i> ${p.hab} hab.</span>
-          <span class="card-spec"><i class="fa-solid fa-shower"></i> ${p.banos} baños</span>
-          <span class="card-spec"><i class="fa-solid fa-vector-square"></i> ${p.area} m²</span>
+  grid.innerHTML = listaPropiedades.map(p => {
+    // Formateamos el DECIMAL de SQL Server a pesos dominicanos (RD$)
+    const precioRD = new Intl.NumberFormat('es-DO', {
+      style: 'currency',
+      currency: 'DOP',
+      minimumFractionDigits: 0
+    }).format(p.precio);
+
+    // Si tu consulta de SQL trae una imagen de portada la usa, si no, pone un icono por defecto
+    const componenteImagen = p.url_imagen 
+      ? `<img src="${p.url_imagen}" alt="${p.titulo}" style="width:100%; height:100%; object-fit:cover;">`
+      : `<div class="card-img-placeholder">🏢</div>`;
+
+    // Adaptamos las variables estáticas viejas a las columnas reales de tus tablas
+    const ubicacionTexto = `${p.sector}, ${p.provincia}`;
+    const badgeTexto = p.disponible ? 'Disponible' : 'Alquilado';
+    const badgeClase = p.disponible ? 'nueva' : 'oportunidad';
+
+    return `
+      <div class="prop-card" onclick="verDetalle('${p.id_propiedad}')">
+        <div class="card-img">
+          ${componenteImagen}
+          <span class="card-badge ${badgeClase}">${badgeTexto}</span>
+          <button class="card-fav" onclick="toggleFav(event, this)" aria-label="Favorito">
+            <i class="fa-regular fa-heart"></i>
+          </button>
         </div>
-        <div class="card-footer">
-          <div>
-            <div class="card-price">${p.precio}<span>${p.tipo}</span></div>
+        <div class="card-body">
+          <h3 class="card-title">${p.titulo}</h3>
+          <p class="card-loc"><i class="fa-solid fa-location-dot"></i> ${ubicacionTexto}</p>
+          <div class="card-specs">
+            <span class="card-spec"><i class="fa-solid fa-bed"></i> ${p.habitaciones} hab.</span>
+            <span class="card-spec"><i class="fa-solid fa-shower"></i> ${p.banos} baños</span>
+            <span class="card-spec"><i class="fa-solid fa-vector-square"></i> ${p.metros_cuadrados} m²</span>
           </div>
-          <button class="card-btn">Ver detalles</button>
+          <div class="card-footer">
+            <div>
+              <div class="card-price">${precioRD}<span>/mes</span></div>
+            </div>
+            <button class="card-btn">Ver detalles</button>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
  
-// --- TOGGLE FAVORITO ---
-function toggleFav(e, btn) {
-  e.stopPropagation();
-  const icon = btn.querySelector('i');
-  btn.classList.toggle('active');
-  if (btn.classList.contains('active')) {
-    icon.className = 'fa-solid fa-heart';
-  } else {
-    icon.className = 'fa-regular fa-heart';
+// --- INIT ACTUALIZADO CON ASYNC/AWAIT ---
+// En tu js/app.js busca el DOMContentLoaded y déjalo así:
+document.addEventListener('DOMContentLoaded', async () => {
+  actualizarNavbar();
+
+  try {
+    const respuestaAPI = await API.getPropiedades(); 
+    // Como el controlador devuelve { total, propiedades }, accedemos al arreglo interno:
+    renderCards(respuestaAPI.propiedades); 
+  } catch (error) {
+    console.error("Error al conectar con el backend de Alquilao:", error);
   }
-}
- 
- // RUTA CORREGIDA DIRECTA PARA EL MÓDULO 2
- function verDetalle(id) {
-  window.location.href = `../html/detalle-propiedad.html?id=${id}`;
-}
- 
-// --- NAVBAR SCROLL ---
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 20) {
-    navbar.classList.add('scrolled');
-  } else {
-    navbar.classList.remove('scrolled');
-  }
-});
- 
-// --- SEARCH BUTTON ---
-const searchBtn = document.querySelector('.search-btn');
-if (searchBtn) {
-  searchBtn.addEventListener('click', () => {
-    window.location.href = '../html/busqueda.html';
-  });
-}
- 
-// --- CATEGORY CARDS ---
-document.querySelectorAll('.cat-card').forEach(card => {
-  card.addEventListener('click', () => {
-    window.location.href = '../html/busqueda.html';
-  });
-});
- 
-// --- INIT ---
-document.addEventListener('DOMContentLoaded', () => {
-  renderCards();
 });
 
 // ── VERIFICAR SESIÓN ──
@@ -151,9 +142,10 @@ function actualizarNavbar() {
     };
   } else {
     navCuenta.innerHTML = `<i class="fa-regular fa-user"></i> Mi cuenta`;
-    navCuenta.href = '../html/login.html';
+    // CORREGIDO: Como estás dentro de la carpeta html, el enlace va directo
+    navCuenta.href = 'login.html'; 
   }
-}
+ } 
 
 document.addEventListener("DOMContentLoaded", () => {
 

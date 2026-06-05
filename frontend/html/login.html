@@ -37,7 +37,7 @@
     .left-bg {
       position: absolute;
       inset: 0;
-     background: url('../images/portada3.jpg') center/cover no-repeat;
+      background: url('../images/portada3.jpg') center/cover no-repeat;
       filter: brightness(0.75);
     }
     .left-overlay {
@@ -255,10 +255,8 @@
     }
   </style>
 </head>
-<script src="../js/seguridad.js"></script>
 <body>
 
-<!-- LEFT -->
 <div class="left">
   <div class="left-bg"></div>
   <div class="left-overlay"></div>
@@ -283,10 +281,9 @@
   </div>
 </div>
 
-<!-- RIGHT -->
 <div class="right">
   <div class="form-top">
-    <span>¿Ya tienes cuenta? <a href="bienvenida.html">Regístrate</a></span>
+    <span>¿No tienes cuenta? <a href="bienvenida.html">Regístrate</a></span>
   </div>
 
   <h1 class="form-title">Hola, encuentra<br/>tu hogar</h1>
@@ -312,7 +309,7 @@
         <i class="fa-regular fa-eye"></i>
       </button>
     </div>
-    <span class="field-error" id="err-pass">La contraseña debe tener al menos 8 caracteres.</span>
+    <span class="field-error" id="err-pass">La contraseña debe tener al menos 6 caracteres.</span>
   </div>
 
   <div class="forgot"><a href="recuperar-password.html">¿Olvidaste tu contraseña?</a></div>
@@ -326,9 +323,6 @@
 
   <div class="form-bottom">¿No tienes cuenta? <a href="bienvenida.html">Regístrate</a></div>
 </div>
-
-
-<script src="../js/seguridad.js"></script>
 
 <script>
   // ── Toggle contraseña ──────────────────────
@@ -351,21 +345,26 @@
   }
 
   function validarPass(v) {
-    return v.length >= 8;
+    return v.length >= 6; 
   }
 
+  // Peligro visual en inputs
   function showError(wrapId, errId, show) {
-    document.getElementById(wrapId).classList.toggle('error', show);
-    document.getElementById(errId).classList.toggle('show', show);
+    const wrap = document.getElementById(wrapId);
+    const err = document.getElementById(errId);
+    if (wrap) wrap.classList.toggle('error', show);
+    if (err) err.classList.toggle('show', show);
   }
 
+  // Alertas dinámicas
   function showAlert(msg, type) {
     const el = document.getElementById('alert');
-    document.getElementById('alert-msg').textContent = msg;
-    el.className = `alert ${type}`;
+    const msgEl = document.getElementById('alert-msg');
+    if (msgEl) msgEl.textContent = msg;
+    if (el) el.className = `alert ${type}`;
   }
 
-  // ── Login ──────────────────────────────────
+  // ── Login Funcional Conectado al Ecosistema ──
   async function handleLogin() {
     const correo = document.getElementById('correo').value.trim();
     const pass   = document.getElementById('pass').value;
@@ -393,64 +392,79 @@
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Iniciando sesión...';
 
     try {
-      const res = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: correo,
-          password: pass
-        })
-      });
+      const res = await fetch('/api/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: correo,
+    password: pass
+  })
+});
 
-      const data = await res.json();
+     // ── Fragmento a corregir dentro del método de Login exitoso ──
+if (res.ok) {
+  const data = await res.json();
+  
+  // 1. Guardar la sesión usando el formato exacto que espera seguridad.js
+  const sesionData = {
+    usuario: data.usuario,
+    token: data.token,
+    inicio: Date.now(),
+    expira: Date.now() + (24 * 60 * 60 * 1000) // 24 horas
+  };
+  
+  // Guardamos en ambos por seguridad para que el módulo lo lea sin importar qué
+  sessionStorage.setItem('alquilao_session', JSON.stringify(sesionData));
+  localStorage.setItem('alquilao_token', data.token);
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Credenciales incorrectas');
-      }
+  console.log('[LOGIN] Sesión guardada correctamente. Redirigiendo...');
 
-      // 🔥 FIX CORRECTO (SISTEMA CENTRAL)
-      Seguridad.guardarSesion(data.usuario, data.token);
-
-      showAlert(
-        '¡Bienvenido ' + data.usuario.nombre + '! Redirigiendo...',
-        'success'
-      );
-
-      setTimeout(() => {
-        if (data.usuario.rol === 'admin') {
-          window.location.href = '../html/admin.html';
-        } else {
-          window.location.href = '../html/index.html';
-        }
-      }, 1000);
+  // 2. 🚨 REDIRECCIÓN CORREGIDA PARA EXPRESS (Sin subcarpetas ni puntos)
+  // Al usar 'replace', borramos el historial del login para evitar que el botón "Atrás" cause bucles.
+  if (data.usuario.rol.toLowerCase() === 'admin') {
+    window.location.replace('admin.html');
+  } else {
+    window.location.replace('index.html');
+  }
+}
 
     } catch (e) {
-      showAlert(
-        e.message || 'Error al iniciar sesión. Intenta de nuevo.',
-        'error'
-      );
-
+      showAlert(e.message || 'Error al iniciar sesión. Intenta de nuevo.', 'error');
       btn.disabled = false;
       btn.innerHTML = '<span>Iniciar sesión</span><i class="fa-solid fa-arrow-right"></i>';
     }
   }
 
-  // ── Enter key ──────────────────────────────
+  // Enviar por teclado
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
   });
 
-  // ── Sesión activa ──────────────────────────
+// ── Validador automático al cargar el login ──
   window.addEventListener('DOMContentLoaded', () => {
-    const sesion = Seguridad.getSesion();
-
-    if (sesion) {
-      window.location.href = '../html/index.html';
+  const rawSesion = sessionStorage.getItem('alquilao_session');
+  if (rawSesion) {
+    try {
+      const sesion = JSON.parse(rawSesion);
+      if (sesion && sesion.usuario) {
+        const rol = sesion.usuario.rol.toLowerCase();
+        console.log(`[LOGIN] Sesión activa detectada (${rol}). Saltando formulario.`);
+        
+        if (rol === 'admin') {
+          window.location.replace('admin.html');
+        } else {
+          window.location.replace('index.html');
+        }
+      }
+    } catch (e) {
+      console.error('Error al leer sesión automática', e);
     }
-  });
+  }
+});
 
-  //  IMPORTANTE: EXPONER FUNCIONES AL HTML
+  // Exposición global explícita
   window.handleLogin = handleLogin;
   window.togglePass = togglePass;
-
 </script>
+</body>
+</html>

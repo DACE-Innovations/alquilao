@@ -1,146 +1,184 @@
-// Propiedades mock (luego se reemplaza con base de datos)
-const propiedades = [
-  {
-    id: 1,
-    titulo: 'Moderno apartamento en Piantini',
-    descripcion: 'Hermoso apartamento completamente amueblado en Piantini.',
-    precio: 55000,
-    tipo: 'apartamento',
-    operacion: 'alquiler',
-    sector: 'Piantini',
-    provincia: 'Santo Domingo',
-    direccion: 'Calle José Amado Soler #45',
-    habitaciones: 3,
-    banos: 2,
-    area: 145,
-    lat: 18.4750,
-    lng: -69.9300,
-    estado: 'aprobada',
-    usuarioId: 1,
-    fechaPublicacion: new Date()
-  }
-];
+// EN: controllers/propiedades.controller.js
+const sql = require('mssql');
+// Cambiamos el nombre a poolPromise para recordar SIEMPRE que requiere un await adentro de las funciones
+const poolPromise = require('../config/db'); 
 
-const obtenerTodas = (req, res) => {
+// ── 1. OBTENER TODAS LAS PROPIEDADES (CON FILTROS DINÁMICOS Y PAGINACIÓN VIA SP) ──
+const obtenerTodas = async (req, res) => {
   try {
-    const { tipo, sector, precio_min, precio_max, habitaciones } = req.query;
+    const { id_categoria, sector, precio_min, precio_max, habitaciones, pagina, por_pagina } = req.query;
+    
+    // 1. Resolvemos la promesa de conexión de forma segura
+    const pool = await poolPromise; 
 
-    let resultado = [...propiedades].filter(p => p.estado === 'aprobada');
-
-    if (tipo) resultado = resultado.filter(p => p.tipo === tipo);
-    if (sector) resultado = resultado.filter(p => p.sector.toLowerCase() === sector.toLowerCase());
-    if (precio_min) resultado = resultado.filter(p => p.precio >= parseInt(precio_min));
-    if (precio_max) resultado = resultado.filter(p => p.precio <= parseInt(precio_max));
-    if (habitaciones) resultado = resultado.filter(p => p.habitaciones >= parseInt(habitaciones));
+    // 2. Ejecutamos tu procedimiento almacenado dinámico sp_ObtenerPropiedades
+    const result = await pool.request()
+        .input('id_categoria', sql.Int, id_categoria ? parseInt(id_categoria) : null)
+        .input('sector', sql.NVarChar, sector || null)
+        .input('precio_min', sql.Decimal(18,2), precio_min ? parseFloat(precio_min) : null)
+        .input('precio_max', sql.Decimal(18,2), precio_max ? parseFloat(precio_max) : null)
+        .input('habitaciones', sql.SmallInt, habitaciones ? parseInt(habitaciones) : null)
+        .input('disponible', sql.Bit, 1) // Solo propiedades disponibles
+        .input('pagina', sql.Int, pagina ? parseInt(pagina) : 1)
+        .input('por_pagina', sql.Int, por_pagina ? parseInt(por_pagina) : 12)
+        .execute('procedimientos.sp_ObtenerPropiedades');
 
     res.json({
-      total: resultado.length,
-      propiedades: resultado
+      total: result.recordset.length,
+      propiedades: result.recordset
     });
 
   } catch (err) {
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error("Error en obtenerTodas:", err);
+    res.status(500).json({ error: 'Error interno del servidor al consultar SQL Server' });
   }
 };
 
-const obtenerPorId = (req, res) => {
+// ── 2. OBTENER PROPIEDAD POR ID (DETALLES COMPLETOS VIA SP) ──
+const obtenerPorId = async (req, res) => {
   try {
-    const propiedad = propiedades.find(p => p.id === parseInt(req.params.id));
+    const { id } = req.params; 
+    const pool = await poolPromise; 
 
-    if (!propiedad) {
-      return res.status(404).json({ error: 'Propiedad no encontrada' });
+    // Tu SP sp_DetallePropidad ejecuta múltiples SELECT (Propiedad + Imágenes)
+    const result = await pool.request()
+      .input('id_propiedad', sql.UniqueIdentifier, id)
+      .execute('procedimientos.sp_DetallePropidad');
+
+    if (result.recordsets[0].length === 0) {
+      return res.status(404).json({ error: 'Propiedad no encontrada en el sistema' });
     }
 
-    res.json(propiedad);
+    // Armamos la respuesta estructurando los datos limpios de la consulta compuesta
+    const propiedadDetalle = result.recordsets[0][0];
+    propiedadDetalle.imagenes = result.recordsets[1]; // Inyectamos el array de imágenes secundarias
+
+    res.json(propiedadDetalle);
 
   } catch (err) {
+    console.error("Error en obtenerPorId:", err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
 
-const crear = (req, res) => {
+// ── 3. CREAR PROPIEDAD (TRANSACCIÓN ATÓMICA VIA SP) ──
+const crear = async (req, res) => {
   try {
-    const { titulo, descripcion, precio, tipo, operacion, sector, provincia, direccion, habitaciones, banos, area, lat, lng } = req.body;
+    const { titulo, descripcion, precio, id_categoria, sector, provincia, municipio, direccion, referencia, habitaciones, banos, area, lat, lng } = req.body;
 
-    if (!titulo || !precio || !tipo || !sector) {
-      return res.status(400).json({ 
-        error: 'Título, precio, tipo y sector son requeridos' 
-      });
+    if (!titulo || !precio || !id_categoria || !sector) {
+      return res.status(400).json({ error: 'Título, precio, id_categoria y sector son requeridos' });
     }
 
-    const nuevaPropiedad = {
-      id: propiedades.length + 1,
-      titulo,
-      descripcion,
-      precio: parseInt(precio),
-      tipo,
-      operacion: operacion || 'alquiler',
-      sector,
-      provincia: provincia || 'Santo Domingo',
-      direccion,
-      habitaciones: parseInt(habitaciones) || 0,
-      banos: parseInt(banos) || 0,
-      area: parseInt(area) || 0,
-      lat: parseFloat(lat) || 0,
-      lng: parseFloat(lng) || 0,
-      estado: 'pendiente',
-      usuarioId: req.usuario.id,
-      fechaPublicacion: new Date()
-    };
+    const pool = await poolPromise;
 
-    propiedades.push(nuevaPropiedad);
+    // sp_PublicarPropiedad se encarga de crear la UBICACION, generar los IDs y enlazar la PROPIEDAD en una sola transacción
+    const result = await pool.request()
+        .input('id_usuario', sql.UniqueIdentifier, req.usuario.id) // Viene inyectado desde tu authMiddleware
+        .input('id_categoria', sql.Int, parseInt(id_categoria))
+        .input('titulo', sql.NVarChar, titulo)
+        .input('descripcion', sql.NVarChar, descripcion || null)
+        .input('precio', sql.Decimal(18,2), parseFloat(precio))
+        .input('habitaciones', sql.SmallInt, habitaciones ? parseInt(habitaciones) : 0)
+        .input('banos', sql.SmallInt, banos ? parseInt(banos) : 0)
+        .input('metros_cuadrados', sql.Decimal(10,2), area ? parseFloat(area) : 0)
+        .input('latitud', sql.Float, lat ? parseFloat(lat) : 0.0)
+        .input('longitud', sql.Float, lng ? parseFloat(lng) : 0.0)
+        .input('provincia', sql.NVarChar, provincia || 'Santo Domingo')
+        .input('municipio', sql.NVarChar, municipio || 'Santo Domingo de Guzmán')
+        .input('sector', sql.NVarChar, sector)
+        .input('direccion', sql.NVarChar, direccion || '')
+        .input('referencia', sql.NVarChar, referencia || null)
+        .execute('procedimientos.sp_PublicarPropiedad');
 
     res.status(201).json({
-      mensaje: 'Propiedad creada correctamente, pendiente de aprobación',
-      propiedad: nuevaPropiedad
+      mensaje: 'Propiedad creada correctamente en AlquilaoRD',
+      id_propiedad: result.recordset[0].id_propiedad
     });
 
   } catch (err) {
+    console.error("Error en crear:", err);
+    res.status(500).json({ error: 'Error interno del servidor al publicar propiedad' });
+  }
+};
+
+// ── 4. ACTUALIZAR PROPIEDAD ──
+const actualizar = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { titulo, descripcion, precio, habitaciones, banos, area } = req.body;
+
+    const pool = await poolPromise;
+
+    // Verificar existencia y pertenencia
+    const check = await pool.request()
+        .input('id', sql.UniqueIdentifier, id)
+        .query('SELECT id_usuario FROM tablas.PROPIEDADES WHERE id_propiedad = @id');
+
+    if (check.recordset.length === 0) {
+        return res.status(404).json({ error: 'Propiedad no encontrada' });
+    }
+
+    const propiedad = check.recordset[0];
+    if (propiedad.id_usuario.toLowerCase() !== req.usuario.id.toLowerCase() && req.usuario.rol !== 'admin') {
+        return res.status(403).json({ error: 'No tienes permiso para editar esta propiedad' });
+    }
+
+    // Actualización optimizada respetando los valores nulos (Mantiene lo anterior si no se envía el campo)
+    await pool.request()
+        .input('id', sql.UniqueIdentifier, id)
+        .input('titulo', sql.NVarChar, titulo || null)
+        .input('descripcion', sql.NVarChar, descripcion || null)
+        .input('precio', sql.Decimal(18,2), precio ? parseFloat(precio) : null)
+        .input('habitaciones', sql.SmallInt, habitaciones ? parseInt(habitaciones) : null)
+        .input('banos', sql.SmallInt, banos ? parseInt(banos) : null)
+        .input('area', sql.Decimal(10,2), area ? parseFloat(area) : null)
+        .query(`
+            UPDATE tablas.PROPIEDADES 
+            SET titulo = ISNULL(@titulo, titulo),
+                descripcion = ISNULL(@descripcion, descripcion),
+                precio = ISNULL(@precio, precio),
+                habitaciones = ISNULL(@habitaciones, habitaciones),
+                banos = ISNULL(@banos, banos),
+                metros_cuadrados = ISNULL(@area, metros_cuadrados)
+            WHERE id_propiedad = @id
+        `);
+
+    res.json({ mensaje: 'Propiedad actualizada correctamente en la base de datos' });
+
+  } catch (err) {
+    console.error("Error en actualizar:", err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
 
-const actualizar = (req, res) => {
+// ── 5. ELIMINAR PROPIEDAD ──
+const eliminar = async (req, res) => {
   try {
-    const index = propiedades.findIndex(p => p.id === parseInt(req.params.id));
+    const { id } = req.params;
+    const pool = await poolPromise;
 
-    if (index === -1) {
-      return res.status(404).json({ error: 'Propiedad no encontrada' });
+    const check = await pool.request()
+        .input('id', sql.UniqueIdentifier, id)
+        .query('SELECT id_usuario FROM tablas.PROPIEDADES WHERE id_propiedad = @id');
+
+    if (check.recordset.length === 0) {
+        return res.status(404).json({ error: 'Propiedad no encontrada' });
     }
 
-    if (propiedades[index].usuarioId !== req.usuario.id && req.usuario.rol !== 'admin') {
-      return res.status(403).json({ error: 'No tienes permiso para editar esta propiedad' });
+    if (check.recordset[0].id_usuario.toLowerCase() !== req.usuario.id.toLowerCase() && req.usuario.rol !== 'admin') {
+        return res.status(403).json({ error: 'No tienes permiso para eliminar esta propiedad' });
     }
 
-    propiedades[index] = { ...propiedades[index], ...req.body };
+    // Eliminación física (Tu base de datos tiene ON DELETE CASCADE para las imágenes y favoritos en cascada)
+    await pool.request()
+        .input('id', sql.UniqueIdentifier, id)
+        .query('DELETE FROM tablas.PROPIEDADES WHERE id_propiedad = @id');
 
-    res.json({
-      mensaje: 'Propiedad actualizada correctamente',
-      propiedad: propiedades[index]
-    });
+    res.json({ mensaje: 'Propiedad eliminada correctamente de AlquilaoRD' });
 
   } catch (err) {
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-};
-
-const eliminar = (req, res) => {
-  try {
-    const index = propiedades.findIndex(p => p.id === parseInt(req.params.id));
-
-    if (index === -1) {
-      return res.status(404).json({ error: 'Propiedad no encontrada' });
-    }
-
-    if (propiedades[index].usuarioId !== req.usuario.id && req.usuario.rol !== 'admin') {
-      return res.status(403).json({ error: 'No tienes permiso para eliminar esta propiedad' });
-    }
-
-    propiedades.splice(index, 1);
-
-    res.json({ mensaje: 'Propiedad eliminada correctamente' });
-
-  } catch (err) {
+    console.error("Error en eliminar:", err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
