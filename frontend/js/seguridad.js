@@ -1,10 +1,7 @@
 // ═══════════════════════════════════════════════════════════
 //  ALQUILAO' — MÓDULO DE SEGURIDAD
 //  seguridad.js
-//  Versión: 1.0.0
-//  Descripción: Módulo central de seguridad del sistema.
-//               Maneja autenticación, sesiones, validaciones,
-//               cifrado, roles y protección contra ataques.
+//  Versión: 1.0.1 (Optimizado anti-bucles)
 // ═══════════════════════════════════════════════════════════
 
 const Seguridad = (() => {
@@ -45,6 +42,7 @@ const Seguridad = (() => {
     'mis-publicaciones.html': ['admin', 'moderador', 'vendedor'],
     'publicar-propiedad.html':['admin', 'moderador', 'vendedor'],
     'admin.html':             ['admin'],
+    'index.html':             ['admin', 'moderador', 'vendedor', 'usuario']
   };
 
   // ── TIMER DE INACTIVIDAD ─────────────────────────────────
@@ -58,9 +56,7 @@ const Seguridad = (() => {
     }, CONFIG.INACTIVIDAD_MS);
   }
 
-  // ── CIFRADO DE CONTRASEÑA (SHA-256 + Salt) ───────────────
-  // Nota: En producción usar bcrypt/Argon2 en el backend.
-  // Este hash es solo para demos en frontend.
+  // ── CIFRADO DE CONTRASEÑA ───────────────────────────────
   async function hashPassword(password) {
     const salt = 'alquilao_salt_2025_RD';
     const datos = salt + password + salt;
@@ -117,31 +113,26 @@ const Seguridad = (() => {
 
   // ── VALIDACIONES ─────────────────────────────────────────
   const Validar = {
-    correo(v) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-    },
+    correo(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); },
     password(v) {
       return {
         longitud:  v.length >= 8,
         mayuscula: /[A-Z]/.test(v),
         numero:    /[0-9]/.test(v),
         especial:  /[^A-Za-z0-9]/.test(v),
-        valido() {
-          return this.longitud && this.mayuscula && this.numero && this.especial;
-        }
+        valido() { return this.longitud && this.mayuscula && this.numero && this.especial; }
       };
     },
     nombre(v)    { return v.trim().length >= 3; },
     telefono(v)  { return /^[\d\s\-\+\(\)]{8,15}$/.test(v); },
     noVacio(v)   { return v.trim().length > 0; },
-    // Anti SQL Injection básico
     sinInyeccion(v) {
       const patrones = [/select/i, /insert/i, /update/i, /delete/i, /drop/i, /union/i, /exec/i, /script/i];
       return !patrones.some(p => p.test(v));
     },
   };
 
-  // ── CONTROL DE INTENTOS (Anti fuerza bruta) ───────────────
+  // ── CONTROL DE INTENTOS ──────────────────────────────────
   function registrarIntento(correo, exitoso) {
     const clave = CONFIG.INTENTOS_KEY + '_' + correo;
     let data = JSON.parse(localStorage.getItem(clave) || '{"intentos":0,"bloqueadoHasta":0}');
@@ -194,20 +185,17 @@ const Seguridad = (() => {
       ...extra,
     };
     logs.unshift(entrada);
-    // Máximo 100 logs
     if (logs.length > 100) logs.pop();
     localStorage.setItem(CONFIG.LOGS_KEY, JSON.stringify(logs));
     console.log(`[ALQUILAO SECURITY] [${tipo}] ${mensaje}`, extra);
   }
 
-  function getLogs() {
-    return JSON.parse(localStorage.getItem(CONFIG.LOGS_KEY) || '[]');
-  }
+  function getLogs() { return JSON.parse(localStorage.getItem(CONFIG.LOGS_KEY) || '[]'); }
 
   // ── SESIÓN ───────────────────────────────────────────────
   function guardarSesion(usuario, token) {
     const sesion = {
-      usuario:   { ...usuario, password: undefined }, // nunca guardar password
+      usuario:   { ...usuario, password: undefined },
       token,
       inicio:    Date.now(),
       expira:    Date.now() + CONFIG.TOKEN_EXPIRY_MS,
@@ -233,14 +221,8 @@ const Seguridad = (() => {
     }
   }
 
-  function getUsuario() {
-    const sesion = getSesion();
-    return sesion ? sesion.usuario : null;
-  }
-
-  function getToken() {
-    return localStorage.getItem(CONFIG.TOKEN_KEY);
-  }
+  function getUsuario() { const sesion = getSesion(); return sesion ? sesion.usuario : null; }
+  function getToken() { return localStorage.getItem(CONFIG.TOKEN_KEY); }
 
   function estaAutenticado() {
     const sesion = getSesion();
@@ -257,7 +239,7 @@ const Seguridad = (() => {
     sessionStorage.removeItem(CONFIG.SESSION_KEY);
     localStorage.removeItem(CONFIG.TOKEN_KEY);
     clearTimeout(timerInactividad);
-    window.location.href = obtenerRutaLogin();
+    window.location.replace('login.html'); // Rompe el historial de bucles
   }
 
   // ── CONTROL DE ACCESO ────────────────────────────────────
@@ -276,35 +258,51 @@ const Seguridad = (() => {
     return nivelUsuario >= nivelRequerido;
   }
 
-  // ── PROTECCIÓN DE RUTAS ──────────────────────────────────
+  // ── PROTECCIÓN DE RUTAS INTERNAS (ANTI-BUCLE DEFINITIVO) ──
+ // ── PROTECCIÓN DE RUTAS (VERSIÓN DEFINITIVA ANTI-BUCLE) ──
   function protegerRuta() {
-  const paginaActual = window.location.pathname.split('/').pop().split('?')[0];
+    const pathname = window.location.pathname;
+    let paginaActual = pathname.split('/').pop().split('?')[0] || 'index.html';
 
-  const rolesPermitidos = RUTAS_PROTEGIDAS[paginaActual];
+    // Si estás en la raíz pública de Express, equivale a login.html
+    if (pathname === '/' || paginaActual === '') {
+      paginaActual = 'login.html';
+    }
 
-  if (!rolesPermitidos) return;
+    // 🚨 ESCUDO CRÍTICO: Si ya estás en el login, se aborta la protección.
+    // Esto impide por completo que seguridad.js intente expulsarte si ya estás fuera.
+    if (paginaActual === 'login.html') {
+      return;
+    }
 
-  const sesion = getSesion();
-  if (!sesion) {
-    window.location.href = obtenerRutaLogin();
-    return;
+    const rolesPermitidos = RUTAS_PROTEGIDAS[paginaActual];
+    if (!rolesPermitidos) return; // Es una ruta pública, se permite el acceso libre
+
+    const sesion = getSesion();
+    
+    if (!sesion) {
+      log('SEGURIDAD', `Acceso anónimo denegado para: ${paginaActual}`);
+      sessionStorage.removeItem(CONFIG.SESSION_KEY);
+      localStorage.removeItem(CONFIG.TOKEN_KEY);
+      window.location.replace('login.html');
+      return;
+    }
+
+    const usuario = sesion.usuario;
+    
+    // 🌟 LA SOLUCIÓN MAESTRA: Forzamos el rol del usuario a minúsculas
+    // para que coincida perfectamente con ['admin'] sin importar cómo venga de la base de datos.
+    const rolUsuarioClean = usuario && usuario.rol ? usuario.rol.toLowerCase().trim() : '';
+
+    if (!usuario || !rolesPermitidos.includes(rolUsuarioClean)) {
+      log('ACCESO', `Acceso denegado: El rol '${usuario?.rol}' no coincide con los permitidos [${rolesPermitidos}]`);
+      
+      // Usamos replace para no ensuciar el historial de navegación
+      window.location.replace('login.html');
+    }
   }
 
-  const usuario = sesion.usuario;
-
-  if (!usuario || !rolesPermitidos.includes(usuario.rol)) {
-    log('ACCESO', `Acceso denegado: ${usuario?.rol} en ${paginaActual}`);
-    window.location.href = obtenerRutaLogin();
-  }
-}
-
-  function obtenerRutaLogin() {
-    const ruta = window.location.pathname;
-    const niveles = (ruta.match(/\//g) || []).length;
-    if (niveles >= 3) return '../html/login.html';
-    if (niveles === 2) return '../html/login.html';
-    return '../html/login.html';
-  }
+  function obtenerRutaLogin() { return 'login.html'; }
 
   // ── CSRF TOKEN ───────────────────────────────────────────
   function generarCSRFToken() {
@@ -314,11 +312,9 @@ const Seguridad = (() => {
     return token;
   }
 
-  function verificarCSRFToken(token) {
-    return token === sessionStorage.getItem('csrf_token');
-  }
+  function verificarCSRFToken(token) { return token === sessionStorage.getItem('csrf_token'); }
 
-  // ── HEADERS SEGUROS PARA FETCH ───────────────────────────
+  // ── HEADERS SEGUROS ──────────────────────────────────────
   function getHeadersSeguras() {
     const token     = getToken();
     const csrfToken = sessionStorage.getItem('csrf_token') || generarCSRFToken();
@@ -338,64 +334,45 @@ const Seguridad = (() => {
         headers: { ...headers, ...(opciones.headers || {}) },
       });
       if (res.status === 401) {
-        log('SEGURIDAD', 'Token inválido — cerrando sesión');
+        log('SEGURIDAD', 'Sesión expirada en servidor web');
         cerrarSesion();
         return null;
       }
       return res;
     } catch (err) {
-      log('ERROR', `Error en fetch: ${url}`, { error: err.message });
+      log('ERROR', `Error en fetch seguro: ${url}`, { error: err.message });
       throw err;
     }
   }
 
-  // ── UI: MOSTRAR/OCULTAR según ROL ─────────────────────────
+  // ── UI PERMISOS ──────────────────────────────────────────
   function aplicarPermisoUI() {
     const usuario = getUsuario();
     if (!usuario) return;
 
-    // Elementos con data-rol="vendedor" solo para vendedores
     document.querySelectorAll('[data-rol]').forEach(el => {
       const rolesEl = el.dataset.rol.split(',').map(r => r.trim());
       el.style.display = rolesEl.includes(usuario.rol) ? '' : 'none';
     });
 
-    // Elementos vendor-only
     document.querySelectorAll('.vendor-only').forEach(el => {
       const esVendedor = ['admin', 'moderador', 'vendedor'].includes(usuario.rol);
       el.style.display = esVendedor ? '' : 'none';
     });
 
-    // Actualizar nombre en topbar si existe
     const topbarNombre = document.getElementById('topbar-nombre');
     const avatarInicial = document.getElementById('avatar-inicial');
     if (topbarNombre) topbarNombre.textContent = usuario.nombre || usuario.correo;
     if (avatarInicial) avatarInicial.textContent = (usuario.nombre || 'U').charAt(0).toUpperCase();
   }
 
-  // ── VALIDACIÓN EN TIEMPO REAL ────────────────────────────
+  // ── VALIDACIÓN TIEMPO REAL ───────────────────────────────
   function activarValidacionTiempoReal() {
-    // Correos
     document.querySelectorAll('input[type="email"]').forEach(input => {
-      input.addEventListener('input', () => {
-        const valido = Validar.correo(input.value);
-        marcarCampo(input, valido || input.value === '');
-      });
+      input.addEventListener('input', () => marcarCampo(input, Validar.correo(input.value) || input.value === ''));
     });
-
-    // Contraseñas con hints
     document.querySelectorAll('input[type="password"]').forEach(input => {
-      input.addEventListener('input', () => {
-        actualizarHintsPassword(input);
-      });
-    });
-
-    // Teléfonos
-    document.querySelectorAll('input[type="tel"]').forEach(input => {
-      input.addEventListener('input', () => {
-        const valido = Validar.telefono(input.value);
-        marcarCampo(input, valido || input.value === '');
-      });
+      input.addEventListener('input', () => actualizarHintsPassword(input));
     });
   }
 
@@ -403,17 +380,11 @@ const Seguridad = (() => {
     const wrap = input.closest('.input-wrap');
     if (!wrap) return;
     wrap.style.borderColor = valido ? '' : '#EF4444';
-    wrap.style.boxShadow   = valido ? '' : '0 0 0 3px rgba(239,68,68,.1)';
   }
 
   function actualizarHintsPassword(input) {
     const v = Validar.password(input.value);
-    const hints = {
-      'h-len':     v.longitud,
-      'h-upper':   v.mayuscula,
-      'h-num':     v.numero,
-      'h-special': v.especial,
-    };
+    const hints = { 'h-len': v.longitud, 'h-upper': v.mayuscula, 'h-num': v.numero, 'h-special': v.especial };
     Object.entries(hints).forEach(([id, ok]) => {
       const el = document.getElementById(id);
       if (el) el.classList.toggle('ok', ok);
@@ -422,63 +393,33 @@ const Seguridad = (() => {
 
   // ── INIT ─────────────────────────────────────────────────
   function init() {
-    // Generar CSRF token al cargar
     generarCSRFToken();
-
-    // Proteger ruta actual
     protegerRuta();
 
-    // Aplicar permisos UI
     if (estaAutenticado()) {
       aplicarPermisoUI();
       resetearInactividad();
     }
 
-    // Activar validación en tiempo real
     activarValidacionTiempoReal();
 
-    // Reset inactividad en interacción
     ['click', 'keypress', 'scroll', 'mousemove'].forEach(evento => {
       document.addEventListener(evento, resetearInactividad, { passive: true });
     });
 
-    log('SISTEMA', 'Módulo de seguridad iniciado');
+    log('SISTEMA', 'Módulo de seguridad iniciado correctamente');
   }
 
-  // ── API PÚBLICA ──────────────────────────────────────────
   return {
-    init,
-    hashPassword,
-    generarToken,
-    verificarToken,
-    sanitizar,
-    Validar,
-    registrarIntento,
-    estaBloqueado,
-    tiempoBloqueoRestante,
-    log,
-    getLogs,
-    guardarSesion,
-    getSesion,
-    getUsuario,
-    getToken,
-    estaAutenticado,
-    cerrarSesion,
-    tienePermiso,
-    tieneRol,
-    protegerRuta,
-    generarCSRFToken,
-    verificarCSRFToken,
-    getHeadersSeguras,
-    fetchSeguro,
-    aplicarPermisoUI,
-    activarValidacionTiempoReal,
-    ROLES,
-    PERMISOS,
-    CONFIG,
+    init, hashPassword, generarToken, verificarToken, sanitizar, Validar,
+    registrarIntento, estaBloqueado, tiempoBloqueoRestante, log, getLogs,
+    guardarSesion, getSesion, getUsuario, getToken, estaAutenticado,
+    cerrarSesion, tienePermiso, tieneRol, protegerRuta, generarCSRFToken,
+    verificarCSRFToken, getHeadersSeguras, fetchSeguro, aplicarPermisoUI,
+    ROLES, PERMISOS, CONFIG
   };
 
 })();
 
-// Auto-inicializar cuando el DOM esté listo
+// Inicialización automática nativa
 document.addEventListener('DOMContentLoaded', () => Seguridad.init());

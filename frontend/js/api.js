@@ -1,17 +1,29 @@
 // URL base del backend
 const API_URL = 'http://localhost:3000/api';
 
-// ── HELPERS ──
-const getToken = () => localStorage.getItem('token');
-const getUsuario = () => JSON.parse(localStorage.getItem('usuario') || 'null');
+// URL base del backend
+const API_URL = 'http://localhost:3000/api';
+
+// ── HELPERS (Sincronizados con seguridad.js) ──
+const getToken = () => localStorage.getItem('alquilao_token');
+const getUsuario = () => {
+  const sesion = sessionStorage.getItem('alquilao_session');
+  return sesion ? JSON.parse(sesion).usuario : null;
+};
 const setAuth = (token, usuario) => {
-  localStorage.setItem('token', token);
-  localStorage.setItem('usuario', JSON.stringify(usuario));
+  // Ahora usan las llaves oficiales del sistema
+  localStorage.setItem('alquilao_token', token);
+  sessionStorage.setItem('alquilao_session', JSON.stringify({
+    usuario: usuario, 
+    token: token, 
+    expira: Date.now() + (24 * 60 * 60 * 1000) 
+  }));
 };
 const clearAuth = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('usuario');
+  localStorage.removeItem('alquilao_token');
+  sessionStorage.removeItem('alquilao_session');
 };
+
 
 // ── AUTH ──
 const API = {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head> 
-<script src="../../js/seguridad.js"></script>
+<script src="../js/seguridad.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Alquilao — Panel de Administración</title>
@@ -271,15 +271,9 @@ img { display: block; max-width: 100%; }
   padding: 20px;
   box-shadow: var(--card-shadow);
   transition: transform var(--transition), box-shadow var(--transition);
-  animation: fadeIn .4s ease both;
 }
 .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(26,63,219,.1); }
-.stat-card:nth-child(1) { animation-delay: .05s; }
-.stat-card:nth-child(2) { animation-delay: .1s; }
-.stat-card:nth-child(3) { animation-delay: .15s; }
-.stat-card:nth-child(4) { animation-delay: .2s; }
-.stat-card:nth-child(5) { animation-delay: .25s; }
-.stat-card:nth-child(6) { animation-delay: .3s; }
+
 .stat-card-icon {
   width: 44px; height: 44px;
   border-radius: 10px;
@@ -294,6 +288,7 @@ img { display: block; max-width: 100%; }
 .stat-card-icon.yellow { background: var(--warning-bg); color: var(--warning); }
 .stat-card-icon.red { background: var(--danger-bg); color: var(--danger); }
 .stat-card-icon.cyan { background: var(--info-bg); color: var(--info); }
+
 .stat-val {
   font-family: 'Fraunces', serif;
   font-size: 32px;
@@ -360,6 +355,7 @@ img { display: block; max-width: 100%; }
 }
 .filter-tab:hover { border-color: var(--blue); color: var(--blue); }
 .filter-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
 .search-input {
   display: flex;
   align-items: center;
@@ -412,35 +408,17 @@ tbody td { padding: 12px 16px; font-size: 13.5px; color: var(--text-2); vertical
   font-weight: 700;
   white-space: nowrap;
 }
-.badge.aprobada { background: var(--success-bg); color: var(--success); }
+.badge.aprobada, .badge.activo, .badge.resuelto { background: var(--success-bg); color: var(--success); }
 .badge.pendiente { background: var(--warning-bg); color: var(--warning); }
-.badge.reportada { background: var(--danger-bg); color: var(--danger); }
-.badge.suspendida { background: #F3F4F6; color: #6B7280; }
-.badge.activo { background: var(--success-bg); color: var(--success); }
-.badge.inactivo { background: #F3F4F6; color: #6B7280; }
-.badge.resuelto { background: var(--success-bg); color: var(--success); }
-.badge.abierto { background: var(--danger-bg); color: var(--danger); }
+.badge.reportada, .badge.abierto { background: var(--danger-bg); color: var(--danger); }
+.badge.suspendida, .badge.inactivo { background: #F3F4F6; color: #6B7280; }
 .badge.sospechosa { background: #FEF3C7; color: #92400E; }
 
 /* ── ACCIONES ── */
-.action-btns {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+.action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .action-btn {
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
+  padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif; transition: all var(--transition); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
 }
 .action-btn.approve { background: var(--success-bg); color: var(--success); }
 .action-btn.approve:hover { background: var(--success); color: #fff; }
@@ -454,113 +432,32 @@ tbody td { padding: 12px 16px; font-size: 13.5px; color: var(--text-2); vertical
 .action-btn.resolve:hover { background: var(--info); color: #fff; }
 .action-btn.ignore { background: #F3F4F6; color: #6B7280; }
 .action-btn.ignore:hover { background: #6B7280; color: #fff; }
-.action-btn.restore { background: var(--success-bg); color: var(--success); }
-.action-btn.restore:hover { background: var(--success); color: #fff; }
-.action-btn.block { background: var(--danger-bg); color: var(--danger); }
-.action-btn.block:hover { background: var(--danger); color: #fff; }
 
-/* ── PROP MINI ── */
-.prop-mini {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.prop-mini-img {
-  width: 52px; height: 40px;
-  border-radius: 6px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--border);
-}
+/* ── PROP & USER MINI ── */
+.prop-mini, .user-mini { display: flex; align-items: center; gap: 10px; }
+.prop-mini-img { width: 52px; height: 40px; border-radius: 6px; overflow: hidden; flex-shrink: 0; background: var(--border); }
 .prop-mini-img img { width: 100%; height: 100%; object-fit: cover; }
-.prop-mini-title { font-size: 13px; font-weight: 600; color: var(--text); }
-.prop-mini-sub { font-size: 11px; color: var(--text-3); }
+.prop-mini-title, .user-mini-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.prop-mini-sub, .user-mini-email { font-size: 11px; color: var(--text-3); }
+.user-mini-avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--blue); }
 
-/* ── USER MINI ── */
-.user-mini {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.user-mini-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--blue-pale);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--blue);
-}
-.user-mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.user-mini-name { font-size: 13px; font-weight: 600; color: var(--text); }
-.user-mini-email { font-size: 11px; color: var(--text-3); }
-
-/* ── ACTIVIDAD RECIENTE ── */
-.activity-list { padding: 4px 0; }
-.activity-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
-  transition: background var(--transition);
-}
+/* ── ACTIVIDAD ── */
+.activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
 .activity-item:last-child { border-bottom: none; }
-.activity-item:hover { background: #FAFBFF; }
-.activity-dot {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
+.activity-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
 .activity-dot.green { background: var(--success-bg); color: var(--success); }
 .activity-dot.red { background: var(--danger-bg); color: var(--danger); }
-.activity-dot.yellow { background: var(--warning-bg); color: var(--warning); }
 .activity-dot.blue { background: var(--blue-pale); color: var(--blue); }
 .activity-text { font-size: 13px; color: var(--text-2); line-height: 1.5; flex: 1; }
-.activity-text strong { color: var(--text); font-weight: 600; }
 .activity-time { font-size: 11px; color: var(--text-3); white-space: nowrap; margin-top: 2px; }
 
 /* ── MODERACIÓN GRID ── */
-.mod-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-}
-.mod-card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--card-shadow);
-  transition: transform var(--transition);
-}
+.mod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.mod-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--card-shadow); transition: transform var(--transition); }
 .mod-card:hover { transform: translateY(-2px); }
-.mod-card-img {
-  height: 160px;
-  background: var(--border);
-  overflow: hidden;
-  position: relative;
-}
+.mod-card-img { height: 160px; background: var(--border); overflow: hidden; position: relative; }
 .mod-card-img img { width: 100%; height: 100%; object-fit: cover; }
-.mod-card-reports {
-  position: absolute;
-  top: 10px; right: 10px;
-  background: var(--danger);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 99px;
-}
+.mod-card-reports { position: absolute; top: 10px; right: 10px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 99px; }
 .mod-card-body { padding: 14px; }
 .mod-card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .mod-card-desc { font-size: 12px; color: var(--text-3); margin-bottom: 10px; line-height: 1.5; }
@@ -569,32 +466,16 @@ tbody td { padding: 12px 16px; font-size: 13.5px; color: var(--text-2); vertical
 .mod-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* ── TOAST ── */
-.toast {
-  position: fixed;
-  bottom: 24px; right: 24px;
-  background: var(--text);
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 13.5px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 9999;
-  transform: translateY(80px);
-  opacity: 0;
-  transition: all .3s cubic-bezier(.34,1.56,.64,1);
-  box-shadow: 0 8px 24px rgba(0,0,0,.2);
-  max-width: 320px;
-}
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 8px; z-index: 9999; transform: translateY(80px); opacity: 0; transition: all .3s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 8px 24px rgba(0,0,0,.2); max-width: 320px; }
 .toast.visible { transform: translateY(0); opacity: 1; }
 .toast i { font-size: 15px; }
 .toast.success i { color: var(--success); }
 .toast.warning i { color: var(--warning); }
 .toast.danger i { color: var(--danger); }
 
-/* ── RESPONSIVE ── */
+/* Menu responsive */
+.menu-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text); cursor: pointer; }
+
 @media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
@@ -602,653 +483,686 @@ tbody td { padding: 12px 16px; font-size: 13.5px; color: var(--text-2); vertical
   .page { padding: 20px 16px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .topbar { padding: 0 16px; }
+  .menu-toggle { display: block; }
 }
 @media (max-width: 600px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: 1fr; }
   table { font-size: 12px; }
   thead th, tbody td { padding: 8px 10px; }
-  .action-btns { flex-direction: column; }
 }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════
-     SIDEBAR
-═══════════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <img src="../../images/logo_alquilao1.png" alt="Alquilao" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
     <span style="font-size:18px;font-weight:800;color:var(--blue);display:none">Alquilao'</span>
     <span class="sidebar-logo-badge">Admin</span>
   </div>
-
+  
   <div class="sidebar-section">Principal</div>
   <button class="nav-item active" onclick="showPage('dashboard', this)">
     <i class="fa-solid fa-gauge"></i> Dashboard
   </button>
-
+  
   <div class="sidebar-section">Gestión</div>
   <button class="nav-item" onclick="showPage('publicaciones', this)">
     <i class="fa-solid fa-house"></i> Publicaciones
-    <span class="nav-badge warning" id="badge-pub">5</span>
+    <span class="nav-badge warning" id="badge-pub">0</span>
   </button>
   <button class="nav-item" onclick="showPage('reportes', this)">
     <i class="fa-solid fa-flag"></i> Reportes
-    <span class="nav-badge" id="badge-rep">8</span>
+    <span class="nav-badge" id="badge-rep">0</span>
   </button>
   <button class="nav-item" onclick="showPage('usuarios', this)">
     <i class="fa-solid fa-users"></i> Usuarios
   </button>
-
+  
   <div class="sidebar-section">Moderación</div>
   <button class="nav-item" onclick="showPage('moderacion', this)">
     <i class="fa-solid fa-shield-halved"></i> Moderación
-    <span class="nav-badge" id="badge-mod">3</span>
+    <span class="nav-badge" id="badge-mod">0</span>
   </button>
   <button class="nav-item" onclick="showPage('reportadas', this)">
     <i class="fa-solid fa-triangle-exclamation"></i> Prop. Reportadas
-    <span class="nav-badge" id="badge-rep-prop">4</span>
+    <span class="nav-badge" id="badge-rep-prop">0</span>
   </button>
-
+  
   <div class="sidebar-section">Sistema</div>
   <button class="nav-item" onclick="showToast('Configuración próximamente', 'blue')">
     <i class="fa-solid fa-gear"></i> Configuración
   </button>
-  <button class="nav-item" onclick="window.location.href='../html/index.html'">
+  <button class="nav-item" onclick="window.location.href='../index.html'">
     <i class="fa-solid fa-arrow-left"></i> Volver al sitio
   </button>
-
+  
   <div class="sidebar-footer">
-    <div class="admin-profile">
-      <div class="admin-avatar">SA</div>
+    <div class="admin-profile" onclick="cerrarSesion()">
+      <div class="admin-avatar" id="avatar-letras">A</div>
       <div>
-        <div class="admin-name">Super Admin</div>
-        <div class="admin-role">Administrador</div>
+        <div class="admin-name" id="admin-perfil-nombre">Admin</div>
+        <div class="admin-role">Cerrar Sesión <i class="fa-solid fa-right-from-bracket" style="font-size:10px; margin-left:2px;"></i></div>
       </div>
     </div>
   </div>
 </aside>
 
-<!-- ═══════════════════════════════════
-     MAIN
-═══════════════════════════════════ -->
 <div class="main-content">
-
-  <!-- TOPBAR -->
   <header class="topbar">
-    <button style="display:none;background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-2)" id="menu-btn" onclick="toggleSidebar()">
-      <i class="fa-solid fa-bars"></i>
-    </button>
+    <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
     <div class="topbar-title">
-      <h1 id="page-title">Dashboard</h1>
-      <p id="page-subtitle">Resumen general de la plataforma</p>
+      <h1 id="topbar-saludo">¡Hola, Administrador!</h1>
+      <p>Panel de Control Central de Alquilao'</p>
     </div>
     <div class="topbar-actions">
-      <button class="topbar-icon-btn" onclick="refreshData()">
-        <i class="fa-solid fa-rotate"></i>
-      </button>
-      <button class="topbar-icon-btn" onclick="showToast('Tienes 3 notificaciones pendientes', 'blue')">
-        <i class="fa-solid fa-bell"></i>
-        <span class="notif-dot"></span>
-      </button>
-      <button class="btn-primary" onclick="exportData()">
-        <i class="fa-solid fa-download"></i> Exportar
+      <button class="topbar-icon-btn" onclick="showToast('No tienes notificaciones pendientes', 'blue')">
+        <i class="fa-regular fa-bell"></i>
+        <span class="notif-dot" id="notif-alerta" style="display:none"></span>
       </button>
     </div>
   </header>
 
-  <!-- ═══════════════════════════════════
-       PÁGINA: DASHBOARD
-  ═══════════════════════════════════ -->
-  <div class="page active" id="page-dashboard">
-
-    <!-- STATS -->
+  <main class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h2>Dashboard Resumen</h2>
+        <p>Métricas clave globales del estado actual de la plataforma.</p>
+      </div>
+    </div>
+    
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-card-icon blue"><i class="fa-solid fa-users"></i></div>
-        <div class="stat-val" id="stat-usuarios">1,284</div>
-        <div class="stat-label">Total usuarios</div>
-        <div class="stat-trend up"><i class="fa-solid fa-arrow-trend-up"></i> +12% este mes</div>
+        <div class="stat-card-icon blue"><i class="fa-solid fa-house"></i></div>
+        <div class="stat-val" id="stat-totales">0</div>
+        <div class="stat-label">Propiedades Totales</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-icon green"><i class="fa-solid fa-house"></i></div>
-        <div class="stat-val" id="stat-props">342</div>
-        <div class="stat-label">Propiedades activas</div>
-        <div class="stat-trend up"><i class="fa-solid fa-arrow-trend-up"></i> +8% este mes</div>
+        <div class="stat-card-icon green"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="stat-val" id="stat-aprobadas">0</div>
+        <div class="stat-label">Publicadas Activas</div>
       </div>
       <div class="stat-card">
         <div class="stat-card-icon yellow"><i class="fa-solid fa-clock"></i></div>
-        <div class="stat-val" id="stat-pendientes">5</div>
-        <div class="stat-label">Pendientes de aprobación</div>
-        <div class="stat-trend neutral"><i class="fa-solid fa-minus"></i> Sin cambio</div>
+        <div class="stat-val" id="stat-pendientes">0</div>
+        <div class="stat-label">Espera de Revisión</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-icon red"><i class="fa-solid fa-flag"></i></div>
-        <div class="stat-val" id="stat-reportadas">8</div>
-        <div class="stat-label">Reportes activos</div>
-        <div class="stat-trend down"><i class="fa-solid fa-arrow-trend-down"></i> +3 nuevos hoy</div>
+        <div class="stat-card-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="stat-val" id="stat-reportadas">0</div>
+        <div class="stat-label">Prop. Reportadas</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-icon red"><i class="fa-solid fa-user-slash"></i></div>
-        <div class="stat-val" id="stat-suspendidos">7</div>
-        <div class="stat-label">Usuarios suspendidos</div>
-        <div class="stat-trend neutral"><i class="fa-solid fa-minus"></i> Sin cambio</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-icon cyan"><i class="fa-solid fa-chart-line"></i></div>
-        <div class="stat-val" id="stat-ingresos">RD$2.4M</div>
-        <div class="stat-label">Valor publicado (mes)</div>
-        <div class="stat-trend up"><i class="fa-solid fa-arrow-trend-up"></i> +22% este mes</div>
+        <div class="stat-card-icon cyan"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-val" id="stat-usuarios">0</div>
+        <div class="stat-label">Usuarios Registrados</div>
       </div>
     </div>
 
-    <!-- ACTIVIDAD RECIENTE -->
-    <div class="table-card">
-      <div class="table-header">
-        <h3><i class="fa-solid fa-clock-rotate-left"></i> Actividad reciente</h3>
-        <button class="btn-outline" onclick="showPage('publicaciones', document.querySelector('[onclick*=publicaciones]'))">Ver todas</button>
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; @media(max-width:900px){grid-template-columns:1fr;}">
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="fa-solid fa-bolt"></i> Últimas Propiedades</h3>
+          <button class="btn-outline" onclick="showPage('publicaciones')">Ver todas</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Inmueble</th>
+              <th>Precio</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="lista-recientes-dash"></tbody>
+        </table>
       </div>
-      <div class="activity-list" id="activity-list"></div>
+      
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="fa-solid fa-clock-rotate-left"></i> Actividad Reciente</h3>
+        </div>
+        <div id="lista-actividad-dash" class="activity-list"></div>
+      </div>
     </div>
+  </main>
 
-    <!-- RESUMEN PUBLICACIONES -->
-    <div class="table-card">
-      <div class="table-header">
-        <h3><i class="fa-solid fa-house"></i> Publicaciones recientes</h3>
-        <button class="btn-outline" onclick="showPage('publicaciones', document.querySelector('[onclick*=publicaciones]'))">Gestionar</button>
-      </div>
-      <div style="overflow-x:auto">
-        <table id="dashboard-table"></table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════
-       PÁGINA: PUBLICACIONES
-  ═══════════════════════════════════ -->
-  <div class="page" id="page-publicaciones">
+  <main class="page" id="page-publicaciones">
     <div class="page-header">
       <div>
         <h2>Gestión de Publicaciones</h2>
-        <p>Administra todas las propiedades publicadas en la plataforma</p>
+        <p>Listado e historial de todos los inmuebles subidos por los usuarios.</p>
       </div>
-      <div style="display:flex;gap:10px">
+    </div>
+    <div class="table-card">
+      <div class="table-header">
         <div class="search-input">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Buscar propiedad..." oninput="filterTable('pub-table', this.value)" />
+          <input type="text" id="busqueda-pub" placeholder="Buscar inmueble..." oninput="filtrarTablaPublicaciones()" />
         </div>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Propiedad</th>
+            <th>Ubicación</th>
+            <th>Precio</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-publicaciones-cuerpo"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <main class="page" id="page-reportes">
+    <div class="page-header">
+      <div>
+        <h2>Reportes de Soporte</h2>
+        <p>Tickets, quejas o reclamaciones abiertas por la comunidad.</p>
       </div>
     </div>
     <div class="table-card">
-      <div class="table-header">
-        <h3><i class="fa-solid fa-list"></i> Todas las publicaciones</h3>
-        <div class="table-filters">
-          <button class="filter-tab active" onclick="filterByStatus('pub-table', '', this)">Todas</button>
-          <button class="filter-tab" onclick="filterByStatus('pub-table', 'aprobada', this)">Aprobadas</button>
-          <button class="filter-tab" onclick="filterByStatus('pub-table', 'pendiente', this)">Pendientes</button>
-          <button class="filter-tab" onclick="filterByStatus('pub-table', 'reportada', this)">Reportadas</button>
-          <button class="filter-tab" onclick="filterByStatus('pub-table', 'suspendida', this)">Suspendidas</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto">
-        <table id="pub-table"></table>
-      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Motivo / Mensaje</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-reportes-cuerpo"></tbody>
+      </table>
     </div>
-  </div>
+  </main>
 
-  <!-- ═══════════════════════════════════
-       PÁGINA: REPORTES
-  ═══════════════════════════════════ -->
-  <div class="page" id="page-reportes">
+  <main class="page" id="page-usuarios">
     <div class="page-header">
       <div>
-        <h2>Gestión de Reportes</h2>
-        <p>Revisa y gestiona los reportes enviados por usuarios</p>
+        <h2>Control de Usuarios</h2>
+        <p>Administración de cuentas registradas, inquilinos, propietarios y agentes.</p>
       </div>
     </div>
     <div class="table-card">
-      <div class="table-header">
-        <h3><i class="fa-solid fa-flag"></i> Reportes recibidos</h3>
-        <div class="table-filters">
-          <button class="filter-tab active" onclick="filterByStatus('rep-table', '', this)">Todos</button>
-          <button class="filter-tab" onclick="filterByStatus('rep-table', 'abierto', this)">Abiertos</button>
-          <button class="filter-tab" onclick="filterByStatus('rep-table', 'resuelto', this)">Resueltos</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto">
-        <table id="rep-table"></table>
-      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-usuarios-cuerpo"></tbody>
+      </table>
     </div>
-  </div>
+  </main>
 
-  <!-- ═══════════════════════════════════
-       PÁGINA: USUARIOS
-  ═══════════════════════════════════ -->
-  <div class="page" id="page-usuarios">
+  <main class="page" id="page-moderacion">
     <div class="page-header">
       <div>
-        <h2>Supervisión de Usuarios</h2>
-        <p>Gestiona las cuentas de usuarios registrados</p>
+        <h2>Cola de Moderación</h2>
+        <p>Inmuebles nuevos que requieren aprobación antes de mostrarse públicamente en Alquilao'.</p>
       </div>
-      <div class="search-input">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Buscar usuario..." oninput="filterTable('usr-table', this.value)" />
+    </div>
+    <div class="mod-grid" id="grid-moderacion-cuerpo"></div>
+  </main>
+
+  <main class="page" id="page-reportadas">
+    <div class="page-header">
+      <div>
+        <h2>Inmuebles Denunciados</h2>
+        <p>Propiedades activas marcadas por los usuarios como fraudulentas, duplicadas o sospechosas.</p>
       </div>
     </div>
     <div class="table-card">
-      <div class="table-header">
-        <h3><i class="fa-solid fa-users"></i> Todos los usuarios</h3>
-        <div class="table-filters">
-          <button class="filter-tab active" onclick="filterByStatus('usr-table', '', this)">Todos</button>
-          <button class="filter-tab" onclick="filterByStatus('usr-table', 'activo', this)">Activos</button>
-          <button class="filter-tab" onclick="filterByStatus('usr-table', 'suspendida', this)">Suspendidos</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto">
-        <table id="usr-table"></table>
-      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Inmueble</th>
+            <th>Denuncias</th>
+            <th>Último Motivo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-reportadas-prop-cuerpo"></tbody>
+      </table>
     </div>
-  </div>
+  </main>
+</div>
 
-  <!-- ═══════════════════════════════════
-       PÁGINA: MODERACIÓN
-  ═══════════════════════════════════ -->
-  <div class="page" id="page-moderacion">
-    <div class="page-header">
-      <div>
-        <h2>Moderación de Contenido</h2>
-        <p>Revisa y modera el contenido publicado</p>
-      </div>
-      <div class="table-filters">
-        <button class="filter-tab active" onclick="filterMod('', this)">Todas</button>
-        <button class="filter-tab" onclick="filterMod('pendiente', this)">Pendientes</button>
-        <button class="filter-tab" onclick="filterMod('reportada', this)">Reportadas</button>
-        <button class="filter-tab" onclick="filterMod('aprobada', this)">Aprobadas</button>
-      </div>
-    </div>
-    <div class="mod-grid" id="mod-grid"></div>
-  </div>
-
-  <!-- ═══════════════════════════════════
-       PÁGINA: PROP. REPORTADAS
-  ═══════════════════════════════════ -->
-  <div class="page" id="page-reportadas">
-    <div class="page-header">
-      <div>
-        <h2>Propiedades Reportadas</h2>
-        <p>Propiedades con múltiples reportes que requieren atención</p>
-      </div>
-    </div>
-    <div class="table-card">
-      <div class="table-header">
-        <h3><i class="fa-solid fa-triangle-exclamation"></i> Propiedades bajo revisión</h3>
-      </div>
-      <div style="overflow-x:auto">
-        <table id="rep-prop-table"></table>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /main-content -->
-
-<!-- TOAST -->
-<div class="toast" id="toast">
-  <i class="fa-solid fa-circle-check" id="toast-icon"></i>
-  <span id="toast-msg">Acción completada</span>
+<div id="toast" class="toast">
+  <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+  <span id="toast-msg">Operación completada</span>
 </div>
 
 <script>
-/* ═══════════════════════════════════════
-   DATOS MOCK
-═══════════════════════════════════════ */
-const propiedades = [
-  { id:1, titulo:'Apartamento moderno en Piantini', ubicacion:'Piantini, S.D.', precio:'RD$55,000', tipo:'Alquiler', propietario:'Carlos Méndez', fecha:'28 May 2026', estado:'aprobada', img:'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=80&q=60' },
-  { id:2, titulo:'Casa familiar en Arroyo Hondo', ubicacion:'Arroyo Hondo, S.D.', precio:'RD$75,000', tipo:'Alquiler', propietario:'María González', fecha:'27 May 2026', estado:'pendiente', img:'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=80&q=60' },
-  { id:3, titulo:'Local comercial en Evaristo Morales', ubicacion:'Evaristo Morales, S.D.', precio:'RD$28,000', tipo:'Alquiler', propietario:'Roberto Díaz', fecha:'26 May 2026', estado:'reportada', img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=80&q=60' },
-  { id:4, titulo:'Villa con piscina en Los Prados', ubicacion:'Los Prados, S.D.', precio:'RD$95,000', tipo:'Alquiler', propietario:'Ana Rodríguez', fecha:'25 May 2026', estado:'aprobada', img:'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=80&q=60' },
-  { id:5, titulo:'Studio en Gazcue', ubicacion:'Gazcue, S.D.', precio:'RD$18,000', tipo:'Alquiler', propietario:'Pedro Jiménez', fecha:'24 May 2026', estado:'pendiente', img:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=80&q=60' },
-  { id:6, titulo:'Penthouse en Serrallés', ubicacion:'Serrallés, S.D.', precio:'RD$120,000', tipo:'Alquiler', propietario:'Laura Martínez', fecha:'23 May 2026', estado:'suspendida', img:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=80&q=60' },
-  { id:7, titulo:'Apartamento en Bella Vista', ubicacion:'Bella Vista, S.D.', precio:'RD$42,000', tipo:'Alquiler', propietario:'Juan Pérez', fecha:'22 May 2026', estado:'aprobada', img:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=80&q=60' },
-  { id:8, titulo:'Casa en Santiago', ubicacion:'Jardines del Norte, Stgo.', precio:'RD$35,000', tipo:'Alquiler', propietario:'Carmen López', fecha:'21 May 2026', estado:'pendiente', img:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=80&q=60' },
-];
+const API_BASE = 'http://localhost:3000/api';
+let tokenGlobal = '';
 
-const reportes = [
-  { id:1, usuario:'Miguel Torres', prop:'Local comercial en Evaristo Morales', motivo:'Información falsa', fecha:'28 May 2026', estado:'abierto' },
-  { id:2, usuario:'Sofía Castro', prop:'Studio en Gazcue', motivo:'Fotos engañosas', fecha:'27 May 2026', estado:'abierto' },
-  { id:3, usuario:'Diego Vargas', prop:'Penthouse en Serrallés', motivo:'Precio incorrecto', fecha:'26 May 2026', estado:'resuelto' },
-  { id:4, usuario:'Valentina Ruiz', prop:'Apartamento en Naco', motivo:'Contacto inválido', fecha:'25 May 2026', estado:'abierto' },
-  { id:5, usuario:'Andrés Mora', prop:'Casa en Los Alcarrizos', motivo:'Contenido inapropiado', fecha:'24 May 2026', estado:'abierto' },
-  { id:6, usuario:'Isabella Cruz', prop:'Villa en Punta Cana', motivo:'Estafa', fecha:'23 May 2026', estado:'resuelto' },
-];
+// Almacenamiento local de datos para filtrado en tiempo real
+let cachePublicaciones = [];
 
-const usuarios = [
-  { id:1, nombre:'Carlos Méndez', email:'carlos@email.com', tel:'+1(809)555-0123', pubs:12, estado:'activo', fecha:'15 Ene 2026', avatar:'https://randomuser.me/api/portraits/men/32.jpg' },
-  { id:2, nombre:'María González', email:'maria@email.com', tel:'+1(809)555-0456', pubs:5, estado:'activo', fecha:'20 Feb 2026', avatar:'https://randomuser.me/api/portraits/women/44.jpg' },
-  { id:3, nombre:'Roberto Díaz', email:'roberto@email.com', tel:'+1(809)555-0789', pubs:3, estado:'suspendida', fecha:'10 Mar 2026', avatar:'https://randomuser.me/api/portraits/men/55.jpg' },
-  { id:4, nombre:'Ana Rodríguez', email:'ana@email.com', tel:'+1(809)555-0321', pubs:8, estado:'activo', fecha:'5 Abr 2026', avatar:'https://randomuser.me/api/portraits/women/67.jpg' },
-  { id:5, nombre:'Pedro Jiménez', email:'pedro@email.com', tel:'+1(809)555-0654', pubs:1, estado:'activo', fecha:'18 Abr 2026', avatar:'https://randomuser.me/api/portraits/men/78.jpg' },
-  { id:6, nombre:'Laura Martínez', email:'laura@email.com', tel:'+1(809)555-0987', pubs:6, estado:'suspendida', fecha:'2 May 2026', avatar:'https://randomuser.me/api/portraits/women/89.jpg' },
-  { id:7, nombre:'Juan Pérez', email:'juan@email.com', tel:'+1(809)555-0111', pubs:4, estado:'activo', fecha:'10 May 2026', avatar:'https://randomuser.me/api/portraits/men/12.jpg' },
-];
+document.addEventListener('DOMContentLoaded', () => {
+  // 🚨 CAMBIO AQUÍ: Usamos el sistema unificado de seguridad.js
+  const usuario = Seguridad.getUsuario();
+  const token = Seguridad.getToken();
 
-const propsReportadas = [
-  { id:1, titulo:'Local comercial en Evaristo Morales', propietario:'Roberto Díaz', reportes:5, motivo:'Información falsa', fecha:'26 May 2026', estado:'reportada', img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=80&q=60' },
-  { id:2, titulo:'Studio en Gazcue', propietario:'Pedro Jiménez', reportes:3, motivo:'Fotos engañosas', fecha:'25 May 2026', estado:'reportada', img:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=80&q=60' },
-  { id:3, titulo:'Apartamento en Naco', propietario:'Luis Fernández', reportes:4, motivo:'Contacto inválido', fecha:'24 May 2026', estado:'sospechosa', img:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=80&q=60' },
-  { id:4, titulo:'Casa en Los Alcarrizos', propietario:'Marco Reyes', reportes:7, motivo:'Estafa', fecha:'23 May 2026', estado:'suspendida', img:'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=80&q=60' },
-];
+  // Si no hay usuario, token, o el rol no es estricto admin, pa' fuera
+  if (!usuario || !token || usuario.rol !== 'admin') {
+    window.location.replace('../login.html');
+    return;
+  }
 
-const actividades = [
-  { tipo:'green', icon:'fa-check', texto:'<strong>Apartamento en Bella Vista</strong> fue aprobado por el administrador', tiempo:'Hace 5 min' },
-  { tipo:'red', icon:'fa-flag', texto:'Nuevo reporte de <strong>Miguel Torres</strong> sobre Local en Evaristo Morales', tiempo:'Hace 18 min' },
-  { tipo:'yellow', icon:'fa-clock', texto:'<strong>Casa en Santiago</strong> está pendiente de revisión', tiempo:'Hace 32 min' },
-  { tipo:'blue', icon:'fa-user-plus', texto:'Nuevo usuario registrado: <strong>Carmen López</strong>', tiempo:'Hace 1 hora' },
-  { tipo:'red', icon:'fa-user-slash', texto:'Usuario <strong>Roberto Díaz</strong> fue suspendido por contenido inapropiado', tiempo:'Hace 2 horas' },
-  { tipo:'green', icon:'fa-house', texto:'<strong>Villa con piscina en Los Prados</strong> publicada exitosamente', tiempo:'Hace 3 horas' },
-  { tipo:'yellow', icon:'fa-triangle-exclamation', texto:'<strong>4 propiedades</strong> marcadas como sospechosas esta semana', tiempo:'Hace 5 horas' },
-];
+  tokenGlobal = token;
 
-/* ═══════════════════════════════════════
-   RENDERS
-═══════════════════════════════════════ */
-function renderActivity() {
-  const list = document.getElementById('activity-list');
-  list.innerHTML = actividades.map(a => `
-    <div class="activity-item">
-      <div class="activity-dot ${a.tipo}"><i class="fa-solid ${a.icon}"></i></div>
-      <div style="flex:1">
-        <div class="activity-text">${a.texto}</div>
-        <div class="activity-time">${a.tiempo}</div>
-      </div>
-    </div>
-  `).join('');
+  // Renderizar información del Administrador logueado
+  document.getElementById('topbar-saludo').innerText = `¡Hola, ${usuario.nombre}!`;
+  document.getElementById('admin-perfil-nombre').innerText = usuario.nombre;
+  document.getElementById('avatar-letras').innerText = usuario.nombre.substring(0, 2).toUpperCase();
+
+  // Carga asíncrona inicial de la base de datos central
+  inicializarPanel();
+});
+async function inicializarPanel() {
+  await cargarMetricasYBadges();
+  await cargarDashboard();
+  await cargarTodasLasSecciones();
 }
 
-function renderDashboardTable() {
-  const t = document.getElementById('dashboard-table');
-  t.innerHTML = `
-    <thead><tr>
-      <th>Propiedad</th><th>Propietario</th><th>Precio</th><th>Estado</th><th>Fecha</th>
-    </tr></thead>
-    <tbody>${propiedades.slice(0,5).map(p => `
-      <tr>
-        <td><div class="prop-mini">
-          <div class="prop-mini-img"><img src="${p.img}" /></div>
-          <div><div class="prop-mini-title">${p.titulo}</div><div class="prop-mini-sub">${p.ubicacion}</div></div>
-        </div></td>
-        <td>${p.propietario}</td>
-        <td style="font-weight:700;color:var(--blue)">${p.precio}</td>
-        <td><span class="badge ${p.estado}">${p.estado.charAt(0).toUpperCase()+p.estado.slice(1)}</span></td>
-        <td>${p.fecha}</td>
-      </tr>
-    `).join('')}</tbody>
-  `;
-}
+// 1. CARGAR MÉTRICAS Y ACTUALIZAR CONTADORES DE LOS BADGES DEL SIDEBAR
+async function cargarMetricasYBadges() {
+  try {
+    const res = await fetch(`${API_BASE}/admin/metricas`, {
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
 
-function renderPubTable() {
-  const t = document.getElementById('pub-table');
-  t.innerHTML = `
-    <thead><tr>
-      <th>Propiedad</th><th>Propietario</th><th>Precio</th><th>Tipo</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
-    </tr></thead>
-    <tbody id="pub-tbody">${propiedades.map(p => `
-      <tr data-status="${p.estado}">
-        <td><div class="prop-mini">
-          <div class="prop-mini-img"><img src="${p.img}" /></div>
-          <div><div class="prop-mini-title">${p.titulo}</div><div class="prop-mini-sub">${p.ubicacion}</div></div>
-        </div></td>
-        <td>${p.propietario}</td>
-        <td style="font-weight:700;color:var(--blue)">${p.precio}</td>
-        <td>${p.tipo}</td>
-        <td><span class="badge ${p.estado}">${p.estado.charAt(0).toUpperCase()+p.estado.slice(1)}</span></td>
-        <td>${p.fecha}</td>
-        <td><div class="action-btns">
-          <button class="action-btn approve" onclick="doAction('Aprobada', '${p.titulo}')"><i class="fa-solid fa-check"></i> Aprobar</button>
-          <button class="action-btn suspend" onclick="doAction('Suspendida', '${p.titulo}')"><i class="fa-solid fa-pause"></i> Suspender</button>
-          <button class="action-btn delete" onclick="doAction('Eliminada', '${p.titulo}')"><i class="fa-solid fa-trash"></i></button>
-          <button class="action-btn view" onclick="showToast('Ver detalles: ${p.titulo}', 'blue')"><i class="fa-solid fa-eye"></i></button>
-        </div></td>
-      </tr>
-    `).join('')}</tbody>
-  `;
-}
+    // Actualizar números del Dashboard principal
+    document.getElementById('stat-totales').innerText = data.totales || 0;
+    document.getElementById('stat-aprobadas').innerText = data.aprobadas || 0;
+    document.getElementById('stat-pendientes').innerText = data.pendientes || 0;
+    document.getElementById('stat-reportadas').innerText = data.propidadesReportadas || 0;
+    document.getElementById('stat-usuarios').innerText = data.usuariosTotales || 0;
 
-function renderRepTable() {
-  const t = document.getElementById('rep-table');
-  t.innerHTML = `
-    <thead><tr>
-      <th>Usuario</th><th>Publicación reportada</th><th>Motivo</th><th>Fecha</th><th>Estado</th><th>Acciones</th>
-    </tr></thead>
-    <tbody id="rep-tbody">${reportes.map(r => `
-      <tr data-status="${r.estado}">
-        <td><div class="user-mini">
-          <div class="user-mini-avatar">${r.usuario.charAt(0)}</div>
-          <div class="user-mini-name">${r.usuario}</div>
-        </div></td>
-        <td style="max-width:200px;font-size:13px">${r.prop}</td>
-        <td><span style="font-size:12px;color:var(--text-2)">${r.motivo}</span></td>
-        <td>${r.fecha}</td>
-        <td><span class="badge ${r.estado}">${r.estado.charAt(0).toUpperCase()+r.estado.slice(1)}</span></td>
-        <td><div class="action-btns">
-          <button class="action-btn resolve" onclick="doAction('Resuelto', 'Reporte de '+r.usuario)"><i class="fa-solid fa-check"></i> Resolver</button>
-          <button class="action-btn delete" onclick="doAction('Eliminada', r.prop)"><i class="fa-solid fa-trash"></i> Eliminar pub.</button>
-          <button class="action-btn ignore" onclick="doAction('Ignorado', 'Reporte de '+r.usuario)"><i class="fa-solid fa-ban"></i> Ignorar</button>
-        </div></td>
-      </tr>
-    `).join('')}</tbody>
-  `;
-}
+    // Actualizar los globos de notificación (Badges) en el Sidebar lateral
+    document.getElementById('badge-pub').innerText = data.pendientes || 0;
+    document.getElementById('badge-rep').innerText = data.reportesSoporte || 0;
+    document.getElementById('badge-mod').innerText = data.pendientes || 0;
+    document.getElementById('badge-rep-prop').innerText = data.propidadesReportadas || 0;
 
-function renderUsrTable() {
-  const t = document.getElementById('usr-table');
-  t.innerHTML = `
-    <thead><tr>
-      <th>Usuario</th><th>Teléfono</th><th>Publicaciones</th><th>Estado</th><th>Registro</th><th>Acciones</th>
-    </tr></thead>
-    <tbody id="usr-tbody">${usuarios.map(u => `
-      <tr data-status="${u.estado}">
-        <td><div class="user-mini">
-          <div class="user-mini-avatar"><img src="${u.avatar}" /></div>
-          <div><div class="user-mini-name">${u.nombre}</div><div class="user-mini-email">${u.email}</div></div>
-        </div></td>
-        <td>${u.tel}</td>
-        <td><span style="font-weight:700;color:var(--blue)">${u.pubs}</span></td>
-        <td><span class="badge ${u.estado}">${u.estado.charAt(0).toUpperCase()+u.estado.slice(1)}</span></td>
-        <td>${u.fecha}</td>
-        <td><div class="action-btns">
-          <button class="action-btn suspend" onclick="doAction('Suspendido', '${u.nombre}')"><i class="fa-solid fa-pause"></i> Suspender</button>
-          <button class="action-btn approve" onclick="doAction('Reactivado', '${u.nombre}')"><i class="fa-solid fa-rotate"></i> Reactivar</button>
-          <button class="action-btn delete" onclick="doAction('Eliminado', '${u.nombre}')"><i class="fa-solid fa-trash"></i></button>
-          <button class="action-btn view" onclick="showToast('Ver perfil: ${u.nombre}', 'blue')"><i class="fa-solid fa-eye"></i></button>
-        </div></td>
-      </tr>
-    `).join('')}</tbody>
-  `;
-}
-
-function renderModGrid(filter = '') {
-  const grid = document.getElementById('mod-grid');
-  const data = filter ? propiedades.filter(p => p.estado === filter) : propiedades;
-  if (!data.length) { grid.innerHTML = '<p style="color:var(--text-3);padding:20px">No hay contenido para mostrar.</p>'; return; }
-  grid.innerHTML = data.map(p => `
-    <div class="mod-card">
-      <div class="mod-card-img">
-        <img src="${p.img.replace('w=80', 'w=400')}" />
-        ${p.estado === 'reportada' ? '<div class="mod-card-reports"><i class="fa-solid fa-flag"></i> Reportada</div>' : ''}
-      </div>
-      <div class="mod-card-body">
-        <div class="mod-card-title">${p.titulo}</div>
-        <div class="mod-card-desc">${p.ubicacion} · ${p.precio}/mes</div>
-        <div class="mod-card-owner"><i class="fa-solid fa-user"></i> ${p.propietario}</div>
-        <div style="margin-bottom:8px"><span class="badge ${p.estado}">${p.estado.charAt(0).toUpperCase()+p.estado.slice(1)}</span></div>
-        <div class="mod-card-actions">
-          <button class="action-btn approve" onclick="doAction('Aprobada', '${p.titulo}')"><i class="fa-solid fa-check"></i> Aprobar</button>
-          <button class="action-btn delete" onclick="doAction('Rechazada', '${p.titulo}')"><i class="fa-solid fa-xmark"></i> Rechazar</button>
-          <button class="action-btn suspend" onclick="doAction('Marcada como sospechosa', '${p.titulo}')"><i class="fa-solid fa-triangle-exclamation"></i> Sospechosa</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderRepPropTable() {
-  const t = document.getElementById('rep-prop-table');
-  t.innerHTML = `
-    <thead><tr>
-      <th>Propiedad</th><th>Propietario</th><th>Reportes</th><th>Motivo principal</th><th>Fecha</th><th>Estado</th><th>Acciones</th>
-    </tr></thead>
-    <tbody>${propsReportadas.map(p => `
-      <tr>
-        <td><div class="prop-mini">
-          <div class="prop-mini-img"><img src="${p.img}" /></div>
-          <div><div class="prop-mini-title">${p.titulo}</div></div>
-        </div></td>
-        <td>${p.propietario}</td>
-        <td><span style="background:var(--danger-bg);color:var(--danger);font-weight:700;padding:3px 10px;border-radius:99px;font-size:12px">${p.reportes} reportes</span></td>
-        <td style="font-size:12.5px;color:var(--text-2)">${p.motivo}</td>
-        <td>${p.fecha}</td>
-        <td><span class="badge ${p.estado}">${p.estado.charAt(0).toUpperCase()+p.estado.slice(1)}</span></td>
-        <td><div class="action-btns">
-          <button class="action-btn delete" onclick="doAction('Eliminada', '${p.titulo}')"><i class="fa-solid fa-trash"></i> Eliminar</button>
-          <button class="action-btn restore" onclick="doAction('Restaurada', '${p.titulo}')"><i class="fa-solid fa-rotate"></i> Restaurar</button>
-          <button class="action-btn block" onclick="doAction('Bloqueado', '${p.propietario}')"><i class="fa-solid fa-ban"></i> Bloquear usuario</button>
-        </div></td>
-      </tr>
-    `).join('')}</tbody>
-  `;
-}
-
-/* ═══════════════════════════════════════
-   NAVEGACIÓN
-═══════════════════════════════════════ */
-const pageTitles = {
-  dashboard: ['Dashboard', 'Resumen general de la plataforma'],
-  publicaciones: ['Gestión de Publicaciones', 'Administra propiedades publicadas'],
-  reportes: ['Gestión de Reportes', 'Revisa reportes de usuarios'],
-  usuarios: ['Supervisión de Usuarios', 'Gestiona las cuentas de usuarios'],
-  moderacion: ['Moderación de Contenido', 'Revisa y modera el contenido'],
-  reportadas: ['Propiedades Reportadas', 'Propiedades que requieren atención urgente'],
-};
-
-function showPage(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  if (btn) btn.classList.add('active');
-  const [title, sub] = pageTitles[id] || ['Admin', ''];
-  document.getElementById('page-title').textContent = title;
-  document.getElementById('page-subtitle').textContent = sub;
-}
-
-/* ═══════════════════════════════════════
-   FILTROS
-═══════════════════════════════════════ */
-function filterByStatus(tableId, status, btn) {
-  const tbody = document.getElementById(tableId.replace('-table', '-tbody'));
-  if (!tbody) return;
-  tbody.querySelectorAll('tr').forEach(row => {
-    row.style.display = (!status || row.dataset.status === status) ? '' : 'none';
-  });
-  if (btn) {
-    btn.closest('.table-filters').querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
+    if(data.propidadesReportadas > 0 || data.pendientes > 0) {
+      document.getElementById('notif-alerta').style.display = 'block';
+    } else {
+      document.getElementById('notif-alerta').style.display = 'none';
+    }
+  } catch (err) {
+    console.error("Error cargando métricas reales:", err);
   }
 }
 
-function filterTable(tableId, val) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-  table.querySelectorAll('tbody tr').forEach(row => {
-    row.style.display = row.textContent.toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
-  });
+// 2. POBLAR VISTA DEL DASHBOARD (PROPIEDADES RECIENTES Y LOGS DE ACTIVIDAD)
+async function cargarDashboard() {
+  try {
+    // Cargar últimas 5 propiedades insertadas
+    const resProp = await fetch(`${API_BASE}/admin/propiedades-recientes`, {
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    const recientes = await resProp.json();
+    const tbodyDash = document.getElementById('lista-recientes-dash');
+    
+    if(recientes.length === 0) {
+      tbodyDash.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--text-3)">No hay registros</td></tr>`;
+    } else {
+      tbodyDash.innerHTML = recientes.map(p => `
+        <tr>
+          <td>
+            <div class="prop-mini">
+              <div class="prop-mini-img"><img src="${p.imagen_url || '../../images/placeholder.jpg'}" onerror="this.onerror=null; this.src='../../images/placeholder.jpg';"></div>
+              <div>
+                <div class="prop-mini-title">${p.titulo}</div>
+                <div class="prop-mini-sub">${p.sector || 'República Dominicana'}</div>
+              </div>
+            </div>
+          </td>
+          <td>RD$ ${(p.precio || 0).toLocaleString('es-DO')}</td>
+          <td><span class="badge ${p.estado.toLowerCase()}">${p.estado}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // Cargar logs o historial de acciones recientes de la plataforma
+    const resAct = await fetch(`${API_BASE}/admin/actividad-reciente`, {
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    const actividades = await resAct.json();
+    const containerAct = document.getElementById('lista-actividad-dash');
+
+    if(actividades.length === 0) {
+      containerAct.innerHTML = `<p style="text-align:center; padding:20px; color:var(--text-3)">Sin actividad reciente</p>`;
+    } else {
+      containerAct.innerHTML = actividades.map(a => {
+        let colorDot = 'blue';
+        if(a.tipo === 'ALERTA' || a.tipo === 'RECHAZO') colorDot = 'red';
+        if(a.tipo === 'APROBACION' || a.tipo === 'REGISTRO') colorDot = 'green';
+        
+        return `
+          <div class="activity-item">
+            <div class="activity-dot ${colorDot}"><i class="${a.icono || 'fa-solid fa-circle-info'}"></i></div>
+            <div class="activity-text">${a.descripcion}</div>
+            <div class="activity-time">${a.hace_cuanto || 'Ahora'}</div>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch(e) {
+    console.error("Error al poblar el Dashboard:", e);
+  }
 }
 
-function filterMod(status, btn) {
-  renderModGrid(status);
-  btn.closest('.table-filters').querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
+// 3. CARGAR EL RESTO DE SECCIONES INTERNAS EN CACHE O TABLAS
+async function cargarTodasLasSecciones() {
+  try {
+    // Sección: Gestión de todas las publicaciones
+    const resPub = await fetch(`${API_BASE}/propiedades`, {
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    cachePublicaciones = await resPub.json();
+    renderizarTablaPublicaciones(cachePublicaciones);
+
+    // Sección: Reportes de Soporte Técnico / Tickets
+    const resRep = await fetch(`${API_BASE}/admin/reportes-soporte`, {
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    const reportes = await resRep.json();
+    const tbodyRep = document.getElementById('tabla-reportes-cuerpo');
+    tbodyRep.innerHTML = reportes.length === 0 ? `<tr><td colspan="5" style="text-align:center">No hay reportes de soporte abiertos</td></tr>` : reportes.map(r => `
+      <tr>
+        <td>
+          <div class="user-mini">
+            <div class="user-mini-avatar">${r.nombre.substring(0,2).toUpperCase()}</div>
+            <div>
+              <div class="user-mini-name">${r.nombre}</div>
+              <div class="user-mini-email">${r.correo}</div>
+            </div>
+          </div>
+        </td>
+        <td><strong>${r.asunto || 'Soporte'}</strong><br><span style="font-size:12px;color:var(--text-3)">${r.mensaje}</span></td>
+        <td>${new Date(r.fecha_creacion).toLocaleDateString('es-DO')}</td>
+        <td><span class="badge ${r.estado.toLowerCase()}">${r.estado}</span></td>
+        <td>
+          <div class="action-btns">
+            ${r.estado !== 'Resuelto' ? `<button class="action-btn approve" onclick="resolverReporte(${r.id})"><i class="fa-solid fa-check"></i> Marcar Resuelto</button>` : `<span style="color:var(--success);font-size:12px;"><i class="fa-solid fa-square-check"></i> Atendido</span>`}
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    // Sección: Lista de todos los Usuarios Registrados
+    const resUser = await fetch(`${API_BASE}/admin/usuarios`, {
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    const usuarios = await resUser.json();
+    const tbodyUser = document.getElementById('tabla-usuarios-cuerpo');
+    tbodyUser.innerHTML = usuarios.length === 0 ? `<tr><td colspan="4" style="text-align:center">No hay usuarios registrados</td></tr>` : usuarios.map(u => `
+      <tr>
+        <td>
+          <div class="user-mini">
+            <div class="user-mini-avatar">${u.nombre.substring(0,2).toUpperCase()}</div>
+            <div>
+              <div class="user-mini-name">${u.nombre}</div>
+              <div class="user-mini-email">${u.correo}</div>
+            </div>
+          </div>
+        </td>
+        <td><span style="text-transform: capitalize; font-weight:600;">${u.rol}</span></td>
+        <td><span class="badge ${u.activo ? 'activo' : 'inactivo'}">${u.activo ? 'Activo' : 'Suspendido'}</span></td>
+        <td>
+          <div class="action-btns">
+            ${u.activo ? 
+              `<button class="action-btn suspend" onclick="cambiarEstadoUsuario(${u.id}, false)"><i class="fa-solid fa-ban"></i> Suspender</button>` : 
+              `<button class="action-btn approve" onclick="cambiarEstadoUsuario(${u.id}, true)"><i class="fa-solid fa-unlock"></i> Reactivar</button>`
+            }
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    // Sección: Cola de Moderación (Tarjetas visuales del mismo diseño)
+    const pendientes = cachePublicaciones.filter(p => p.estado === 'Pendiente');
+    const gridMod = document.getElementById('grid-moderacion-cuerpo');
+    gridMod.innerHTML = pendientes.length === 0 ? `<p style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-3)">No hay propiedades en cola esperando aprobación.</p>` : pendientes.map(p => `
+      <div class="mod-card">
+        <div class="mod-card-img">
+          <img src="${p.imagen_url || '../../images/placeholder.jpg'}" onerror="this.onerror=null; this.src='../../images/placeholder.jpg';">
+        </div>
+        <div class="mod-card-body">
+          <div class="mod-card-title">${p.titulo}</div>
+          <div class="mod-card-desc">Precio: RD$ ${p.precio.toLocaleString()}/mes<br>Ubicado en ${p.sector || 'N/A'}.</div>
+          <div class="mod-card-owner"><i class="fa-solid fa-user"></i> ID Propietario: # ${p.usuario_id || 'Anonimo'}</div>
+          <div class="mod-card-actions">
+            <button class="action-btn approve" onclick="cambiarEstadoInmueble(${p.id}, 'Aprobada')"><i class="fa-solid fa-circle-check"></i> Aprobar</button>
+            <button class="action-btn delete" onclick="cambiarEstadoInmueble(${p.id}, 'Rechazada')"><i class="fa-solid fa-circle-xmark"></i> Rechazar</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // Sección: Propiedades Reportadas / Denunciadas
+    const resPropRep = await fetch(`${API_BASE}/admin/propiedades-reportadas`, {
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    const propReportadas = await resPropRep.json();
+    const tbodyPropRep = document.getElementById('tabla-reportadas-prop-cuerpo');
+    tbodyPropRep.innerHTML = propReportadas.length === 0 ? `<tr><td colspan="4" style="text-align:center">No hay denuncias de inmuebles actualmente</td></tr>` : propReportadas.map(pr => `
+      <tr>
+        <td>
+          <div class="prop-mini">
+            <div class="prop-mini-img"><img src="${pr.imagen_url || '../../images/placeholder.jpg'}" onerror="this.onerror=null; this.src='../../images/placeholder.jpg';"></div>
+            <div>
+              <div class="prop-mini-title">${pr.titulo}</div>
+              <div class="prop-mini-sub">Por: User #${pr.usuario_id}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge reportada"><i class="fa-solid fa-triangle-exclamation"></i> ${pr.total_denuncias || 1} reportes</span></td>
+        <td><span style="font-size:12px; color:var(--text-2); font-style:italic;">"${pr.ultimo_motivo || 'Contenido inapropiado o falso'}"</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="action-btn delete" onclick="eliminarPropiedadDefinitivo(${pr.id})"><i class="fa-solid fa-trash"></i> Retirar Inmueble</button>
+            <button class="action-btn ignore" onclick="desestimarDenunciasPropiedad(${pr.id})"><i class="fa-solid fa-eye-slash"></i> Ignorar</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+  } catch (error) {
+    console.error("Error al inyectar datos funcionales:", error);
+  }
 }
 
-/* ═══════════════════════════════════════
-   ACCIONES
-═══════════════════════════════════════ */
-function doAction(accion, item) {
-  const msgs = {
-    'Aprobada': { msg: `✓ "${item}" aprobada correctamente`, type: 'success' },
-    'Suspendida': { msg: `"${item}" suspendida`, type: 'warning' },
-    'Eliminada': { msg: `"${item}" eliminada del sistema`, type: 'danger' },
-    'Resuelto': { msg: `Reporte resuelto correctamente`, type: 'success' },
-    'Ignorado': { msg: `Reporte ignorado`, type: 'warning' },
-    'Suspendido': { msg: `Usuario "${item}" suspendido`, type: 'warning' },
-    'Reactivado': { msg: `Usuario "${item}" reactivado`, type: 'success' },
-    'Eliminado': { msg: `Usuario "${item}" eliminado`, type: 'danger' },
-    'Restaurada': { msg: `"${item}" restaurada`, type: 'success' },
-    'Bloqueado': { msg: `Usuario "${item}" bloqueado`, type: 'danger' },
-    'Rechazada': { msg: `"${item}" rechazada`, type: 'danger' },
-    'Marcada como sospechosa': { msg: `"${item}" marcada como sospechosa`, type: 'warning' },
-  };
-  const { msg, type } = msgs[accion] || { msg: `${accion}: ${item}`, type: 'success' };
-  showToast(msg, type);
+// 4. LOGICA DE RENDERIZADO Y FILTRADO DE LA TABLA DE PUBLICACIONES
+function renderizarTablaPublicaciones(lista) {
+  const tbody = document.getElementById('tabla-publicaciones-cuerpo');
+  if(lista.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center">No se encontraron propiedades registradas</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(p => `
+    <tr>
+      <td>
+        <div class="prop-mini">
+          <div class="prop-mini-img"><img src="${p.imagen_url || '../../images/placeholder.jpg'}" onerror="this.onerror=null; this.src='../../images/placeholder.jpg';"></div>
+          <div>
+            <div class="prop-mini-title">${p.titulo}</div>
+            <div class="prop-mini-sub">ID: #${p.id}</div>
+          </div>
+        </div>
+      </td>
+      <td>${p.sector || 'D.N.'}, ${p.provincia || 'Santo Domingo'}</td>
+      <td>RD$ ${(p.precio || 0).toLocaleString('es-DO')}</td>
+      <td><span class="badge ${p.estado.toLowerCase()}">${p.estado}</span></td>
+      <td>
+        <div class="action-btns">
+          ${p.estado === 'Aprobada' ? 
+            `<button class="action-btn suspend" onclick="cambiarEstadoInmueble(${p.id}, 'Suspendida')"><i class="fa-solid fa-ban"></i> Suspender</button>` : ''
+          }
+          ${p.estado === 'Suspendida' || p.estado === 'Rechazada' ? 
+            `<button class="action-btn approve" onclick="cambiarEstadoInmueble(${p.id}, 'Aprobada')"><i class="fa-solid fa-circle-check"></i> Habilitar</button>` : ''
+          }
+          <button class="action-btn delete" onclick="eliminarPropiedadDefinitivo(${p.id})"><i class="fa-solid fa-trash"></i> Borrar</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
 }
 
-function refreshData() {
-  showToast('Datos actualizados correctamente', 'success');
-  // Animar contadores
-  animateCounter('stat-usuarios', 1284);
-  animateCounter('stat-props', 342);
+function filtrarTablaPublicaciones() {
+  const txt = document.getElementById('busqueda-pub').value.toLowerCase();
+  const filtradas = cachePublicaciones.filter(p => 
+    p.titulo.toLowerCase().includes(txt) || 
+    (p.sector && p.sector.toLowerCase().includes(txt))
+  );
+  renderizarTablaPublicaciones(filtradas);
 }
 
-function exportData() { showToast('Exportando datos... (funcionalidad de backend)', 'blue'); }
-
-function animateCounter(id, target) {
-  const el = document.getElementById(id);
-  if (!el || isNaN(target)) return;
-  let current = 0;
-  const step = Math.ceil(target / 30);
-  const timer = setInterval(() => {
-    current = Math.min(current + step, target);
-    el.textContent = current.toLocaleString();
-    if (current >= target) clearInterval(timer);
-  }, 40);
+// 5. OPERACIONES / ACCIONES DIRECTAS AL BACKEND (ACCIONES CRUD Y MODERACIÓN)
+async function cambiarEstadoInmueble(id, nuevoEstado) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/propiedades/${id}/estado`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tokenGlobal}`
+      },
+      body: JSON.stringify({ estado: nuevoEstado })
+    });
+    if(!res.ok) throw new Error();
+    showToast(`Inmueble cambiado a ${nuevoEstado} con éxito`, 'success');
+    inicializarPanel(); // Recargar todas las vistas y métricas en caliente
+  } catch(e) {
+    showToast('No se pudo cambiar el estado de la propiedad', 'danger');
+  }
 }
 
-/* ═══════════════════════════════════════
-   TOAST
-═══════════════════════════════════════ */
-let toastTimeout;
-function showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
-  const icon = document.getElementById('toast-icon');
-  document.getElementById('toast-msg').textContent = msg;
-  const icons = { success: 'fa-circle-check', warning: 'fa-triangle-exclamation', danger: 'fa-circle-xmark', blue: 'fa-circle-info' };
-  icon.className = `fa-solid ${icons[type] || 'fa-circle-check'}`;
-  toast.className = `toast ${type} visible`;
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => toast.classList.remove('visible'), 3500);
+async function eliminarPropiedadDefinitivo(id) {
+  if(!confirm('¿Estás completamente seguro de eliminar esta propiedad de manera permanente del sistema?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/propiedades/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    if(!res.ok) throw new Error();
+    showToast('Propiedad eliminada del sistema correctamente', 'success');
+    inicializarPanel();
+  } catch(e) {
+    showToast('Error al intentar eliminar el inmueble', 'danger');
+  }
+}
+
+async function cambiarEstadoUsuario(id, activar) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/usuarios/${id}/estado`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tokenGlobal}`
+      },
+      body: JSON.stringify({ activo: activar })
+    });
+    if(!res.ok) throw new Error();
+    showToast(activar ? 'Usuario reactivado correctamente' : 'Cuenta de usuario suspendida', 'warning');
+    inicializarPanel();
+  } catch(e) {
+    showToast('No se pudo modificar el acceso del usuario', 'danger');
+  }
+}
+
+async function resolverReporte(id) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/reportes-soporte/${id}/resolver`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    if(!res.ok) throw new Error();
+    showToast('Ticket marcado como resuelto', 'success');
+    inicializarPanel();
+  } catch(e) {
+    showToast('No se pudo actualizar el ticket de soporte', 'danger');
+  }
+}
+
+async function desestimarDenunciasPropiedad(id) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/propiedades/${id}/desestimar-denuncias`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    });
+    if(!res.ok) throw new Error();
+    showToast('Denuncias desestimadas. Inmueble conservado', 'success');
+    inicializarPanel();
+  } catch(e) {
+    showToast('Error al desestimar denuncias', 'danger');
+  }
+}
+
+// 6. CONTROLADORES VISUALES DE NAVEGACIÓN INTERNA INTERACTIVA
+function showPage(pageId, elementBtn) {
+  // Ocultar todas las páginas
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Quitar estado activo a los botones del menú lateral
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+
+  // Activar la página seleccionada
+  const targetPage = document.getElementById(`page-${pageId}`);
+  if(targetPage) targetPage.classList.add('active');
+
+  // Si se presionó desde el sidebar, marcarlo activo visualmente
+  if(elementBtn) {
+    elementBtn.classList.add('active');
+  } else {
+    // Buscar el botón correspondiente por atributo onclick si vino de afuera
+    document.querySelectorAll('.nav-item').forEach(b => {
+      if(b.getAttribute('onclick').includes(`'${pageId}'`)) b.classList.add('active');
+    });
+  }
+
+  // Cerrar el sidebar automáticamente en dispositivos móviles tras la selección
+  document.getElementById('sidebar').classList.remove('open');
 }
 
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
 }
 
-/* ═══════════════════════════════════════
-   INIT
-═══════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
-  renderActivity();
-  renderDashboardTable();
-  renderPubTable();
-  renderRepTable();
-  renderUsrTable();
-  renderModGrid();
-  renderRepPropTable();
+function cerrarSesion() {
+  localStorage.clear();
+  window.location.href = '../login.html';
+}
 
-  // Responsive
-  if (window.innerWidth <= 900) {
-    document.getElementById('menu-btn').style.display = 'block';
-  }
-});
+/* ── FUNCIÓN TOAST EMISORA DE ALERTAS ── */
+let toastTimeout;
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toast-icon');
+  document.getElementById('toast-msg').textContent = msg;
+  
+  const icons = { 
+    success: 'fa-circle-check', 
+    warning: 'fa-triangle-exclamation', 
+    danger: 'fa-circle-xmark', 
+    blue: 'fa-circle-info' 
+  };
+  
+  icon.className = `fa-solid ${icons[type] || 'fa-circle-check'}`;
+  toast.className = `toast ${type} visible`;
+  
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('visible'), 3500);
+}
 </script>
 </body>
 </html>
