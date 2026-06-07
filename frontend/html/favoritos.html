@@ -9,162 +9,60 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     :root {
-      --blue: #1A3FDB;
-      --blue-dark: #1230B0;
-      --blue-pale: #EEF1FF;
-      --text: #0D1117;
-      --text-2: #4A5568;
-      --text-3: #8896A5;
-      --white: #FFFFFF;
-      --border: #E2E8F0;
-      --bg: #F7F8FC;
+      --blue: #1A3FDB; --blue-dark: #1230B0; --blue-pale: #EEF1FF;
+      --text: #0D1117; --text-2: #4A5568; --text-3: #8896A5;
+      --white: #FFFFFF; --border: #E2E8F0; --bg: #F7F8FC;
       --sidebar-w: 260px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); display: flex; min-height: 100vh; color: var(--text); }
-
-    /* ── SIDEBAR CON FONDO BLANCO ── */
-    .sidebar {
-      width: var(--sidebar-w);
-      background: var(--white);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      z-index: 10;
-    }
-    .sidebar-logo {
-      padding: 24px 20px;
-      border-bottom: 1px solid var(--border);
-    }
+    .sidebar { width: var(--sidebar-w); background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; }
+    .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid var(--border); }
     .sidebar-logo img { height: 44px; object-fit: contain; }
-
-    .sidebar-nav {
-      flex: 1;
-      padding: 16px 0;
-      overflow-y: auto;
-    }
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 20px;
-      color: var(--text-2);
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: background .2s, color .2s;
-      cursor: pointer;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-    }
+    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: var(--text-2); font-size: 14px; font-weight: 500; text-decoration: none; transition: background .2s, color .2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
     .nav-item:hover { background: var(--bg); color: var(--blue); }
     .nav-item.active { background: var(--blue-pale); color: var(--blue); font-weight: 700; }
     .nav-item i { width: 18px; text-align: center; font-size: 16px; }
-
-    .sidebar-footer {
-      padding: 16px 0;
-      border-top: 1px solid var(--border);
-    }
-
-    /* ── MAIN ── */
+    .sidebar-footer { padding: 16px 0; border-top: 1px solid var(--border); }
     .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
-    
-    /* TOPBAR */
-    .topbar {
-      background: white;
-      border-bottom: 1px solid var(--border);
-      padding: 0 32px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 16px;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-    }
-    .topbar-bell {
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-2);
-      cursor: pointer;
-      font-size: 15px;
-      transition: background .2s;
-    }
-    .topbar-bell:hover { background: var(--blue-pale); color: var(--blue); }
-
-    .topbar-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      padding: 6px 12px;
-      border-radius: 10px;
-      transition: background .2s;
-    }
+    .topbar { background: white; border-bottom: 1px solid var(--border); padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: flex-end; gap: 16px; position: sticky; top: 0; z-index: 5; }
+    .topbar-bell { width: 38px; height: 38px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-2); cursor: pointer; font-size: 15px; }
+    .topbar-user { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 12px; border-radius: 10px; transition: background .2s; }
     .topbar-user:hover { background: var(--bg); }
-    .topbar-avatar {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--blue);
-      display: flex; align-items: center; justify-content: center;
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-    }
+    .topbar-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
     .topbar-name { font-size: 14px; font-weight: 600; color: var(--text); }
-
-    /* CONTENT */
     .content { padding: 32px; flex: 1; }
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
     .page-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
     .page-sub { font-size: 13px; color: var(--text-3); }
     .count-badge { background: var(--blue-pale); color: var(--blue); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 50px; }
-
-    /* ── TARJETAS MÁS CHQUITAS Y COMPACTAS ── */
-    .cards-grid { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); /* Columnas reducidas */
-      gap: 16px; 
-    }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
     .prop-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: transform .22s, box-shadow .22s; cursor: pointer; }
     .prop-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(26,63,219,.06); }
-    
     .card-img { position: relative; height: 140px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; font-size: 44px; overflow: hidden; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
     .btn-fav { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background: white; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #EF4444; font-size: 14px; box-shadow: 0 3px 8px rgba(0,0,0,.1); transition: transform .2s; }
     .btn-fav:hover { transform: scale(1.1); }
-    
     .card-body { padding: 14px; }
     .card-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
-    .card-loc { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-loc { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-3); margin-bottom: 10px; }
     .card-loc i { color: var(--blue); font-size: 11px; }
-    
     .card-specs { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
     .card-spec { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-2); }
     .card-spec i { color: var(--blue); font-size: 11px; }
-    
     .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); }
-    .card-price { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--blue); }
+    .card-price { font-size: 15px; font-weight: 700; color: var(--blue); }
     .card-price span { font-size: 11px; font-weight: 400; color: var(--text-3); }
-    
-    .btn-ver { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 600; color: var(--blue); border: 1.5px solid var(--border); padding: 6px 12px; border-radius: 8px; background: none; cursor: pointer; transition: all .2s; }
+    .btn-ver { font-size: 11px; font-weight: 600; color: var(--blue); border: 1.5px solid var(--border); padding: 6px 12px; border-radius: 8px; background: none; cursor: pointer; transition: all .2s; }
     .btn-ver:hover { border-color: var(--blue); background: var(--blue-pale); }
-
-    /* EMPTY STATE */
     .empty { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; background: white; border-radius: 12px; border: 1px solid var(--border); }
     .empty-icon { width: 64px; height: 64px; background: var(--blue-pale); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--blue); margin: 0 auto 16px; }
     .empty h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
     .empty p { font-size: 13px; color: var(--text-3); margin-bottom: 20px; }
-    .btn-explorar { display: inline-flex; align-items: center; gap: 6px; background: var(--blue); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 13px; padding: 10px 20px; border-radius: 8px; text-decoration: none; transition: background .2s; }
+    .btn-explorar { display: inline-flex; align-items: center; gap: 6px; background: var(--blue); color: white; font-weight: 700; font-size: 13px; padding: 10px 20px; border-radius: 8px; text-decoration: none; transition: background .2s; }
     .btn-explorar:hover { background: var(--blue-dark); }
-
+    .loading { text-align: center; padding: 40px; color: var(--text-3); font-size: 14px; }
     @media(max-width:860px){ .sidebar{display:none;} .main{margin-left:0;} .content{padding:20px;} .cards-grid{grid-template-columns:1fr;} }
   </style>
 </head>
@@ -192,8 +90,8 @@
   <div class="topbar">
     <div class="topbar-bell"><i class="fa-regular fa-bell"></i></div>
     <div class="topbar-user">
-      <div class="topbar-avatar" id="avatar-inicial">JP</div>
-      <span class="topbar-name" id="topbar-nombre">Juan Pérez</span>
+      <div class="topbar-avatar" id="avatar-inicial">--</div>
+      <span class="topbar-name" id="topbar-nombre">Cargando...</span>
       <i class="fa-solid fa-chevron-down" style="font-size:12px;color:var(--text-3);margin-left:4px"></i>
     </div>
   </div>
@@ -207,8 +105,8 @@
       <span class="count-badge" id="count-badge">0 propiedades</span>
     </div>
 
+    <div id="loading" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando tus favoritos...</div>
     <div class="cards-grid" id="cards-grid"></div>
-
     <div class="empty" id="empty">
       <div class="empty-icon"><i class="fa-regular fa-heart"></i></div>
       <h3>No tienes favoritos aún</h3>
@@ -220,67 +118,119 @@
   </div>
 </div>
 
+<!-- Cargar api.js primero, luego el script de esta página -->
+<script src="../js/api.js"></script>
 <script>
-  const favoritos = [
-    {id:1,titulo:'Apartamento en Piantini',ubicacion:'Piantini, Santo Domingo',hab:3,banos:2,area:145,precio:'RD$ 35,000',emoji:'🏢'},
-    {id:2,titulo:'Casa en Arroyo Hondo',ubicacion:'Arroyo Hondo, Santo Domingo',hab:4,banos:3,area:280,precio:'RD$ 58,000',emoji:'🏠'},
-    {id:3,titulo:'Apartamento en Naco',ubicacion:'Naco, Santo Domingo',hab:2,banos:2,area:110,precio:'RD$ 22,000',emoji:'🏙️'},
-  ];
+  // ── CAMBIO: ya no hay array quemado. Carga desde /api/favoritos ──
 
   function renderFavoritos(lista) {
-    const grid = document.getElementById('cards-grid');
-    const empty = document.getElementById('empty');
-    document.getElementById('count-badge').textContent = lista.length + ' propiedad' + (lista.length!==1?'es':'');
-    if (lista.length===0) { grid.innerHTML=''; empty.style.display='flex'; return; }
-    empty.style.display='none';
-    grid.innerHTML = lista.map(p=>`
-      <div class="prop-card" onclick="verDetalle(${p.id})">
-        <div class="card-img">
-          ${p.emoji}
-          <button class="btn-fav" onclick="quitarFav(event,${p.id})" title="Quitar de favoritos">
-            <i class="fa-solid fa-heart"></i>
-          </button>
-        </div>
-        <div class="card-body">
-          <div class="card-title" title="${p.titulo}">${p.titulo}</div>
-          <div class="card-loc" title="${p.ubicacion}"><i class="fa-solid fa-location-dot"></i> ${p.ubicacion}</div>
-          <div class="card-specs">
-            <span class="card-spec"><i class="fa-solid fa-bed"></i> ${p.hab} hab.</span>
-            <span class="card-spec"><i class="fa-solid fa-shower"></i> ${p.banos} b.</span>
-            <span class="card-spec"><i class="fa-solid fa-vector-square"></i> ${p.area} m²</span>
+    const grid   = document.getElementById('cards-grid');
+    const empty  = document.getElementById('empty');
+    const loading = document.getElementById('loading');
+    loading.style.display = 'none';
+
+    const count = lista.length;
+    document.getElementById('count-badge').textContent =
+      count + ' propiedad' + (count !== 1 ? 'es' : '');
+
+    if (count === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'flex';
+      return;
+    }
+
+    empty.style.display = 'none';
+    grid.innerHTML = lista.map(p => {
+      const precioRD = new Intl.NumberFormat('es-DO', {
+        style: 'currency', currency: 'DOP', minimumFractionDigits: 0
+      }).format(p.precio);
+
+      // SQL puede devolver imagen_portada o url_imagen
+      const imgUrl = p.imagen_portada || p.url_imagen;
+      const imgHtml = imgUrl
+        ? `<img src="${imgUrl}" alt="${p.titulo}" loading="lazy">`
+        : `🏢`;
+
+      const ubicacion = `${p.sector || ''}, ${p.provincia || 'RD'}`.replace(/^, /, '');
+
+      return `
+        <div class="prop-card" onclick="verDetalle('${p.id_propiedad}')">
+          <div class="card-img">
+            ${imgHtml}
+            <button class="btn-fav" onclick="quitarFav(event, '${p.id_propiedad}', this)" title="Quitar de favoritos">
+              <i class="fa-solid fa-heart"></i>
+            </button>
           </div>
-          <div class="card-footer">
-            <div class="card-price">${p.precio}<span>/mes</span></div>
-            <button class="btn-ver">Ver detalles</button>
+          <div class="card-body">
+            <div class="card-title" title="${p.titulo}">${p.titulo}</div>
+            <div class="card-loc"><i class="fa-solid fa-location-dot"></i> ${ubicacion}</div>
+            <div class="card-specs">
+              <span class="card-spec"><i class="fa-solid fa-bed"></i> ${p.habitaciones} hab.</span>
+              <span class="card-spec"><i class="fa-solid fa-shower"></i> ${p.banos} b.</span>
+              <span class="card-spec"><i class="fa-solid fa-vector-square"></i> ${p.metros_cuadrados} m²</span>
+            </div>
+            <div class="card-footer">
+              <div class="card-price">${precioRD}<span>/mes</span></div>
+              <button class="btn-ver">Ver detalles</button>
+            </div>
           </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
-  function quitarFav(e, id) {
+  async function quitarFav(e, idPropiedad, btn) {
     e.stopPropagation();
-    const idx = favoritos.findIndex(f=>f.id===id);
-    if (idx!==-1) favoritos.splice(idx,1);
-    renderFavoritos(favoritos);
+    try {
+      btn.disabled = true;
+      await API.toggleFavorito(idPropiedad);
+      // Recargar lista completa para mantener consistencia con BD
+      cargarFavoritos();
+    } catch (err) {
+      console.error('Error al quitar favorito:', err);
+      btn.disabled = false;
+    }
   }
 
-function verDetalle(id) {
-  // Salimos de modulo-3 con "../" y entramos a modulo-2
-  window.location.href = `../html/detalle-propiedad.html?id=${id}`;
-
-
+  function verDetalle(id) {
+    window.location.href = `detalle-propiedad.html?id=${id}`;
   }
 
   function cerrarSesion() {
+    if (window.Seguridad) { Seguridad.cerrarSesion(); return; }
     sessionStorage.clear();
+    localStorage.removeItem('alquilao_token');
     window.location.href = '../html/login.html';
   }
 
+  async function cargarFavoritos() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('cards-grid').innerHTML = '';
+    document.getElementById('empty').style.display = 'none';
+    try {
+      const data = await API.getFavoritos();
+      renderFavoritos(data.favoritos || []);
+    } catch (err) {
+      console.error('Error al cargar favoritos:', err);
+      document.getElementById('loading').innerHTML =
+        '<i class="fa-solid fa-triangle-exclamation"></i> No se pudieron cargar los favoritos.';
+    }
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('topbar-nombre').textContent = 'Juan Pérez';
-    document.getElementById('avatar-inicial').textContent = 'J';
-    renderFavoritos(favoritos);
+    // Verificar sesión
+    const usuario = window.Seguridad ? Seguridad.getUsuario() : null;
+    if (!usuario) {
+      window.location.href = '../html/login.html';
+      return;
+    }
+
+    // Mostrar nombre en topbar
+    document.getElementById('topbar-nombre').textContent = usuario.nombre || 'Usuario';
+    document.getElementById('avatar-inicial').textContent =
+      (usuario.nombre || 'U').substring(0, 2).toUpperCase();
+
+    cargarFavoritos();
   });
 </script>
 </body>

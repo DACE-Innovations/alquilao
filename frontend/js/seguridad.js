@@ -85,10 +85,17 @@ const Seguridad = (() => {
   function verificarToken(token) {
     if (!token) return null;
     try {
-      const partes   = token.split('.');
+      const partes = token.split('.');
       if (partes.length !== 3) return null;
-      const payload  = JSON.parse(atob(partes[1]));
-      if (Date.now() > payload.exp) {
+
+      // FIX: JWT usa base64url (- y _ en lugar de + y /).
+      // atob() solo entiende base64 estándar, así que convertimos primero.
+      const base64 = partes[1].replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+
+      // JWT estándar usa segundos, no milisegundos
+      const expira = payload.exp < 1000000000000 ? payload.exp * 1000 : payload.exp;
+      if (Date.now() > expira) {
         log('SEGURIDAD', 'Token expirado');
         return null;
       }
@@ -200,20 +207,29 @@ const Seguridad = (() => {
       inicio:    Date.now(),
       expira:    Date.now() + CONFIG.TOKEN_EXPIRY_MS,
     };
-    sessionStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify(sesion));
+    const sesionStr = JSON.stringify(sesion);
+    sessionStorage.setItem(CONFIG.SESSION_KEY, sesionStr);
+    localStorage.setItem(CONFIG.SESSION_KEY, sesionStr); // ← persiste entre pestañas
     localStorage.setItem(CONFIG.TOKEN_KEY, token);
-    log('SESION', `Sesión iniciada: ${usuario.correo}`, { rol: usuario.rol });
+    log('SESION', `Sesión iniciada: ${usuario.correo || usuario.email}`, { rol: usuario.rol });
     resetearInactividad();
   }
 
   function getSesion() {
-    const raw = sessionStorage.getItem(CONFIG.SESSION_KEY);
+    // Busca en sessionStorage primero, luego en localStorage como respaldo
+    // Esto permite que la sesión persista entre pestañas del mismo navegador
+    let raw = sessionStorage.getItem(CONFIG.SESSION_KEY);
+    if (!raw) raw = localStorage.getItem(CONFIG.SESSION_KEY);
     if (!raw) return null;
     try {
       const sesion = JSON.parse(raw);
       if (Date.now() > sesion.expira) {
         cerrarSesion();
         return null;
+      }
+      // Si vino de localStorage, la copiamos a sessionStorage para esta pestaña
+      if (!sessionStorage.getItem(CONFIG.SESSION_KEY)) {
+        sessionStorage.setItem(CONFIG.SESSION_KEY, raw);
       }
       return sesion;
     } catch {
@@ -234,12 +250,13 @@ const Seguridad = (() => {
   function cerrarSesion(porInactividad = false) {
     const usuario = getUsuario();
     log('SESION', porInactividad ? 'Cierre por inactividad' : 'Cierre manual', {
-      usuario: usuario?.correo || 'desconocido'
+      usuario: usuario?.correo || usuario?.email || 'desconocido'
     });
     sessionStorage.removeItem(CONFIG.SESSION_KEY);
+    localStorage.removeItem(CONFIG.SESSION_KEY); // ← limpiar también
     localStorage.removeItem(CONFIG.TOKEN_KEY);
     clearTimeout(timerInactividad);
-    window.location.replace('login.html'); // Rompe el historial de bucles
+    window.location.replace('login.html');
   }
 
   // ── CONTROL DE ACCESO ────────────────────────────────────
@@ -423,3 +440,5 @@ const Seguridad = (() => {
 
 // Inicialización automática nativa
 document.addEventListener('DOMContentLoaded', () => Seguridad.init());
+
+window.Seguridad = Seguridad;

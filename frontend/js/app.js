@@ -1,84 +1,43 @@
-const propiedades = [
-  {
-    id: 1,
-    badge: 'Destacada',
-    badgeClass: '',
-    title: 'Apartamento en Piantini',
-    location: 'Piantini, Santo Domingo',
-    hab: 3, banos: 2, area: 145,
-    precio: 'RD$ 35,000',
-    tipo: '/mes',
-    emoji: '🏢'
-  },
-  {
-    id: 2,
-    badge: 'Nueva',
-    badgeClass: 'nueva',
-    title: 'Casa en Juan Dolio',
-    location: 'Juan Dolio, San Pedro',
-    hab: 4, banos: 3, area: 280,
-    precio: 'RD$ 58,000',
-    tipo: '/mes',
-    emoji: '🏠'
-  },
-  {
-    id: 3,
-    badge: 'Oportunidad',
-    badgeClass: 'oportunidad',
-    title: 'Apartamento en Naco',
-    location: 'Naco, Santo Domingo',
-    hab: 2, banos: 2, area: 110,
-    precio: 'RD$ 22,000',
-    tipo: '/mes',
-    emoji: '🏙️'
-  },
-  {
-    id: 4,
-    badge: 'Premium',
-    badgeClass: 'premium',
-    title: 'Penthouse en Bella Vista',
-    location: 'Bella Vista, Santo Domingo',
-    hab: 4, banos: 4, area: 320,
-    precio: 'RD$ 95,000',
-    tipo: '/mes',
-    emoji: '🌟'
-  }
-];
- 
-// --- RENDER CARDS DINÁMICO (DESDE LA BASE DE DATOS) ---
+// frontend/js/app.js
+// ── CAMBIOS respecto a la versión anterior ──
+//   1. Fix imagen: ahora acepta imagen_portada (SQL) O url_imagen (legacy)
+//   2. Eliminado el segundo DOMContentLoaded duplicado (el del burger/login)
+//      → fusionado en uno solo para evitar race conditions
+//   3. Sin cambios en la lógica de negocio ni en renderCards
+
+// ── RENDER CARDS DINÁMICO (DESDE LA BASE DE DATOS) ──
 function renderCards(listaPropiedades) {
   const grid = document.getElementById('cards-grid');
   if (!grid) return;
-  
-  if (listaPropiedades.length === 0) {
+
+  if (!listaPropiedades || listaPropiedades.length === 0) {
     grid.innerHTML = `<p style="color: white; text-align: center; grid-column: 1/-1;">No hay propiedades disponibles en este momento.</p>`;
     return;
   }
- 
+
   grid.innerHTML = listaPropiedades.map(p => {
-    // Formateamos el DECIMAL de SQL Server a pesos dominicanos (RD$)
     const precioRD = new Intl.NumberFormat('es-DO', {
       style: 'currency',
       currency: 'DOP',
       minimumFractionDigits: 0
     }).format(p.precio);
 
-    // Si tu consulta de SQL trae una imagen de portada la usa, si no, pone un icono por defecto
-    const componenteImagen = p.url_imagen 
-      ? `<img src="${p.url_imagen}" alt="${p.titulo}" style="width:100%; height:100%; object-fit:cover;">`
+    // FIX: SQL devuelve imagen_portada, pero también soportamos url_imagen para retrocompatibilidad
+    const urlImagen = p.imagen_portada || p.url_imagen || null;
+    const componenteImagen = urlImagen
+      ? `<img src="${urlImagen}" alt="${p.titulo}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">`
       : `<div class="card-img-placeholder">🏢</div>`;
 
-    // Adaptamos las variables estáticas viejas a las columnas reales de tus tablas
-    const ubicacionTexto = `${p.sector}, ${p.provincia}`;
-    const badgeTexto = p.disponible ? 'Disponible' : 'Alquilado';
-    const badgeClase = p.disponible ? 'nueva' : 'oportunidad';
+    const ubicacionTexto = `${p.sector || ''}, ${p.provincia || 'RD'}`.replace(/^, /, '');
+    const badgeTexto  = p.disponible ? 'Disponible' : 'Alquilado';
+    const badgeClase  = p.disponible ? 'nueva'      : 'oportunidad';
 
     return `
       <div class="prop-card" onclick="verDetalle('${p.id_propiedad}')">
         <div class="card-img">
           ${componenteImagen}
           <span class="card-badge ${badgeClase}">${badgeTexto}</span>
-          <button class="card-fav" onclick="toggleFav(event, this)" aria-label="Favorito">
+          <button class="card-fav" onclick="toggleFav(event, this, '${p.id_propiedad}')" aria-label="Favorito">
             <i class="fa-regular fa-heart"></i>
           </button>
         </div>
@@ -91,9 +50,7 @@ function renderCards(listaPropiedades) {
             <span class="card-spec"><i class="fa-solid fa-vector-square"></i> ${p.metros_cuadrados} m²</span>
           </div>
           <div class="card-footer">
-            <div>
-              <div class="card-price">${precioRD}<span>/mes</span></div>
-            </div>
+            <div class="card-price">${precioRD}<span>/mes</span></div>
             <button class="card-btn">Ver detalles</button>
           </div>
         </div>
@@ -101,25 +58,35 @@ function renderCards(listaPropiedades) {
     `;
   }).join('');
 }
- 
-// --- INIT ACTUALIZADO CON ASYNC/AWAIT ---
-// En tu js/app.js busca el DOMContentLoaded y déjalo así:
-document.addEventListener('DOMContentLoaded', async () => {
-  actualizarNavbar();
 
+// ── TOGGLE FAVORITO DESDE LA CARD ──
+async function toggleFav(event, btn, idPropiedad) {
+  event.stopPropagation();
   try {
-    const respuestaAPI = await API.getPropiedades(); 
-    // Como el controlador devuelve { total, propiedades }, accedemos al arreglo interno:
-    renderCards(respuestaAPI.propiedades); 
-  } catch (error) {
-    console.error("Error al conectar con el backend de Alquilao:", error);
+    const data = await API.toggleFavorito(idPropiedad);
+    const icon = btn.querySelector('i');
+    if (data.accion === 'agregado') {
+      icon.className = 'fa-solid fa-heart';
+      btn.style.color = '#EF4444';
+    } else {
+      icon.className = 'fa-regular fa-heart';
+      btn.style.color = '';
+    }
+  } catch (err) {
+    console.warn('No se pudo procesar el favorito (¿sesión activa?)');
   }
-});
+}
+
+// ── VER DETALLE ──
+function verDetalle(id) {
+  window.location.href = `detalle-propiedad.html?id=${id}`;
+}
 
 // ── VERIFICAR SESIÓN ──
 function verificarSesion() {
-  const token = sessionStorage.getItem('token') || localStorage.getItem('token');
-  const usuario = JSON.parse(sessionStorage.getItem('usuario') || localStorage.getItem('usuario') || 'null');
+  const sesion  = window.Seguridad ? Seguridad.getSesion() : null;
+  const token   = window.Seguridad ? Seguridad.getToken()  : localStorage.getItem('alquilao_token');
+  const usuario = sesion ? sesion.usuario : null;
   return { token, usuario, autenticado: !!token };
 }
 
@@ -134,36 +101,34 @@ function actualizarNavbar() {
     navCuenta.href = '#';
     navCuenta.onclick = () => {
       if (confirm('¿Deseas cerrar sesión?')) {
-        sessionStorage.clear();
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuario');
+        if (window.Seguridad) { Seguridad.cerrarSesion(); return; }
+        sessionStorage.removeItem('alquilao_session');
+        localStorage.removeItem('alquilao_token');
         window.location.reload();
       }
     };
   } else {
     navCuenta.innerHTML = `<i class="fa-regular fa-user"></i> Mi cuenta`;
-    // CORREGIDO: Como estás dentro de la carpeta html, el enlace va directo
-    navCuenta.href = 'login.html'; 
+    navCuenta.href = 'login.html';
   }
- } 
+}
 
-document.addEventListener("DOMContentLoaded", () => {
+// ── ÚNICO DOMContentLoaded (fusión del original duplicado) ──
+document.addEventListener('DOMContentLoaded', async () => {
+  actualizarNavbar();
 
-    const menuBtn = document.getElementById("burger");
-    const navMenu = document.getElementById("nav-menu");
+  // Burger menu
+  const menuBtn = document.getElementById('burger');
+  const navMenu = document.getElementById('nav-menu');
+  if (menuBtn && navMenu) {
+    menuBtn.addEventListener('click', () => navMenu.classList.toggle('active'));
+  }
 
-    if (menuBtn && navMenu) {
-        menuBtn.addEventListener("click", () => {
-            navMenu.classList.toggle("active");
-        });
-    }
-
-    const btn = document.getElementById("btn-login");
-
-    if (btn) {
-        btn.addEventListener("click", () => {
-            // código login
-        });
-    }
-
+  // Cargar propiedades desde la API real
+  try {
+    const respuestaAPI = await API.getPropiedades();
+    renderCards(respuestaAPI.propiedades);
+  } catch (error) {
+    console.error('Error al conectar con el backend de AlquilaoRD:', error);
+  }
 });

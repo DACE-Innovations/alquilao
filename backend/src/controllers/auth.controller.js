@@ -3,6 +3,12 @@ const poolPromise = require('../config/db'); // Importamos la promesa del pool c
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET no esta configurado en el archivo .env');
+}
+
 // ==========================================
 // 1. FUNCIÓN: REGISTRO DE USUARIOS (Usando SP)
 // ==========================================
@@ -32,7 +38,7 @@ const registro = async (req, res) => {
     // Generar Token JWT firmado
     const token = jwt.sign(
       { id: usuarioCreado.id_usuario, email: usuarioCreado.correo, rol: 'usuario' },
-      'alquilao_secret_key_2026',
+      JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES || '1h' }
     );
 
@@ -89,7 +95,7 @@ if (!passwordValida) {
     // Generar el Token JWT con la información del SP
     const token = jwt.sign(
       { id: usuario.id_usuario, email: usuario.correo, rol: usuario.rol },
-      'alquilao_secret_key_2026',
+      JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES || '1h' }
     );
 
