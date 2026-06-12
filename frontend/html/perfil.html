@@ -170,7 +170,7 @@
 
   window.addEventListener('DOMContentLoaded', async () => {
     // 1. Intentar capturar el token de sessionStorage o localStorage
-    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    const token = Seguridad.getToken();
     
     if (!token) {
       window.location.href = '../html/login.html';
@@ -179,7 +179,7 @@
 
     try {
       // 2. Hacer la petición real a tu backend para extraer el perfil activo
-      const response = await fetch(`${API_URL}/auth/perfil`, {
+      const response = await fetch(`${API_URL}/usuarios/perfil`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -196,8 +196,8 @@
 
     } catch (error) {
       console.error('Error cargando perfil:', error);
-      sessionStorage.clear();
-      localStorage.clear();
+      sessionStorage.removeItem('alquilao_session');
+      localStorage.removeItem('alquilao_token');
       window.location.href = '../html/login.html';
     }
   });
@@ -247,7 +247,7 @@
     
     if (!nombre || !correo) return showAlert('Nombre y correo son obligatorios.','error');
     
-    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    const token = Seguridad.getToken();
     const btn = document.getElementById('btn-guardar');
     
     btn.disabled = true; 
@@ -255,7 +255,7 @@
 
     try {
       // 3. Petición PUT real al backend para actualizar los datos en SQL Server
-      const response = await fetch(`${API_URL}/auth/actualizar-perfil`, {
+      const response = await fetch(`${API_URL}/usuarios/perfil`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -284,9 +284,7 @@
   }
 
   function cerrarSesion() { 
-    sessionStorage.clear(); 
-    localStorage.clear(); // Limpieza profunda
-    window.location.href = 'login.html'; // Si perfil.html y login.html están en la misma carpeta html
+    Seguridad.cerrarSesion();
   }
 
   function showAlert(msg,type) {

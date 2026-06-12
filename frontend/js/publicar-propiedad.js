@@ -161,7 +161,109 @@
     else submitForm();
   };
 
-  function submitForm() {
+  const categoriaPorTipo = {
+    apartamento: 1,
+    casa: 2,
+    villa: 3,
+    local: 4,
+    oficina: 6,
+    solar: 7
+  };
+
+  function getSelectedOptionText(id) {
+    const el = document.getElementById(id);
+    return el?.selectedOptions?.[0]?.textContent?.trim() || '';
+  }
+
+  function buildPropiedadPayload() {
+    const tipo = document.querySelector('.tipo-card.selected')?.dataset.tipo || 'apartamento';
+    const operacion = document.querySelector('.op-btn.selected')?.dataset.op || 'alquiler';
+    const periodo = document.querySelector('.periodo-tab.active')?.dataset.periodo || 'mensual';
+    const amenidades = Array.from(activeAmenidades)
+      .map(id => amenidadesList.find(a => a.id === id)?.label)
+      .filter(Boolean);
+
+    return {
+      titulo: document.getElementById('titulo-input').value.trim(),
+      descripcion: document.getElementById('descripcion-input').value.trim(),
+      precio: parseFloat(document.getElementById('precio-input').value) || 0,
+      id_categoria: categoriaPorTipo[tipo] || 1,
+      tipo,
+      operacion,
+      periodo,
+      moneda: document.getElementById('moneda-sel').value,
+      provincia: getSelectedOptionText('provincia-sel') || 'Santo Domingo',
+      municipio: getSelectedOptionText('municipio-sel') || 'Santo Domingo de Guzman',
+      sector: getSelectedOptionText('sector-sel') || 'Naco',
+      direccion: document.getElementById('direccion-input').value.trim(),
+      referencia: [
+        `Operacion: ${operacion}`,
+        `Periodo: ${periodo}`,
+        `Parqueos: ${counters.parqueos}`,
+        `Amenidades: ${amenidades.join(', ') || 'Ninguna'}`
+      ].join(' | '),
+      habitaciones: counters.habitaciones,
+      banos: counters.banos,
+      area: parseFloat(document.getElementById('area-input').value) || 0,
+      lat: 18.4800,
+      lng: -69.9200
+    };
+  }
+
+  function validarPublicacion(datos) {
+    if (!datos.titulo) return 'Agrega un titulo para la propiedad.';
+    if (!datos.precio || datos.precio <= 0) return 'Agrega un precio valido.';
+    if (!datos.sector) return 'Selecciona el sector de la propiedad.';
+    if (!datos.direccion) return 'Agrega la direccion de la propiedad.';
+    return null;
+  }
+
+  async function submitForm() {
+    const token = window.Seguridad ? Seguridad.getToken() : localStorage.getItem('alquilao_token');
+    if (!token) {
+      showToast('Debes iniciar sesion para publicar.');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const datos = buildPropiedadPayload();
+    const errorValidacion = validarPublicacion(datos);
+    if (errorValidacion) {
+      showToast(errorValidacion);
+      return;
+    }
+
+    const submitBtn = document.querySelector('.btn-submit');
+    const originalHtml = submitBtn ? submitBtn.innerHTML : '';
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Publicando...';
+    }
+
+    try {
+      const respuesta = await API.crearPropiedad(datos);
+
+      if (respuesta.error) {
+        throw new Error(respuesta.error);
+      }
+
+      showSuccessScreen();
+
+      if (respuesta.id_propiedad) {
+        sessionStorage.setItem('ultima_propiedad_publicada', respuesta.id_propiedad);
+      }
+    } catch (err) {
+      showToast(err.message || 'No se pudo publicar la propiedad.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHtml;
+      }
+    }
+  }
+
+  function showSuccessScreen() {
     document.getElementById('main-content').style.display = 'none';
     document.getElementById('success-screen').style.display = 'flex';
     document.querySelector('.sidebar').style.display = 'none';

@@ -404,18 +404,23 @@
      // ── Fragmento a corregir dentro del método de Login exitoso ──
 if (res.ok) {
   const data = await res.json();
-  
-  // 1. Guardar la sesión usando el formato exacto que espera seguridad.js
-  const sesionData = {
-    usuario: data.usuario,
-    token: data.token,
-    inicio: Date.now(),
-    expira: Date.now() + (24 * 60 * 60 * 1000) // 24 horas
-  };
-  
-  // Guardamos en ambos por seguridad para que el módulo lo lea sin importar qué
-  sessionStorage.setItem('alquilao_session', JSON.stringify(sesionData));
-  localStorage.setItem('alquilao_token', data.token);
+
+  // Usar Seguridad.guardarSesion si está disponible (guarda en ambos storages)
+  if (window.Seguridad) {
+    Seguridad.guardarSesion(data.usuario, data.token);
+  } else {
+    // Fallback: guardar manualmente en ambos storages
+    const sesionData = {
+      usuario: data.usuario,
+      token: data.token,
+      inicio: Date.now(),
+      expira: Date.now() + (24 * 60 * 60 * 1000)
+    };
+    const sesionStr = JSON.stringify(sesionData);
+    sessionStorage.setItem('alquilao_session', sesionStr);
+    localStorage.setItem('alquilao_session', sesionStr);  // ← esta línea faltaba
+    localStorage.setItem('alquilao_token', data.token);
+  }
 
   console.log('[LOGIN] Sesión guardada correctamente. Redirigiendo...');
 

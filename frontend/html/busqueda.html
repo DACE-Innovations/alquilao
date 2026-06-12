@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <script src="../js/seguridad.js"></script>
@@ -33,7 +33,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--gray-50); color: var(--gray-900); }
 
-  /* ── TOPBAR ── */
+  /* â”€â”€ TOPBAR â”€â”€ */
   .topbar {
     height: 62px;
     background: #fff;
@@ -66,7 +66,7 @@
   }
   .topbar-back:hover { background: var(--gray-100); }
 
-  /* ── FILTER BAR ── */
+  /* â”€â”€ FILTER BAR â”€â”€ */
   .filter-bar {
     background: #fff;
     border-bottom: 1px solid var(--gray-200);
@@ -140,7 +140,7 @@
   }
   .btn-filter-clear:hover { border-color: var(--blue-mid); color: var(--blue); }
 
-  /* ── VISTA TOGGLE ── */
+  /* â”€â”€ VISTA TOGGLE â”€â”€ */
   .view-toggle {
     display: flex;
     border: 1px solid var(--gray-200);
@@ -166,7 +166,7 @@
   .view-btn:last-child { border-right: none; }
   .view-btn.active { background: var(--blue); color: #fff; }
 
-  /* ── RESULTS BAR ── */
+  /* â”€â”€ RESULTS BAR â”€â”€ */
   .results-bar {
     padding: 12px 24px;
     display: flex;
@@ -192,13 +192,13 @@
     outline: none;
   }
 
-  /* ── MAIN LAYOUT ── */
+  /* â”€â”€ MAIN LAYOUT â”€â”€ */
   .main-layout {
     display: flex;
     height: calc(100vh - 62px - 57px - 44px);
   }
 
-  /* ── LISTA ── */
+  /* â”€â”€ LISTA â”€â”€ */
   .lista-panel {
     width: 420px;
     flex-shrink: 0;
@@ -369,7 +369,7 @@
     border-top: 1px solid var(--gray-100);
   }
 
-  /* ── MAPA ── */
+  /* â”€â”€ MAPA â”€â”€ */
   .map-panel {
     flex: 1;
     position: relative;
@@ -388,7 +388,7 @@
   .list-only .lista-panel { width: 100%; border-right: none; display: none; }
   .list-only .grid-panel { display: block; }
 
-  /* ── POPUP LEAFLET ── */
+  /* â”€â”€ POPUP LEAFLET â”€â”€ */
   .leaflet-popup-content-wrapper {
     border-radius: var(--radius) !important;
     padding: 0 !important;
@@ -433,7 +433,7 @@
   }
   .popup-btn:hover { background: var(--blue-dark); }
 
-  /* ── NO RESULTS ── */
+  /* â”€â”€ NO RESULTS â”€â”€ */
   .no-results {
     padding: 48px 24px;
     text-align: center;
@@ -587,24 +587,8 @@
 
 <script>
 
-// ── DATOS DE EJEMPLO ──
-const propiedades = [
-  {
-    id: 1,
-    tipo: 'apartamento',
-    titulo: 'Moderno apartamento en Piantini',
-    sector: 'piantini',
-    sectorLabel: 'Piantini',
-    precio: 55000,
-    habitaciones: 3,
-    banos: 2,
-    area: 145,
-    operacion: 'alquiler',
-    lat: 18.4750,
-    lng: -69.9300,
-    img: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80'
-  },
-];
+// DATOS DESDE BACKEND
+let propiedades = [];
 
 let filteredProps = [...propiedades];
 let currentView = 'split';
@@ -612,8 +596,53 @@ let activeCardId = null;
 let map = null;
 let markers = {};
 let favoritos = new Set();
+const DEFAULT_IMG = '../images/portada.jpeg';
 
-// ── INICIALIZAR MAPA ──
+function normalizarTexto(valor = '') {
+  return String(valor)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function mapPropiedadApi(p) {
+  const categoria = p.categoria || '';
+  const sectorLabel = p.sector || 'Sin sector';
+
+  return {
+    id: p.id_propiedad,
+    tipo: normalizarTexto(categoria).split(' ')[0] || 'apartamento',
+    titulo: p.titulo || 'Propiedad sin titulo',
+    sector: normalizarTexto(sectorLabel),
+    sectorLabel,
+    precio: Number(p.precio) || 0,
+    habitaciones: Number(p.habitaciones) || 0,
+    banos: Number(p.banos) || 0,
+    area: Number(p.metros_cuadrados) || 0,
+    operacion: 'alquiler',
+    lat: Number(p.latitud) || 18.4800,
+    lng: Number(p.longitud) || -69.9300,
+    img: p.imagen_portada || DEFAULT_IMG
+  };
+}
+
+async function cargarPropiedades() {
+  try {
+    const res = await fetch('http://localhost:3000/api/propiedades');
+    if (!res.ok) throw new Error('No se pudieron cargar las propiedades');
+
+    const data = await res.json();
+    propiedades = (data.propiedades || []).map(mapPropiedadApi);
+  } catch (error) {
+    console.error('Error cargando propiedades:', error);
+    propiedades = [];
+  }
+
+  applyFilters();
+}
+
+// â”€â”€ INICIALIZAR MAPA â”€â”€
 function initMap() {
   map = L.map('mapa-leaflet', {
     center: [18.4800, -69.9300],
@@ -631,7 +660,7 @@ function initMap() {
   renderMarkers();
 }
 
-// ── MARCADORES ──
+// â”€â”€ MARCADORES â”€â”€
 function renderMarkers() {
   Object.values(markers).forEach(m => map.removeLayer(m));
   markers = {};
@@ -674,7 +703,7 @@ function createPopupHTML(prop) {
   `;
 }
 
-// ── RENDER LISTA ──
+// â”€â”€ RENDER LISTA â”€â”€
 function renderLista() {
   const container = document.getElementById('lista-cards');
   const noResults = document.getElementById('no-results-lista');
@@ -689,12 +718,12 @@ function renderLista() {
   container.innerHTML = filteredProps.map(prop => `
     <div class="prop-card ${prop.id === activeCardId ? 'active' : ''}" 
          id="card-${prop.id}" 
-         onclick="setActiveCard(${prop.id})">
+         onclick="setActiveCard(${JSON.stringify(prop.id)})">
       <div class="prop-card-img">
         <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
         <div class="prop-card-badge">${prop.operacion}</div>
         <button class="prop-card-fav ${favoritos.has(prop.id) ? 'active' : ''}" 
-                onclick="toggleFav(event, ${prop.id})">
+                onclick="toggleFav(event, ${JSON.stringify(prop.id)})">
           <i class="fa-${favoritos.has(prop.id) ? 'solid' : 'regular'} fa-heart"></i>
         </button>
       </div>
@@ -718,7 +747,7 @@ function renderLista() {
   `).join('');
 }
 
-// ── RENDER GRID ──
+// â”€â”€ RENDER GRID â”€â”€
 function renderGrid() {
   const container = document.getElementById('grid-cards');
   const noResults = document.getElementById('no-results-grid');
@@ -737,7 +766,7 @@ function renderGrid() {
         <div class="prop-card-badge" style="position:absolute;top:10px;left:10px">${prop.operacion}</div>
         <button class="prop-card-fav ${favoritos.has(prop.id) ? 'active' : ''}"
                 style="position:absolute;top:10px;right:10px"
-                onclick="toggleFav(event, ${prop.id})">
+                onclick="toggleFav(event, ${JSON.stringify(prop.id)})">
           <i class="fa-${favoritos.has(prop.id) ? 'solid' : 'regular'} fa-heart"></i>
         </button>
       </div>
@@ -758,7 +787,7 @@ function renderGrid() {
   `).join('');
 }
 
-// ── FILTROS ──
+// â”€â”€ FILTROS â”€â”€
 function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase();
   const tipo = document.getElementById('filter-tipo').value;
@@ -808,7 +837,7 @@ function clearFilters() {
   applyFilters();
 }
 
-// ── CARD ACTIVA ──
+// â”€â”€ CARD ACTIVA â”€â”€
 function setActiveCard(id) {
   activeCardId = id;
   renderLista();
@@ -826,7 +855,7 @@ function scrollToCard(id) {
   if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ── FAVORITOS ──
+// â”€â”€ FAVORITOS â”€â”€
 function toggleFav(e, id) {
   e.stopPropagation();
   if (favoritos.has(id)) favoritos.delete(id);
@@ -835,7 +864,7 @@ function toggleFav(e, id) {
   renderGrid();
 }
 
-// ── VISTAS ──
+// â”€â”€ VISTAS â”€â”€
 function setView(view) {
   currentView = view;
   const layout = document.getElementById('main-layout');
@@ -867,12 +896,12 @@ function setView(view) {
   if (map) setTimeout(() => map.invalidateSize(), 100);
 }
 
-// ── HELPERS ──
+// â”€â”€ HELPERS â”€â”€
 function formatPrice(n) {
   return n.toLocaleString('es-DO');
 }
 
-// ── INIT ──
+// â”€â”€ INIT â”€â”€
 document.addEventListener('DOMContentLoaded', () => {
   // Leer parámetro ?tipo= de la URL
   const params = new URLSearchParams(window.location.search);
@@ -880,9 +909,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (tipo) {
     document.getElementById('filter-tipo').value = tipo;
   }
-  applyFilters();
   initMap();
+  cargarPropiedades();
 });
 </script>
 </body>
 </html>
+

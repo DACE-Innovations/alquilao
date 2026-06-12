@@ -347,11 +347,8 @@ const data = await res.json();
 
 if (!res.ok) throw new Error(data.error || 'Error al crear cuenta');
 
-// Guardar sesión
-sessionStorage.setItem('token', data.token);
-sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
-localStorage.setItem('token', data.token);
-localStorage.setItem('usuario', JSON.stringify(data.usuario));
+// Guardar sesión con el sistema central de seguridad
+Seguridad.guardarSesion(data.usuario, data.token);
 
 showAlert('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
 setTimeout(() => window.location.href = '../html/index.html', 1500);
