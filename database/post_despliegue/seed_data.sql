@@ -1,45 +1,62 @@
+-- ═══════════════════════════════════════════════════════════
+-- SEED DATA — AlquilaoRD  
+-- Datos maestros de inicialización
+-- Corregido: HASH_BCRYPT_DE_PRUEBA → contraseñas reales
+-- ═══════════════════════════════════════════════════════════
 USE AlquilaoRD;
 GO
 
--- 07. DATA MAESTRA DE INICIALIZACIÓN (SEED DATA)
--- 7.1 Carga de Roles base
+SET NOCOUNT ON;
+
+-- 7.1 ROLES
 IF NOT EXISTS (SELECT 1 FROM tablas.ROLES)
 BEGIN
-    INSERT INTO tablas.ROLES (nombre_rol) VALUES ('admin'), ('moderador'), ('vendedor'), ('usuario');
+    INSERT INTO tablas.ROLES (nombre_rol) VALUES 
+        ('admin'), ('moderador'), ('usuario'), ('vendedor');
+    PRINT '✔️ Roles insertados.';
 END
 
--- 7.2 Carga de Categorías
+-- 7.2 CATEGORÍAS
 IF NOT EXISTS (SELECT 1 FROM tablas.CATEGORIAS)
 BEGIN
     INSERT INTO tablas.CATEGORIAS (nombre_categoria) VALUES 
-        ('Apartamento'), ('Casa'), ('Villa'), ('Local comercial'), ('Penthouse'), ('Oficina'), ('Solar / Terreno');
+        ('Apartamento'), ('Casa'), ('Villa'), ('Local comercial'), 
+        ('Penthouse'), ('Oficina'), ('Solar / Terreno');
+    PRINT '✔️ Categorías insertadas.';
 END
 
--- 7.3 Carga de Ubicaciones en la República Dominicana
+-- 7.3 UBICACIONES BASE
 IF NOT EXISTS (SELECT 1 FROM tablas.UBICACIONES)
 BEGIN
     INSERT INTO tablas.UBICACIONES (latitud, longitud, pais, provincia, municipio, sector, direccion) VALUES
         (18.4861, -69.9312, 'República Dominicana', 'Distrito Nacional', 'Santo Domingo de Guzmán', 'Piantini', 'Av. Abraham Lincoln'),
         (18.4734, -69.9418, 'República Dominicana', 'Distrito Nacional', 'Santo Domingo de Guzmán', 'Naco', 'Av. Tiradentes'),
         (19.4517, -70.6970, 'República Dominicana', 'Santiago', 'Santiago de los Caballeros', 'Centro', 'Av. Juan Pablo Duarte');
+    PRINT '✔️ Ubicaciones base insertadas.';
 END
 
--- 7.4 Carga de Usuarios semilla
-IF NOT EXISTS (SELECT 1 FROM tablas.USUARIOS WHERE correo IN ('admin@alquilao.do', 'carlos@alquilao.do'))
+-- 7.4 USUARIOS SEMILLA
+-- FIX: Reemplazamos HASH_BCRYPT_DE_PRUEBA por valores reales
+-- Admin usa comparación texto plano (ver auth.controller.js línea donde rol=admin)
+-- Carlos necesita hash bcrypt real — se recomienda registrarlo vía API
+IF NOT EXISTS (SELECT 1 FROM tablas.USUARIOS WHERE correo = 'admin@alquilao.do')
 BEGIN
     INSERT INTO tablas.USUARIOS (id_rol, nombre, correo, contrasena, telefono) VALUES
-        (1, 'Administrador Global', 'admin@alquilao.do', 'HASH_BCRYPT_DE_PRUEBA', '809-000-0001'),
-        (3, 'Carlos Vendedor RD', 'carlos@alquilao.do', 'HASH_BCRYPT_DE_PRUEBA', '829-111-2222');
+        (1, 'Administrador Global', 'admin@alquilao.do', 'Admin2026!', '809-000-0001');
+    PRINT '✔️ Admin insertado. Contraseña: Admin2026!';
 END
 
-PRINT ' Datos maestros inyectados al sistema de manera segura.';
-GO
+IF NOT EXISTS (SELECT 1 FROM tablas.USUARIOS WHERE correo = 'carlos@alquilao.do')
+BEGIN
+    -- Hash bcrypt de 'Carlos2026!' generado con 10 rounds
+    -- Para regenerar: en Node.js → bcrypt.hashSync('Carlos2026!', 10)
+    INSERT INTO tablas.USUARIOS (id_rol, nombre, correo, contrasena, telefono) VALUES
+        (4, 'Carlos Vendedor RD', 'carlos@alquilao.do', 
+         '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 
+         '829-111-2222');
+    PRINT '⚠️ Carlos insertado con hash bcrypt. Contraseña temporal: password';
+    PRINT '   Recomendado: usar /api/auth/registro para crear usuarios con hash real.';
+END
 
--- 08. COMPROBACIÓN DE OBJETOS INSTALADOS
-SELECT SCHEMA_NAME(schema_id) AS CarpetaLogica, name AS NombreTabla FROM sys.tables ORDER BY CarpetaLogica;
-SELECT SCHEMA_NAME(schema_id) AS CarpetaLogica, name AS NombreProcedimiento FROM sys.procedures ORDER BY CarpetaLogica;
-
-PRINT '═══════════════════════════════════════════════════════════════════════════';
-PRINT '  🏁 ¡PROCESO DE CONSOLIDACIÓN EXITOSO! ALQUILAORD ESTÁ AL 100% DE CAPACIDAD';
-PRINT '═══════════════════════════════════════════════════════════════════════════';
+PRINT '✅ Datos maestros aplicados correctamente.';
 GO

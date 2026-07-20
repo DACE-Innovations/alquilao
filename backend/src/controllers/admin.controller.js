@@ -1,16 +1,8 @@
 // backend/src/controllers/admin.controller.js
-// ── NUEVO ARCHIVO ──
-// Cubre TODOS los endpoints que llama frontend/html/admin.html:
-//   GET  /api/admin/metricas
-//   GET  /api/admin/propiedades-recientes
-//   GET  /api/admin/actividad-reciente
-//   GET  /api/admin/reportes-soporte
-//   GET  /api/admin/usuarios
-//   GET  /api/admin/propiedades-reportadas
-//   PUT  /api/admin/propiedades/:id/estado
-//   PUT  /api/admin/usuarios/:id/estado
-//   PUT  /api/admin/reportes-soporte/:id/resolver
-//   POST /api/admin/propiedades/:id/desestimar-denuncias
+// ── CORRECCIONES respecto a la versión anterior ──
+//   1. tablas.IMAGENES_PROPIEDADES → tablas.IMAGENES (tabla real)
+//   2. url_imagen → url (columna real)
+//   3. La portada se obtiene con es_portada = 1, no desde PROPIEDADES.imagen_portada
 
 const sql = require('mssql');
 const poolPromise = require('../config/db');
@@ -21,12 +13,12 @@ const getMetricas = async (req, res) => {
     const pool = await poolPromise;
     const result = await pool.request().query(`
       SELECT
-        (SELECT COUNT(*) FROM tablas.PROPIEDADES)                                    AS totales,
-        (SELECT COUNT(*) FROM tablas.PROPIEDADES WHERE disponible = 1)               AS aprobadas,
-        (SELECT COUNT(*) FROM tablas.PROPIEDADES WHERE disponible = 0)               AS pendientes,
-        (SELECT COUNT(*) FROM tablas.USUARIOS)                                       AS usuariosTotales,
+        (SELECT COUNT(*) FROM tablas.PROPIEDADES)                                          AS totales,
+        (SELECT COUNT(*) FROM tablas.PROPIEDADES WHERE disponible = 1)                     AS aprobadas,
+        (SELECT COUNT(*) FROM tablas.PROPIEDADES WHERE disponible = 0)                     AS pendientes,
+        (SELECT COUNT(*) FROM tablas.USUARIOS)                                             AS usuariosTotales,
         (SELECT COUNT(DISTINCT id_propiedad) FROM tablas.REPORTES WHERE estado = 'abierto') AS propidadesReportadas,
-        (SELECT COUNT(*) FROM tablas.REPORTES WHERE estado = 'abierto')              AS reportesSoporte
+        (SELECT COUNT(*) FROM tablas.REPORTES WHERE estado = 'abierto')                    AS reportesSoporte
     `);
     res.json(result.recordset[0]);
   } catch (err) {
@@ -48,7 +40,9 @@ const getPropiedadesRecientes = async (req, res) => {
         CASE WHEN p.disponible = 1 THEN 'Aprobada' ELSE 'Pendiente' END AS estado,
         u.sector,
         u.provincia,
-        (SELECT TOP 1 url_imagen FROM tablas.IMAGENES_PROPIEDADES WHERE id_propiedad = p.id_propiedad) AS imagen_url
+        -- FIX: obtener portada desde tablas.IMAGENES con es_portada = 1
+        (SELECT TOP 1 url FROM tablas.IMAGENES 
+         WHERE id_propiedad = p.id_propiedad AND es_portada = 1) AS imagen_url
       FROM tablas.PROPIEDADES p
       LEFT JOIN tablas.UBICACIONES u ON p.id_ubicacion = u.id_ubicacion
       ORDER BY p.fecha_publicacion DESC
@@ -60,8 +54,7 @@ const getPropiedadesRecientes = async (req, res) => {
   }
 };
 
-// ── 3. ACTIVIDAD RECIENTE (log de últimas acciones) ──
-// Construimos un feed mixto desde distintas tablas
+// ── 3. ACTIVIDAD RECIENTE ──
 const getActividadReciente = async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -69,27 +62,27 @@ const getActividadReciente = async (req, res) => {
       SELECT TOP 10 descripcion, tipo, icono, hace_cuanto
       FROM (
         SELECT TOP 5
-          'Nueva propiedad publicada: ' + titulo          AS descripcion,
-          'PUBLICACION'                                    AS tipo,
-          'fa-solid fa-building'                          AS icono,
-          CONVERT(varchar, fecha_publicacion, 120)        AS hace_cuanto,
-          fecha_publicacion                               AS fecha_ord
+          'Nueva propiedad publicada: ' + titulo   AS descripcion,
+          'PUBLICACION'                             AS tipo,
+          'fa-solid fa-building'                   AS icono,
+          CONVERT(varchar, fecha_publicacion, 120) AS hace_cuanto,
+          fecha_publicacion                        AS fecha_ord
         FROM tablas.PROPIEDADES
         UNION ALL
         SELECT TOP 5
-          'Nuevo usuario registrado: ' + nombre           AS descripcion,
-          'REGISTRO'                                       AS tipo,
-          'fa-solid fa-user-plus'                         AS icono,
-          CONVERT(varchar, fecha_registro, 120)            AS hace_cuanto,
-          fecha_registro                                   AS fecha_ord
+          'Nuevo usuario registrado: ' + nombre    AS descripcion,
+          'REGISTRO'                               AS tipo,
+          'fa-solid fa-user-plus'                  AS icono,
+          CONVERT(varchar, fecha_registro, 120)    AS hace_cuanto,
+          fecha_registro                           AS fecha_ord
         FROM tablas.USUARIOS
         UNION ALL
         SELECT TOP 5
-          'Nuevo reporte de soporte recibido'              AS descripcion,
-          'ALERTA'                                         AS tipo,
-          'fa-solid fa-flag'                              AS icono,
-          CONVERT(varchar, fecha_reporte, 120)             AS hace_cuanto,
-          fecha_reporte                                    AS fecha_ord
+          'Nuevo reporte de soporte recibido'      AS descripcion,
+          'ALERTA'                                 AS tipo,
+          'fa-solid fa-flag'                       AS icono,
+          CONVERT(varchar, fecha_reporte, 120)     AS hace_cuanto,
+          fecha_reporte                            AS fecha_ord
         FROM tablas.REPORTES
       ) actividades
       ORDER BY fecha_ord DESC
@@ -101,7 +94,7 @@ const getActividadReciente = async (req, res) => {
   }
 };
 
-// ── 4. REPORTES DE SOPORTE (tickets abiertos) ──
+// ── 4. REPORTES DE SOPORTE ──
 const getReportesSoporte = async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -131,14 +124,15 @@ const getUsuarios = async (req, res) => {
     const pool = await poolPromise;
     const result = await pool.request().query(`
       SELECT
-        id_usuario  AS id,
-        nombre,
-        correo,
-        rol,
-        activo,
-        fecha_registro
-      FROM tablas.USUARIOS
-      ORDER BY fecha_registro DESC
+        u.id_usuario  AS id,
+        u.nombre,
+        u.correo,
+        r.nombre_rol  AS rol,
+        u.activo,
+        u.fecha_registro
+      FROM tablas.USUARIOS u
+      INNER JOIN tablas.ROLES r ON u.id_rol = r.id_rol
+      ORDER BY u.fecha_registro DESC
     `);
     res.json(result.recordset);
   } catch (err) {
@@ -147,7 +141,7 @@ const getUsuarios = async (req, res) => {
   }
 };
 
-// ── 6. PROPIEDADES REPORTADAS (con conteo de denuncias) ──
+// ── 6. PROPIEDADES REPORTADAS ──
 const getPropiedadesReportadas = async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -160,7 +154,9 @@ const getPropiedadesReportadas = async (req, res) => {
         p.id_usuario        AS usuario_id,
         COUNT(r.id_reporte) AS total_denuncias,
         MAX(r.motivo)       AS ultimo_motivo,
-        (SELECT TOP 1 url_imagen FROM tablas.IMAGENES_PROPIEDADES WHERE id_propiedad = p.id_propiedad) AS imagen_url
+        -- FIX: obtener portada desde tablas.IMAGENES con es_portada = 1
+        (SELECT TOP 1 url FROM tablas.IMAGENES 
+         WHERE id_propiedad = p.id_propiedad AND es_portada = 1) AS imagen_url
       FROM tablas.REPORTES r
       INNER JOIN tablas.PROPIEDADES p ON r.id_propiedad = p.id_propiedad
       LEFT  JOIN tablas.UBICACIONES ub ON p.id_ubicacion = ub.id_ubicacion
@@ -176,7 +172,7 @@ const getPropiedadesReportadas = async (req, res) => {
   }
 };
 
-// ── 7. CAMBIAR ESTADO DE PROPIEDAD (Aprobada / Suspendida / Pendiente) ──
+// ── 7. CAMBIAR ESTADO DE PROPIEDAD ──
 const cambiarEstadoPropiedad = async (req, res) => {
   try {
     const { id } = req.params;
@@ -188,8 +184,6 @@ const cambiarEstadoPropiedad = async (req, res) => {
     }
 
     const pool = await poolPromise;
-
-    // Mapeamos el estado textual a disponible (bit) para mantener compatibilidad
     const disponible = estado === 'Aprobada' ? 1 : 0;
 
     await pool.request()
@@ -208,7 +202,7 @@ const cambiarEstadoPropiedad = async (req, res) => {
   }
 };
 
-// ── 8. CAMBIAR ESTADO DE USUARIO (activar / suspender) ──
+// ── 8. CAMBIAR ESTADO DE USUARIO ──
 const cambiarEstadoUsuario = async (req, res) => {
   try {
     const { id } = req.params;
@@ -219,7 +213,6 @@ const cambiarEstadoUsuario = async (req, res) => {
     }
 
     const pool = await poolPromise;
-
     await pool.request()
       .input('id',     sql.UniqueIdentifier, id)
       .input('activo', sql.Bit,              activo ? 1 : 0)
@@ -236,14 +229,14 @@ const cambiarEstadoUsuario = async (req, res) => {
   }
 };
 
-// ── 9. RESOLVER REPORTE DE SOPORTE ──
+// ── 9. RESOLVER REPORTE ──
 const resolverReporte = async (req, res) => {
   try {
     const { id } = req.params;
     const pool = await poolPromise;
 
     await pool.request()
-      .input('id', sql.Int, parseInt(id))
+      .input('id', sql.UniqueIdentifier, id)
       .query(`
         UPDATE tablas.REPORTES
         SET estado = 'resuelto'
@@ -257,7 +250,7 @@ const resolverReporte = async (req, res) => {
   }
 };
 
-// ── 10. DESESTIMAR DENUNCIAS DE UNA PROPIEDAD ──
+// ── 10. DESESTIMAR DENUNCIAS ──
 const desestimarDenuncias = async (req, res) => {
   try {
     const { id } = req.params;
