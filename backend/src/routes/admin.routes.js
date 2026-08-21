@@ -24,6 +24,7 @@ router.use(authMiddleware, soloAdmin);
 router.get('/metricas',              adminCtrl.getMetricas);
 router.get('/propiedades-recientes', adminCtrl.getPropiedadesRecientes);
 router.get('/actividad-reciente',    adminCtrl.getActividadReciente);
+router.get('/todas-propiedades', adminCtrl.getTodasPropiedades);
 
 // Gestión
 router.get('/reportes-soporte',      adminCtrl.getReportesSoporte);

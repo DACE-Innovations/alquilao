@@ -741,16 +741,28 @@ tbody td { padding: 12px 16px; font-size: 13.5px; color: var(--text-2); vertical
 <script>
 const API_BASE = 'http://localhost:3000/api';
 let tokenGlobal = '';
-
-// Almacenamiento local de datos para filtrado en tiempo real
 let cachePublicaciones = [];
 
+// ── Anti-XSS: escapa texto antes de insertarlo en innerHTML ──
+function esc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+// ── Derivar estado legible desde disponible (BIT) ──
+function estadoDesdeDisponible(disponible) {
+  return disponible ? 'Aprobada' : 'Pendiente';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  // 🚨 CAMBIO AQUÍ: Usamos el sistema unificado de seguridad.js
   const usuario = Seguridad.getUsuario();
   const token = Seguridad.getToken();
 
-  // Si no hay usuario, token, o el rol no es estricto admin, pa' fuera
   if (!usuario || !token || usuario.rol !== 'admin') {
     window.location.replace('../login.html');
     return;
@@ -758,21 +770,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   tokenGlobal = token;
 
-  // Renderizar información del Administrador logueado
-  document.getElementById('topbar-saludo').innerText = `¡Hola, ${usuario.nombre}!`;
-  document.getElementById('admin-perfil-nombre').innerText = usuario.nombre;
+  document.getElementById('topbar-saludo').innerText = `¡Hola, ${esc(usuario.nombre)}!`;
+  document.getElementById('admin-perfil-nombre').innerText = esc(usuario.nombre);
   document.getElementById('avatar-letras').innerText = usuario.nombre.substring(0, 2).toUpperCase();
 
-  // Carga asíncrona inicial de la base de datos central
   inicializarPanel();
 });
+
 async function inicializarPanel() {
   await cargarMetricasYBadges();
   await cargarDashboard();
   await cargarTodasLasSecciones();
 }
 
-// 1. CARGAR MÉTRICAS Y ACTUALIZAR CONTADORES DE LOS BADGES DEL SIDEBAR
+// 1. MÉTRICAS
 async function cargarMetricasYBadges() {
   try {
     const res = await fetch(`${API_BASE}/admin/metricas`, {
@@ -781,239 +792,265 @@ async function cargarMetricasYBadges() {
     if (!res.ok) throw new Error();
     const data = await res.json();
 
-    // Actualizar números del Dashboard principal
-    document.getElementById('stat-totales').innerText = data.totales || 0;
-    document.getElementById('stat-aprobadas').innerText = data.aprobadas || 0;
+    document.getElementById('stat-totales').innerText    = data.totales || 0;
+    document.getElementById('stat-aprobadas').innerText  = data.aprobadas || 0;
     document.getElementById('stat-pendientes').innerText = data.pendientes || 0;
     document.getElementById('stat-reportadas').innerText = data.propidadesReportadas || 0;
-    document.getElementById('stat-usuarios').innerText = data.usuariosTotales || 0;
+    document.getElementById('stat-usuarios').innerText   = data.usuariosTotales || 0;
 
-    // Actualizar los globos de notificación (Badges) en el Sidebar lateral
-    document.getElementById('badge-pub').innerText = data.pendientes || 0;
-    document.getElementById('badge-rep').innerText = data.reportesSoporte || 0;
-    document.getElementById('badge-mod').innerText = data.pendientes || 0;
+    document.getElementById('badge-pub').innerText      = data.pendientes || 0;
+    document.getElementById('badge-rep').innerText      = data.reportesSoporte || 0;
+    document.getElementById('badge-mod').innerText      = data.pendientes || 0;
     document.getElementById('badge-rep-prop').innerText = data.propidadesReportadas || 0;
 
-    if(data.propidadesReportadas > 0 || data.pendientes > 0) {
-      document.getElementById('notif-alerta').style.display = 'block';
-    } else {
-      document.getElementById('notif-alerta').style.display = 'none';
-    }
+    const hayAlertas = (data.propidadesReportadas > 0 || data.pendientes > 0);
+    document.getElementById('notif-alerta').style.display = hayAlertas ? 'block' : 'none';
+
   } catch (err) {
-    console.error("Error cargando métricas reales:", err);
+    console.error('Error cargando métricas:', err);
   }
 }
 
-// 2. POBLAR VISTA DEL DASHBOARD (PROPIEDADES RECIENTES Y LOGS DE ACTIVIDAD)
+// 2. DASHBOARD
 async function cargarDashboard() {
   try {
-    // Cargar últimas 5 propiedades insertadas
     const resProp = await fetch(`${API_BASE}/admin/propiedades-recientes`, {
       headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
     const recientes = await resProp.json();
     const tbodyDash = document.getElementById('lista-recientes-dash');
-    
-    if(recientes.length === 0) {
+
+    if (recientes.length === 0) {
       tbodyDash.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--text-3)">No hay registros</td></tr>`;
     } else {
-      tbodyDash.innerHTML = recientes.map(p => `
-        <tr>
-          <td>
-            <div class="prop-mini">
-              <div class="prop-mini-img"><img src="${p.imagen_url || '../../images/placeholder.jpg'}" onerror="this.onerror=null; this.src='../../images/placeholder.jpg';"></div>
-              <div>
-                <div class="prop-mini-title">${p.titulo}</div>
-                <div class="prop-mini-sub">${p.sector || 'República Dominicana'}</div>
+      tbodyDash.innerHTML = recientes.map(p => {
+        // FIX: estado derivado de disponible (BIT)
+        const estado = estadoDesdeDisponible(p.disponible);
+        return `
+          <tr>
+            <td>
+              <div class="prop-mini">
+                <div class="prop-mini-img"><img src="${esc(p.imagen_url) || ''}" onerror="this.style.display='none'"></div>
+                <div>
+                  <div class="prop-mini-title">${esc(p.titulo)}</div>
+                  <div class="prop-mini-sub">${esc(p.sector) || 'República Dominicana'}</div>
+                </div>
               </div>
-            </div>
-          </td>
-          <td>RD$ ${(p.precio || 0).toLocaleString('es-DO')}</td>
-          <td><span class="badge ${p.estado.toLowerCase()}">${p.estado}</span></td>
-        </tr>
-      `).join('');
+            </td>
+            <td>RD$ ${(p.precio || 0).toLocaleString('es-DO')}</td>
+            <td><span class="badge ${estado.toLowerCase()}">${esc(estado)}</span></td>
+          </tr>
+        `;
+      }).join('');
     }
 
-    // Cargar logs o historial de acciones recientes de la plataforma
     const resAct = await fetch(`${API_BASE}/admin/actividad-reciente`, {
       headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
     const actividades = await resAct.json();
     const containerAct = document.getElementById('lista-actividad-dash');
 
-    if(actividades.length === 0) {
+    if (actividades.length === 0) {
       containerAct.innerHTML = `<p style="text-align:center; padding:20px; color:var(--text-3)">Sin actividad reciente</p>`;
     } else {
       containerAct.innerHTML = actividades.map(a => {
         let colorDot = 'blue';
-        if(a.tipo === 'ALERTA' || a.tipo === 'RECHAZO') colorDot = 'red';
-        if(a.tipo === 'APROBACION' || a.tipo === 'REGISTRO') colorDot = 'green';
-        
+        if (a.tipo === 'ALERTA' || a.tipo === 'RECHAZO') colorDot = 'red';
+        if (a.tipo === 'APROBACION' || a.tipo === 'REGISTRO') colorDot = 'green';
         return `
           <div class="activity-item">
-            <div class="activity-dot ${colorDot}"><i class="${a.icono || 'fa-solid fa-circle-info'}"></i></div>
-            <div class="activity-text">${a.descripcion}</div>
-            <div class="activity-time">${a.hace_cuanto || 'Ahora'}</div>
+            <div class="activity-dot ${colorDot}"><i class="${esc(a.icono) || 'fa-solid fa-circle-info'}"></i></div>
+            <div class="activity-text">${esc(a.descripcion)}</div>
+            <div class="activity-time">${esc(a.hace_cuanto) || 'Ahora'}</div>
           </div>
         `;
       }).join('');
     }
-  } catch(e) {
-    console.error("Error al poblar el Dashboard:", e);
+  } catch (e) {
+    console.error('Error al poblar Dashboard:', e);
   }
 }
 
-// 3. CARGAR EL RESTO DE SECCIONES INTERNAS EN CACHE O TABLAS
+// 3. TODAS LAS SECCIONES
 async function cargarTodasLasSecciones() {
   try {
-    // Sección: Gestión de todas las publicaciones
-    const resPub = await fetch(`${API_BASE}/propiedades`, {
-      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
+    // Publicaciones
+    const resPub = await fetch(`${API_BASE}/admin/todas-propiedades`, {      headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
-    cachePublicaciones = await resPub.json();
+    const dataPub = await resPub.json();
+    // FIX: la API devuelve { total, propiedades: [] } no un array directo
+    cachePublicaciones = Array.isArray(dataPub) ? dataPub : (dataPub.propiedades || []);
+    // Normalizar: agregar campo estado derivado de disponible
+    cachePublicaciones = cachePublicaciones.map(p => ({
+      ...p,
+      estado: estadoDesdeDisponible(p.disponible)
+    }));
     renderizarTablaPublicaciones(cachePublicaciones);
 
-    // Sección: Reportes de Soporte Técnico / Tickets
+    // Reportes de soporte
     const resRep = await fetch(`${API_BASE}/admin/reportes-soporte`, {
       headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
     const reportes = await resRep.json();
     const tbodyRep = document.getElementById('tabla-reportes-cuerpo');
-    tbodyRep.innerHTML = reportes.length === 0 ? `<tr><td colspan="5" style="text-align:center">No hay reportes de soporte abiertos</td></tr>` : reportes.map(r => `
-      <tr>
-        <td>
-          <div class="user-mini">
-            <div class="user-mini-avatar">${r.nombre.substring(0,2).toUpperCase()}</div>
-            <div>
-              <div class="user-mini-name">${r.nombre}</div>
-              <div class="user-mini-email">${r.correo}</div>
-            </div>
-          </div>
-        </td>
-        <td><strong>${r.asunto || 'Soporte'}</strong><br><span style="font-size:12px;color:var(--text-3)">${r.mensaje}</span></td>
-        <td>${new Date(r.fecha_creacion).toLocaleDateString('es-DO')}</td>
-        <td><span class="badge ${r.estado.toLowerCase()}">${r.estado}</span></td>
-        <td>
-          <div class="action-btns">
-            ${r.estado !== 'Resuelto' ? `<button class="action-btn approve" onclick="resolverReporte(${r.id})"><i class="fa-solid fa-check"></i> Marcar Resuelto</button>` : `<span style="color:var(--success);font-size:12px;"><i class="fa-solid fa-square-check"></i> Atendido</span>`}
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    tbodyRep.innerHTML = reportes.length === 0
+      ? `<tr><td colspan="5" style="text-align:center">No hay reportes de soporte</td></tr>`
+      : reportes.map(r => {
+          // FIX: comparar estado en minúsculas ('abierto' no 'Resuelto')
+          const estadoLower = (r.estado || '').toLowerCase();
+          const yaResuelto  = estadoLower === 'resuelto' || estadoLower === 'desestimado';
+          // FIX: UUID entre comillas en onclick
+          return `
+            <tr>
+              <td>
+                <div class="user-mini">
+                  <div class="user-mini-avatar">${esc(r.nombre).substring(0,2).toUpperCase()}</div>
+                  <div>
+                    <div class="user-mini-name">${esc(r.nombre)}</div>
+                    <div class="user-mini-email">${esc(r.correo)}</div>
+                  </div>
+                </div>
+              </td>
+              <td><strong>${esc(r.asunto) || 'Soporte'}</strong><br><span style="font-size:12px;color:var(--text-3)">${esc(r.mensaje)}</span></td>
+              <td>${new Date(r.fecha_creacion).toLocaleDateString('es-DO')}</td>
+              <td><span class="badge ${estadoLower}">${esc(r.estado)}</span></td>
+              <td>
+                <div class="action-btns">
+                  ${!yaResuelto
+                    ? `<button class="action-btn approve" onclick="resolverReporte('${esc(r.id)}')"><i class="fa-solid fa-check"></i> Marcar Resuelto</button>`
+                    : `<span style="color:var(--success);font-size:12px;"><i class="fa-solid fa-square-check"></i> Atendido</span>`
+                  }
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
 
-    // Sección: Lista de todos los Usuarios Registrados
+    // Usuarios
     const resUser = await fetch(`${API_BASE}/admin/usuarios`, {
       headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
     const usuarios = await resUser.json();
     const tbodyUser = document.getElementById('tabla-usuarios-cuerpo');
-    tbodyUser.innerHTML = usuarios.length === 0 ? `<tr><td colspan="4" style="text-align:center">No hay usuarios registrados</td></tr>` : usuarios.map(u => `
-      <tr>
-        <td>
-          <div class="user-mini">
-            <div class="user-mini-avatar">${u.nombre.substring(0,2).toUpperCase()}</div>
-            <div>
-              <div class="user-mini-name">${u.nombre}</div>
-              <div class="user-mini-email">${u.correo}</div>
-            </div>
-          </div>
-        </td>
-        <td><span style="text-transform: capitalize; font-weight:600;">${u.rol}</span></td>
-        <td><span class="badge ${u.activo ? 'activo' : 'inactivo'}">${u.activo ? 'Activo' : 'Suspendido'}</span></td>
-        <td>
-          <div class="action-btns">
-            ${u.activo ? 
-              `<button class="action-btn suspend" onclick="cambiarEstadoUsuario(${u.id}, false)"><i class="fa-solid fa-ban"></i> Suspender</button>` : 
-              `<button class="action-btn approve" onclick="cambiarEstadoUsuario(${u.id}, true)"><i class="fa-solid fa-unlock"></i> Reactivar</button>`
-            }
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    tbodyUser.innerHTML = usuarios.length === 0
+      ? `<tr><td colspan="4" style="text-align:center">No hay usuarios registrados</td></tr>`
+      : usuarios.map(u => `
+          <tr>
+            <td>
+              <div class="user-mini">
+                <div class="user-mini-avatar">${esc(u.nombre).substring(0,2).toUpperCase()}</div>
+                <div>
+                  <div class="user-mini-name">${esc(u.nombre)}</div>
+                  <div class="user-mini-email">${esc(u.correo)}</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="text-transform:capitalize;font-weight:600;">${esc(u.rol)}</span></td>
+            <td><span class="badge ${u.activo ? 'activo' : 'inactivo'}">${u.activo ? 'Activo' : 'Suspendido'}</span></td>
+            <td>
+              <div class="action-btns">
+                ${u.activo
+                  // FIX: UUID entre comillas en onclick
+                  ? `<button class="action-btn suspend" onclick="cambiarEstadoUsuario('${esc(u.id)}', false)"><i class="fa-solid fa-ban"></i> Suspender</button>`
+                  : `<button class="action-btn approve" onclick="cambiarEstadoUsuario('${esc(u.id)}', true)"><i class="fa-solid fa-unlock"></i> Reactivar</button>`
+                }
+              </div>
+            </td>
+          </tr>
+        `).join('');
 
-    // Sección: Cola de Moderación (Tarjetas visuales del mismo diseño)
+    // Moderación: propiedades pendientes
     const pendientes = cachePublicaciones.filter(p => p.estado === 'Pendiente');
     const gridMod = document.getElementById('grid-moderacion-cuerpo');
-    gridMod.innerHTML = pendientes.length === 0 ? `<p style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-3)">No hay propiedades en cola esperando aprobación.</p>` : pendientes.map(p => `
-      <div class="mod-card">
-        <div class="mod-card-img">
-          <img src="${p.imagen_url || '../../images/placeholder.jpg'}" onerror="this.onerror=null; this.src='../../images/placeholder.jpg';">
-        </div>
-        <div class="mod-card-body">
-          <div class="mod-card-title">${p.titulo}</div>
-          <div class="mod-card-desc">Precio: RD$ ${p.precio.toLocaleString()}/mes<br>Ubicado en ${p.sector || 'N/A'}.</div>
-          <div class="mod-card-owner"><i class="fa-solid fa-user"></i> ID Propietario: # ${p.usuario_id || 'Anonimo'}</div>
-          <div class="mod-card-actions">
-            <button class="action-btn approve" onclick="cambiarEstadoInmueble(${p.id}, 'Aprobada')"><i class="fa-solid fa-circle-check"></i> Aprobar</button>
-            <button class="action-btn delete" onclick="cambiarEstadoInmueble(${p.id}, 'Rechazada')"><i class="fa-solid fa-circle-xmark"></i> Rechazar</button>
+    gridMod.innerHTML = pendientes.length === 0
+      ? `<p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-3)">No hay propiedades en cola esperando aprobación.</p>`
+      : pendientes.map(p => `
+          <div class="mod-card">
+            <div class="mod-card-img">
+              <img src="${esc(p.imagen_url) || ''}" onerror="this.style.display='none'">
+            </div>
+            <div class="mod-card-body">
+              <div class="mod-card-title">${esc(p.titulo)}</div>
+              <div class="mod-card-desc">Precio: RD$ ${(p.precio || 0).toLocaleString()}/mes<br>Ubicado en ${esc(p.sector) || 'N/A'}.</div>
+              <div class="mod-card-owner"><i class="fa-solid fa-user"></i> Propietario registrado</div>
+              <div class="mod-card-actions">
+                <!-- FIX: UUID entre comillas en onclick -->
+                <button class="action-btn approve" onclick="cambiarEstadoInmueble('${esc(p.id_propiedad)}', 'Aprobada')"><i class="fa-solid fa-circle-check"></i> Aprobar</button>
+                <button class="action-btn delete"  onclick="cambiarEstadoInmueble('${esc(p.id_propiedad)}', 'Rechazada')"><i class="fa-solid fa-circle-xmark"></i> Rechazar</button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    `).join('');
+        `).join('');
 
-    // Sección: Propiedades Reportadas / Denunciadas
+    // Propiedades reportadas
     const resPropRep = await fetch(`${API_BASE}/admin/propiedades-reportadas`, {
       headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
     const propReportadas = await resPropRep.json();
     const tbodyPropRep = document.getElementById('tabla-reportadas-prop-cuerpo');
-    tbodyPropRep.innerHTML = propReportadas.length === 0 ? `<tr><td colspan="4" style="text-align:center">No hay denuncias de inmuebles actualmente</td></tr>` : propReportadas.map(pr => `
-      <tr>
-        <td>
-          <div class="prop-mini">
-            <div class="prop-mini-img"><img src="${pr.imagen_url || '../../images/placeholder.jpg'}" onerror="this.onerror=null; this.src='../../images/placeholder.jpg';"></div>
-            <div>
-              <div class="prop-mini-title">${pr.titulo}</div>
-              <div class="prop-mini-sub">Por: User #${pr.usuario_id}</div>
-            </div>
-          </div>
-        </td>
-        <td><span class="badge reportada"><i class="fa-solid fa-triangle-exclamation"></i> ${pr.total_denuncias || 1} reportes</span></td>
-        <td><span style="font-size:12px; color:var(--text-2); font-style:italic;">"${pr.ultimo_motivo || 'Contenido inapropiado o falso'}"</span></td>
-        <td>
-          <div class="action-btns">
-            <button class="action-btn delete" onclick="eliminarPropiedadDefinitivo(${pr.id})"><i class="fa-solid fa-trash"></i> Retirar Inmueble</button>
-            <button class="action-btn ignore" onclick="desestimarDenunciasPropiedad(${pr.id})"><i class="fa-solid fa-eye-slash"></i> Ignorar</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    tbodyPropRep.innerHTML = propReportadas.length === 0
+      ? `<tr><td colspan="4" style="text-align:center">No hay denuncias de inmuebles</td></tr>`
+      : propReportadas.map(pr => `
+          <tr>
+            <td>
+              <div class="prop-mini">
+                <div class="prop-mini-img"><img src="${esc(pr.imagen_url) || ''}" onerror="this.style.display='none'"></div>
+                <div>
+                  <div class="prop-mini-title">${esc(pr.titulo)}</div>
+                  <div class="prop-mini-sub">Publicado en ${esc(pr.sector) || 'RD'}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge reportada"><i class="fa-solid fa-triangle-exclamation"></i> ${pr.total_denuncias || 1} reportes</span></td>
+            <td><span style="font-size:12px;color:var(--text-2);font-style:italic;">"${esc(pr.ultimo_motivo) || 'Contenido inapropiado'}"</span></td>
+            <td>
+              <div class="action-btns">
+                <!-- FIX: UUID entre comillas en onclick -->
+                <button class="action-btn delete"  onclick="eliminarPropiedadDefinitivo('${esc(pr.id)}')"><i class="fa-solid fa-trash"></i> Retirar</button>
+                <button class="action-btn ignore"  onclick="desestimarDenunciasPropiedad('${esc(pr.id)}')"><i class="fa-solid fa-eye-slash"></i> Ignorar</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
 
   } catch (error) {
-    console.error("Error al inyectar datos funcionales:", error);
+    console.error('Error al cargar secciones:', error);
   }
 }
 
-// 4. LOGICA DE RENDERIZADO Y FILTRADO DE LA TABLA DE PUBLICACIONES
+// 4. RENDERIZAR TABLA DE PUBLICACIONES
 function renderizarTablaPublicaciones(lista) {
   const tbody = document.getElementById('tabla-publicaciones-cuerpo');
-  if(lista.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center">No se encontraron propiedades registradas</td></tr>`;
+  if (lista.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center">No se encontraron propiedades</td></tr>`;
     return;
   }
   tbody.innerHTML = lista.map(p => `
     <tr>
       <td>
         <div class="prop-mini">
-          <div class="prop-mini-img"><img src="${p.imagen_url || '../../images/placeholder.jpg'}" onerror="this.onerror=null; this.src='../../images/placeholder.jpg';"></div>
+          <div class="prop-mini-img"><img src="${esc(p.imagen_portada) || ''}" onerror="this.style.display='none'"></div>
           <div>
-            <div class="prop-mini-title">${p.titulo}</div>
-            <div class="prop-mini-sub">ID: #${p.id}</div>
+            <div class="prop-mini-title">${esc(p.titulo)}</div>
+            <div class="prop-mini-sub">${esc(p.sector) || ''}, ${esc(p.provincia) || ''}</div>
           </div>
         </div>
       </td>
-      <td>${p.sector || 'D.N.'}, ${p.provincia || 'Santo Domingo'}</td>
+      <td>${esc(p.sector) || 'D.N.'}, ${esc(p.provincia) || 'Santo Domingo'}</td>
       <td>RD$ ${(p.precio || 0).toLocaleString('es-DO')}</td>
-      <td><span class="badge ${p.estado.toLowerCase()}">${p.estado}</span></td>
+      <td><span class="badge ${(p.estado || '').toLowerCase()}">${esc(p.estado)}</span></td>
       <td>
         <div class="action-btns">
-          ${p.estado === 'Aprobada' ? 
-            `<button class="action-btn suspend" onclick="cambiarEstadoInmueble(${p.id}, 'Suspendida')"><i class="fa-solid fa-ban"></i> Suspender</button>` : ''
+          ${p.estado === 'Aprobada'
+            ? `<button class="action-btn suspend" onclick="cambiarEstadoInmueble('${esc(p.id_propiedad)}', 'Suspendida')"><i class="fa-solid fa-ban"></i> Suspender</button>`
+            : ''
           }
-          ${p.estado === 'Suspendida' || p.estado === 'Rechazada' ? 
-            `<button class="action-btn approve" onclick="cambiarEstadoInmueble(${p.id}, 'Aprobada')"><i class="fa-solid fa-circle-check"></i> Habilitar</button>` : ''
+          ${p.estado === 'Suspendida' || p.estado === 'Rechazada'
+            ? `<button class="action-btn approve" onclick="cambiarEstadoInmueble('${esc(p.id_propiedad)}', 'Aprobada')"><i class="fa-solid fa-circle-check"></i> Habilitar</button>`
+            : ''
           }
-          <button class="action-btn delete" onclick="eliminarPropiedadDefinitivo(${p.id})"><i class="fa-solid fa-trash"></i> Borrar</button>
+          <!-- FIX: UUID entre comillas en onclick -->
+          <button class="action-btn delete" onclick="eliminarPropiedadDefinitivo('${esc(p.id_propiedad)}')"><i class="fa-solid fa-trash"></i> Borrar</button>
         </div>
       </td>
     </tr>
@@ -1022,14 +1059,15 @@ function renderizarTablaPublicaciones(lista) {
 
 function filtrarTablaPublicaciones() {
   const txt = document.getElementById('busqueda-pub').value.toLowerCase();
-  const filtradas = cachePublicaciones.filter(p => 
-    p.titulo.toLowerCase().includes(txt) || 
-    (p.sector && p.sector.toLowerCase().includes(txt))
+  const filtradas = cachePublicaciones.filter(p =>
+    (p.titulo || '').toLowerCase().includes(txt) ||
+    (p.sector || '').toLowerCase().includes(txt)
   );
   renderizarTablaPublicaciones(filtradas);
 }
 
-// 5. OPERACIONES / ACCIONES DIRECTAS AL BACKEND (ACCIONES CRUD Y MODERACIÓN)
+// 5. ACCIONES AL BACKEND
+
 async function cambiarEstadoInmueble(id, nuevoEstado) {
   try {
     const res = await fetch(`${API_BASE}/admin/propiedades/${id}/estado`, {
@@ -1040,26 +1078,26 @@ async function cambiarEstadoInmueble(id, nuevoEstado) {
       },
       body: JSON.stringify({ estado: nuevoEstado })
     });
-    if(!res.ok) throw new Error();
-    showToast(`Inmueble cambiado a ${nuevoEstado} con éxito`, 'success');
-    inicializarPanel(); // Recargar todas las vistas y métricas en caliente
-  } catch(e) {
+    if (!res.ok) throw new Error();
+    showToast(`Inmueble cambiado a ${nuevoEstado}`, 'success');
+    inicializarPanel();
+  } catch (e) {
     showToast('No se pudo cambiar el estado de la propiedad', 'danger');
   }
 }
 
 async function eliminarPropiedadDefinitivo(id) {
-  if(!confirm('¿Estás completamente seguro de eliminar esta propiedad de manera permanente del sistema?')) return;
+  if (!confirm('¿Estás seguro de eliminar esta propiedad permanentemente?')) return;
   try {
     const res = await fetch(`${API_BASE}/propiedades/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
-    if(!res.ok) throw new Error();
-    showToast('Propiedad eliminada del sistema correctamente', 'success');
+    if (!res.ok) throw new Error();
+    showToast('Propiedad eliminada correctamente', 'success');
     inicializarPanel();
-  } catch(e) {
-    showToast('Error al intentar eliminar el inmueble', 'danger');
+  } catch (e) {
+    showToast('Error al eliminar el inmueble', 'danger');
   }
 }
 
@@ -1073,25 +1111,26 @@ async function cambiarEstadoUsuario(id, activar) {
       },
       body: JSON.stringify({ activo: activar })
     });
-    if(!res.ok) throw new Error();
-    showToast(activar ? 'Usuario reactivado correctamente' : 'Cuenta de usuario suspendida', 'warning');
+    if (!res.ok) throw new Error();
+    showToast(activar ? 'Usuario reactivado' : 'Usuario suspendido', 'warning');
     inicializarPanel();
-  } catch(e) {
+  } catch (e) {
     showToast('No se pudo modificar el acceso del usuario', 'danger');
   }
 }
 
 async function resolverReporte(id) {
+  // FIX: id es UUID (string), no Int — se pasa directo en la URL
   try {
     const res = await fetch(`${API_BASE}/admin/reportes-soporte/${id}/resolver`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
-    if(!res.ok) throw new Error();
+    if (!res.ok) throw new Error();
     showToast('Ticket marcado como resuelto', 'success');
     inicializarPanel();
-  } catch(e) {
-    showToast('No se pudo actualizar el ticket de soporte', 'danger');
+  } catch (e) {
+    showToast('No se pudo resolver el ticket', 'danger');
   }
 }
 
@@ -1101,36 +1140,29 @@ async function desestimarDenunciasPropiedad(id) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${tokenGlobal}` }
     });
-    if(!res.ok) throw new Error();
+    if (!res.ok) throw new Error();
     showToast('Denuncias desestimadas. Inmueble conservado', 'success');
     inicializarPanel();
-  } catch(e) {
+  } catch (e) {
     showToast('Error al desestimar denuncias', 'danger');
   }
 }
 
-// 6. CONTROLADORES VISUALES DE NAVEGACIÓN INTERNA INTERACTIVA
+// 6. NAVEGACIÓN
 function showPage(pageId, elementBtn) {
-  // Ocultar todas las páginas
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  // Quitar estado activo a los botones del menú lateral
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-
-  // Activar la página seleccionada
   const targetPage = document.getElementById(`page-${pageId}`);
-  if(targetPage) targetPage.classList.add('active');
-
-  // Si se presionó desde el sidebar, marcarlo activo visualmente
-  if(elementBtn) {
+  if (targetPage) targetPage.classList.add('active');
+  if (elementBtn) {
     elementBtn.classList.add('active');
   } else {
-    // Buscar el botón correspondiente por atributo onclick si vino de afuera
     document.querySelectorAll('.nav-item').forEach(b => {
-      if(b.getAttribute('onclick').includes(`'${pageId}'`)) b.classList.add('active');
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${pageId}'`)) {
+        b.classList.add('active');
+      }
     });
   }
-
-  // Cerrar el sidebar automáticamente en dispositivos móviles tras la selección
   document.getElementById('sidebar').classList.remove('open');
 }
 
@@ -1139,27 +1171,25 @@ function toggleSidebar() {
 }
 
 function cerrarSesion() {
+  if (window.Seguridad) { Seguridad.cerrarSesion(); return; }
   localStorage.clear();
   window.location.href = '../login.html';
 }
 
-/* ── FUNCIÓN TOAST EMISORA DE ALERTAS ── */
+// Toast
 let toastTimeout;
 function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
-  const icon = document.getElementById('toast-icon');
+  const icon  = document.getElementById('toast-icon');
   document.getElementById('toast-msg').textContent = msg;
-  
-  const icons = { 
-    success: 'fa-circle-check', 
-    warning: 'fa-triangle-exclamation', 
-    danger: 'fa-circle-xmark', 
-    blue: 'fa-circle-info' 
+  const icons = {
+    success: 'fa-circle-check',
+    warning: 'fa-triangle-exclamation',
+    danger:  'fa-circle-xmark',
+    blue:    'fa-circle-info'
   };
-  
-  icon.className = `fa-solid ${icons[type] || 'fa-circle-check'}`;
+  icon.className  = `fa-solid ${icons[type] || 'fa-circle-check'}`;
   toast.className = `toast ${type} visible`;
-  
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => toast.classList.remove('visible'), 3500);
 }

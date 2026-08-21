@@ -271,6 +271,33 @@ const desestimarDenuncias = async (req, res) => {
   }
 };
 
+// GET /api/admin/todas-propiedades — para el panel de moderación
+const getTodasPropiedades = async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    const result = await pool.request().query(`
+      SELECT
+        p.id_propiedad,
+        p.titulo,
+        p.precio,
+        p.disponible,
+        ub.sector,
+        ub.provincia,
+        (SELECT TOP 1 url FROM tablas.IMAGENES 
+         WHERE id_propiedad = p.id_propiedad AND es_portada = 1) AS imagen_portada
+      FROM tablas.PROPIEDADES p
+      LEFT JOIN tablas.UBICACIONES ub ON p.id_ubicacion = ub.id_ubicacion
+      ORDER BY p.fecha_publicacion DESC
+    `);
+    res.json({ propiedades: result.recordset });
+  } catch (err) {
+    console.error('Error en admin.getTodasPropiedades:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+
+
 module.exports = {
   getMetricas,
   getPropiedadesRecientes,
@@ -278,6 +305,7 @@ module.exports = {
   getReportesSoporte,
   getUsuarios,
   getPropiedadesReportadas,
+  getTodasPropiedades,
   cambiarEstadoPropiedad,
   cambiarEstadoUsuario,
   resolverReporte,

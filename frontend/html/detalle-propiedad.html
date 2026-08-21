@@ -1176,43 +1176,187 @@ img { display: block; max-width: 100%; }
   <span id="toast-msg">Enlace copiado</span>
 </div>
 
+<script src="../js/api.js"></script>
 <script>
 /* ═══════════════════════════════════════
-   DATOS DE LA PROPIEDAD Y PROPIETARIO
+   ESTADO GLOBAL
 ═══════════════════════════════════════ */
-const propiedad = {
-  titulo: 'Moderno apartamento en Piantini',
-  precio: 55000,
-  sector: 'Piantini',
-};
-
-const propietario = {
-  nombre: 'Carlos Méndez',
-  telefono: '18095550123', // Formato para wa.me (sin +, espacios ni guiones)
-  mensaje: `Hola, estoy interesado en la propiedad que publicaste en Alquilao: "${propiedad.titulo}". ¿Podría obtener más información y coordinar una visita?`
-};
-
-/* ═══════════════════════════════════════
-   ESTADO DE AUTENTICACIÓN
-═══════════════════════════════════════ */
+let propiedadData   = {};  // datos reales desde la API
+let propietarioData = {};  // datos del propietario desde la API
 let isAuthenticated = false;
 
+/* ═══════════════════════════════════════
+   CARGAR PROPIEDAD DESDE LA API
+═══════════════════════════════════════ */
+async function cargarPropiedad() {
+  // Leer el id de la URL: ?id=UUID
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+
+  if (!id) {
+    mostrarError('No se especificó una propiedad. Vuelve al inicio.');
+    return;
+  }
+
+  try {
+    // 1. Datos de la propiedad
+    const data = await API.getPropiedad(id);
+
+    if (data.error || !data.id_propiedad) {
+      mostrarError('Propiedad no encontrada o no disponible.');
+      return;
+    }
+
+    propiedadData = data;
+
+    propietarioData = {
+      nombre:   data.propietario        || 'Propietario',
+      telefono: (data.telefono_propietario || '').replace(/\D/g, ''), // solo dígitos para wa.me
+      correo:   data.correo_propietario  || ''
+    };
+
+    // 2. Rellenar todos los elementos del HTML con datos reales
+    rellenarPagina(data);
+
+    // 3. Cargar imágenes reales desde /api/imagenes/:id
+    await cargarImagenes(id);
+
+    // 4. Verificar sesión y mostrar/ocultar sección de contacto
+    verificarSesionYMostrar();
+
+  } catch (err) {
+    console.error('Error al cargar propiedad:', err);
+    mostrarError('Error de conexión. Intenta de nuevo.');
+  }
+}
+
+function rellenarPagina(p) {
+  // Precio
+  const precioRD = new Intl.NumberFormat('es-DO', {
+    style: 'currency', currency: 'DOP', minimumFractionDigits: 0
+  }).format(p.precio);
+  const elPrecio = document.querySelector('.prop-price');
+  if (elPrecio) elPrecio.innerHTML = `${precioRD}<span>/mes</span>`;
+
+  // Título
+  const elTitulo = document.querySelector('.prop-title');
+  if (elTitulo) elTitulo.textContent = p.titulo || '—';
+
+  // Ubicación
+  const elLoc = document.querySelector('.prop-location');
+  if (elLoc) elLoc.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${p.direccion || ''}, ${p.sector || ''}, ${p.provincia || ''}`;
+
+  // Especificaciones
+  const specs = document.querySelectorAll('.spec-val');
+  if (specs[0]) specs[0].textContent = p.habitaciones  ?? '—';
+  if (specs[1]) specs[1].textContent = p.banos          ?? '—';
+  if (specs[2]) specs[2].textContent = '—';  // parqueos no está en el SP aún
+  if (specs[3]) specs[3].textContent = p.metros_cuadrados ? `${p.metros_cuadrados}` : '—';
+  if (specs[4]) specs[4].textContent = '—';  // piso no está en el SP aún
+
+  // Descripción
+  const elDesc = document.querySelector('.prop-desc');
+  if (elDesc) elDesc.textContent = p.descripcion || 'Sin descripción disponible.';
+
+  // Categoría en el badge de la galería
+  const badge = document.querySelector('.gallery-badge');
+  if (badge) badge.textContent = p.categoria || 'Alquiler';
+
+  // Breadcrumb
+  const breadSpan = document.querySelector('.breadcrumb span');
+  if (breadSpan) breadSpan.textContent = p.titulo || 'Detalle';
+
+  // Título de la página
+  document.title = `${p.titulo || 'Propiedad'} — Alquilao`;
+
+  // Propietario
+  const elNombre = document.querySelector('.owner-name');
+  if (elNombre) elNombre.innerHTML = `${p.propietario || 'Propietario'} <span class="badge-verified">✓ Verificado</span>`;
+
+  // Avatar propietario: inicial si no hay foto
+  const ownerImg = document.querySelector('.owner-avatar img');
+  if (ownerImg) {
+    ownerImg.style.display = 'none'; // ocultamos la foto quemada
+  }
+}
+
+async function cargarImagenes(id_propiedad) {
+  try {
+    const res  = await fetch(`/api/imagenes/${id_propiedad}`);
+    const data = await res.json();
+    const imgs = data.imagenes || [];
+
+    const mainImg   = document.getElementById('main-img');
+    const thumbsDiv = document.querySelector('.gallery-thumbs');
+
+    if (imgs.length === 0) {
+      // Sin imágenes — mantener placeholder
+      if (mainImg) mainImg.src = 'https://via.placeholder.com/900x500?text=Sin+fotos';
+      if (thumbsDiv) thumbsDiv.innerHTML = '';
+      return;
+    }
+
+    // Imagen principal: la portada (es_portada = 1) o la primera
+    const portada = imgs.find(i => i.es_portada) || imgs[0];
+    if (mainImg) mainImg.src = portada.url;
+
+    // Miniaturas: resto de imágenes
+    if (thumbsDiv) {
+      const resto = imgs.filter(i => i.url !== portada.url).slice(0, 3);
+      const extras = imgs.length - 1 - resto.length;
+
+      thumbsDiv.innerHTML = resto.map(img => `
+        <div class="gallery-thumb" onclick="changeImg('${img.url}')">
+          <img src="${img.url}" alt="Foto propiedad" loading="lazy"/>
+        </div>
+      `).join('') + (extras > 0 ? `
+        <div class="gallery-thumb more" data-more="+${extras}">
+          <img src="${imgs[resto.length + 1]?.url || portada.url}" alt="más fotos"/>
+        </div>
+      ` : '');
+    }
+
+  } catch (err) {
+    console.warn('No se pudieron cargar las imágenes:', err.message);
+  }
+}
+
+function verificarSesionYMostrar() {
+  const usuario = window.Seguridad ? Seguridad.getUsuario() : null;
+  isAuthenticated = !!usuario;
+
+  const authReq  = document.getElementById('auth-required');
+  const authOk   = document.getElementById('authenticated-actions');
+  const demoBar  = document.querySelector('.demo-bar');
+
+  // Ocultar la barra de demo — ya no la necesitamos
+  if (demoBar) demoBar.style.display = 'none';
+
+  if (authReq) authReq.classList.toggle('visible', !isAuthenticated);
+  if (authOk)  authOk.classList.toggle('visible',   isAuthenticated);
+}
+
+function mostrarError(msg) {
+  const layout = document.querySelector('.page-layout');
+  if (layout) {
+    layout.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-2)">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size:48px;color:var(--text-3);margin-bottom:16px;display:block"></i>
+        <h2 style="margin-bottom:8px">${msg}</h2>
+        <a href="index.html" style="color:var(--blue);font-weight:600">← Volver al inicio</a>
+      </div>`;
+  }
+}
+
+/* ═══════════════════════════════════════
+   ESTADO DE AUTENTICACIÓN (mantenido para compatibilidad)
+═══════════════════════════════════════ */
 function setAuth(value) {
   isAuthenticated = value;
-
-  // Actualizar botones demo
-  document.getElementById('btn-no-auth').classList.toggle('active', !value);
-  document.getElementById('btn-auth').classList.toggle('active', value);
-
-  // Mostrar/ocultar secciones
-  document.getElementById('auth-required').classList.toggle('visible', !value);
-  document.getElementById('authenticated-actions').classList.toggle('visible', value);
-
-  if (value) {
-    showToast('✓ Sesión iniciada — Ahora puedes contactar al propietario');
-  } else {
-    showToast('Sesión cerrada — Inicia sesión para contactar');
-  }
+  const authReq = document.getElementById('auth-required');
+  const authOk  = document.getElementById('authenticated-actions');
+  if (authReq) authReq.classList.toggle('visible', !value);
+  if (authOk)  authOk.classList.toggle('visible',   value);
 }
 
 /* ═══════════════════════════════════════
@@ -1223,9 +1367,9 @@ function openWhatsAppModal() {
     showToast('Debes iniciar sesión para contactar al propietario');
     return;
   }
-  // Actualizar mensaje en el textarea
-  document.getElementById('whatsapp-msg').value = propietario.mensaje;
-  // Mostrar modal
+  // Usar datos reales del propietario
+  const msg = `Hola, estoy interesado en la propiedad "${propiedadData.titulo || 'en Alquilao'}". ¿Podría obtener más información y coordinar una visita?`;
+  document.getElementById('whatsapp-msg').value = msg;
   document.getElementById('modal-whatsapp').classList.add('visible');
   document.body.style.overflow = 'hidden';
 }
@@ -1245,8 +1389,10 @@ function sendWhatsApp() {
     showToast('Por favor escribe un mensaje');
     return;
   }
-  const encoded = encodeURIComponent(msg);
-  const url = `https://wa.me/${propietario.telefono}?text=${encoded}`;
+  const encoded  = encodeURIComponent(msg);
+  // Usar teléfono real del propietario (solo dígitos)
+  const telefono = propietarioData.telefono || '18095550000';
+  const url      = `https://wa.me/${telefono}?text=${encoded}`;
   document.getElementById('whatsapp-link').href = url;
   setTimeout(() => { closeModal(); showToast('Abriendo WhatsApp...'); }, 300);
 }
@@ -1265,12 +1411,14 @@ function changeImg(src) {
 }
 
 /* ═══════════════════════════════════════
-   COMPARTIR
+   COMPARTIR — usa datos reales
 ═══════════════════════════════════════ */
 function shareWhatsApp() {
-  const msg = `Te comparto esta propiedad en Alquilao: ${propiedad.titulo} - RD$${propiedad.precio.toLocaleString()}/mes en ${propiedad.sector}. ${window.location.href}`;
-  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+  const titulo = propiedadData.titulo || 'Propiedad en Alquilao';
+  const precio = propiedadData.precio ? new Intl.NumberFormat('es-DO').format(propiedadData.precio) : '';
+  const sector = propiedadData.sector || '';
+  const msg = `Te comparto esta propiedad en Alquilao: ${titulo}${precio ? ` - RD$${precio}/mes` : ''} ${sector ? `en ${sector}` : ''}. ${window.location.href}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function copyLink() {
@@ -1294,8 +1442,12 @@ function showToast(msg) {
 }
 
 /* ═══════════════════════════════════════
-   KEYBOARD: cerrar modal con ESC
+   INIT — cargar datos reales al abrir la página
 ═══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  cargarPropiedad();
+});
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
