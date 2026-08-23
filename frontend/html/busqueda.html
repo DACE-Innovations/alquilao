@@ -697,7 +697,7 @@ function createPopupHTML(prop) {
         <div class="popup-price">RD$${formatPrice(prop.precio)}<span>/mes</span></div>
         <div class="popup-title">${prop.titulo}</div>
         <div class="popup-loc"><i class="fa-solid fa-location-dot" style="color:#6B7280;font-size:10px"></i> ${prop.sectorLabel}</div>
-        <a href="#" class="popup-btn">Ver detalles</a>
+        <a href="detalle-propiedad.html?id=${encodeURIComponent(prop.id)}" class="popup-btn">Ver detalles</a>
       </div>
     </div>
   `;
@@ -740,7 +740,7 @@ function renderLista() {
           <div class="prop-feat"><i class="fa-solid fa-vector-square"></i> ${prop.area}m²</div>
         </div>
         <div style="padding:8px 14px 12px">
-          <a href="detalle-propiedad.html" class="popup-btn" style="display:block;text-align:center;padding:8px;border-radius:6px;background:var(--blue);color:#fff;font-size:12px;font-weight:600;text-decoration:none">Ver detalles</a>
+          <a href="detalle-propiedad.html?id=${encodeURIComponent(prop.id)}" class="popup-btn" style="display:block;text-align:center;padding:8px;border-radius:6px;background:var(--blue);color:#fff;font-size:12px;font-weight:600;text-decoration:none">Ver detalles</a>
         </div>
       </div>
     </div>
@@ -760,7 +760,7 @@ function renderGrid() {
   noResults.classList.remove('visible');
 
   container.innerHTML = filteredProps.map(prop => `
-    <div class="prop-grid-card" onclick="window.location.href='detalle-propiedad.html'">
+    <div class="prop-grid-card" onclick="window.location.href='detalle-propiedad.html?id=${encodeURIComponent(prop.id)}'">
       <div class="prop-grid-img">
         <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
         <div class="prop-card-badge" style="position:absolute;top:10px;left:10px">${prop.operacion}</div>

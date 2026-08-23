@@ -879,12 +879,12 @@ img { display: block; max-width: 100%; }
 </head>
 <body>
 
-<!-- DEMO BAR -->
-<div class="demo-bar">
+<!-- DEMO BAR (oculta en producción) -->
+<div class="demo-bar" style="display:none">
   <p>🔧 Modo demo — Simula el estado de sesión del usuario:</p>
   <div class="demo-toggle">
-    <button class="demo-btn active" id="btn-no-auth" onclick="setAuth(false)">Sin sesión</button>
-    <button class="demo-btn" id="btn-auth" onclick="setAuth(true)">Con sesión</button>
+    <button class="demo-btn active" id="btn-no-auth" onclick="setAuthState(false)">Sin sesión</button>
+    <button class="demo-btn" id="btn-auth" onclick="setAuthState(true)">Con sesión</button>
   </div>
 </div>
 
@@ -917,23 +917,12 @@ img { display: block; max-width: 100%; }
     <!-- GALERÍA -->
     <div class="gallery">
       <div class="gallery-main">
-        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900&q=80" alt="Propiedad" id="main-img" />
+       <img src="" alt="Propiedad" id="main-img" style="background:#EEF1FF" />
         <div class="gallery-badge">Alquiler</div>
       </div>
-      <div class="gallery-thumbs">
-        <div class="gallery-thumb" onclick="changeImg('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80')">
-          <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80" />
-        </div>
-        <div class="gallery-thumb" onclick="changeImg('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80')">
-          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80" />
-        </div>
-        <div class="gallery-thumb" onclick="changeImg('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80')">
-          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80" />
-        </div>
-        <div class="gallery-thumb more" data-more="+5">
-          <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80" />
-        </div>
-      </div>
+     <div class="gallery-thumbs" id="gallery-thumbs">
+  <!-- Las miniaturas se cargan dinámicamente desde /api/imagenes -->
+</div>
     </div>
 
     <!-- INFO PROPIEDAD -->
@@ -1176,6 +1165,7 @@ img { display: block; max-width: 100%; }
   <span id="toast-msg">Enlace copiado</span>
 </div>
 
+
 <script src="../js/api.js"></script>
 <script>
 /* ═══════════════════════════════════════
@@ -1351,7 +1341,7 @@ function mostrarError(msg) {
 /* ═══════════════════════════════════════
    ESTADO DE AUTENTICACIÓN (mantenido para compatibilidad)
 ═══════════════════════════════════════ */
-function setAuth(value) {
+function setAuthState(value) {
   isAuthenticated = value;
   const authReq = document.getElementById('auth-required');
   const authOk  = document.getElementById('authenticated-actions');
