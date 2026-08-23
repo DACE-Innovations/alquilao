@@ -62,6 +62,11 @@ function renderCards(listaPropiedades) {
 // ── TOGGLE FAVORITO DESDE LA CARD ──
 async function toggleFav(event, btn, idPropiedad) {
   event.stopPropagation();
+  if (!verificarSesion().autenticado) {
+    window.location.href = 'login.html';
+    return;
+  }
+
   try {
     const data = await API.toggleFavorito(idPropiedad);
     const icon = btn.querySelector('i');
@@ -73,13 +78,13 @@ async function toggleFav(event, btn, idPropiedad) {
       btn.style.color = '';
     }
   } catch (err) {
-    console.warn('No se pudo procesar el favorito (¿sesión activa?)');
+    console.warn('No se pudo procesar el favorito:', err);
   }
 }
 
 // ── VER DETALLE ──
 function verDetalle(id) {
-  window.location.href = `detalle-propiedad.html?id=${id}`;
+  window.location.href = `detalle-propiedad.html?id=${encodeURIComponent(id)}`;
 }
 
 // ── VERIFICAR SESIÓN ──

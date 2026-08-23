@@ -324,6 +324,7 @@
   <div class="form-bottom">¿No tienes cuenta? <a href="bienvenida.html">Regístrate</a></div>
 </div>
 
+<script src="../js/api.js"></script>
 <script>
   // ── Toggle contraseña ──────────────────────
   function togglePass(inputId, btn) {
@@ -392,18 +393,10 @@
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Iniciando sesión...';
 
     try {
-      const res = await fetch('/api/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    email: correo,
-    password: pass
-  })
-});
-
-     // ── Fragmento a corregir dentro del método de Login exitoso ──
-if (res.ok) {
-  const data = await res.json();
+      const data = await API.login({ email: correo, password: pass });
+      if (data.error || !data.token || !data.usuario) {
+        throw new Error(data.error || 'Credenciales incorrectas');
+      }
 
   // Usar Seguridad.guardarSesion si está disponible (guarda en ambos storages)
   if (window.Seguridad) {
@@ -431,8 +424,6 @@ if (res.ok) {
   } else {
     window.location.replace('index.html');
   }
-}
-
     } catch (e) {
       showAlert(e.message || 'Error al iniciar sesión. Intenta de nuevo.', 'error');
       btn.disabled = false;

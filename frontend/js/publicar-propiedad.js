@@ -237,6 +237,13 @@ async function submitForm() {
     return;
   }
 
+  const usuario = window.Seguridad ? Seguridad.getUsuario() : null;
+  const rol = String(usuario?.rol || '').toLowerCase();
+  if (!['vendedor', 'admin'].includes(rol)) {
+    showToast('Solo los vendedores y administradores pueden publicar propiedades.');
+    return;
+  }
+
   const datos = buildPropiedadPayload();
   const errorValidacion = validarPublicacion(datos);
   if (errorValidacion) {
@@ -275,15 +282,8 @@ async function submitForm() {
       const formData = new FormData();
       filesOrdenados.forEach(file => formData.append('imagenes', file));
 
-      const imgRespuesta = await fetch(`/api/imagenes/${id_propiedad}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        // NO pongas Content-Type aquí — el navegador lo pone automáticamente con el boundary
-        body: formData
-      });
-
-      const imgData = await imgRespuesta.json();
-      if (!imgRespuesta.ok) {
+      const imgData = await API.subirImagenes(id_propiedad, formData);
+      if (imgData.error) {
         // Las imágenes fallaron pero la propiedad ya se creó — avisamos pero no bloqueamos
         console.warn('Advertencia al subir imágenes:', imgData.error);
         showToast('Propiedad creada, pero hubo un problema al subir las fotos.');

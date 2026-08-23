@@ -879,15 +879,6 @@ img { display: block; max-width: 100%; }
 </head>
 <body>
 
-<!-- DEMO BAR (oculta en producción) -->
-<div class="demo-bar" style="display:none">
-  <p>🔧 Modo demo — Simula el estado de sesión del usuario:</p>
-  <div class="demo-toggle">
-    <button class="demo-btn active" id="btn-no-auth" onclick="setAuthState(false)">Sin sesión</button>
-    <button class="demo-btn" id="btn-auth" onclick="setAuthState(true)">Con sesión</button>
-  </div>
-</div>
-
 <!-- NAVBAR -->
 <nav class="navbar">
   <a href="../html/index.html" class="nav-logo">
@@ -905,7 +896,7 @@ img { display: block; max-width: 100%; }
   <i class="fa-solid fa-chevron-right"></i>
   <a href="busqueda.html">Propiedades</a>
   <i class="fa-solid fa-chevron-right"></i>
-  <span>Moderno apartamento en Piantini</span>
+  <span>Cargando propiedad…</span>
 </div>
 
 <!-- LAYOUT PRINCIPAL -->
@@ -927,11 +918,11 @@ img { display: block; max-width: 100%; }
 
     <!-- INFO PROPIEDAD -->
     <div class="prop-header">
-      <div class="prop-price">RD$55,000<span>/mes</span></div>
-      <h1 class="prop-title">Moderno apartamento en Piantini</h1>
+      <div class="prop-price">Cargando…</div>
+      <h1 class="prop-title">Cargando propiedad…</h1>
       <div class="prop-location">
         <i class="fa-solid fa-location-dot"></i>
-        Calle José Amado Soler #45, Piantini, Santo Domingo
+        Cargando ubicación…
       </div>
     </div>
 
@@ -939,27 +930,27 @@ img { display: block; max-width: 100%; }
     <div class="prop-specs">
       <div class="spec-item">
         <div class="spec-icon"><i class="fa-solid fa-bed"></i></div>
-        <div class="spec-val">3</div>
+        <div class="spec-val">—</div>
         <div class="spec-label">Habitaciones</div>
       </div>
       <div class="spec-item">
         <div class="spec-icon"><i class="fa-solid fa-bath"></i></div>
-        <div class="spec-val">2</div>
+        <div class="spec-val">—</div>
         <div class="spec-label">Baños</div>
       </div>
       <div class="spec-item">
         <div class="spec-icon"><i class="fa-solid fa-car"></i></div>
-        <div class="spec-val">2</div>
+        <div class="spec-val">—</div>
         <div class="spec-label">Parqueos</div>
       </div>
       <div class="spec-item">
         <div class="spec-icon"><i class="fa-solid fa-vector-square"></i></div>
-        <div class="spec-val">145</div>
+        <div class="spec-val">—</div>
         <div class="spec-label">m²</div>
       </div>
       <div class="spec-item">
         <div class="spec-icon"><i class="fa-solid fa-building"></i></div>
-        <div class="spec-val">3</div>
+        <div class="spec-val">—</div>
         <div class="spec-label">Piso</div>
       </div>
     </div>
@@ -967,25 +958,13 @@ img { display: block; max-width: 100%; }
     <!-- DESCRIPCIÓN -->
     <h3 class="section-title-sm"><i class="fa-solid fa-align-left"></i> Descripción</h3>
     <p class="prop-desc">
-      Hermoso apartamento completamente amueblado ubicado en el exclusivo sector de Piantini. 
-      Cuenta con amplias habitaciones, cocina equipada con electrodomésticos de última generación, 
-      sala comedor espaciosa y balcón con vista panorámica. El edificio dispone de piscina, 
-      gimnasio, área social y seguridad 24/7. Ideal para profesionales o familias que buscan 
-      confort y tranquilidad en una de las mejores zonas de Santo Domingo.
+      Cargando descripción…
     </p>
 
     <!-- AMENIDADES -->
     <h3 class="section-title-sm"><i class="fa-solid fa-star"></i> Amenidades</h3>
     <div class="amenidades-grid">
-      <div class="amenidad"><i class="fa-solid fa-snowflake"></i> Aire acondicionado</div>
-      <div class="amenidad"><i class="fa-solid fa-wifi"></i> Internet incluido</div>
-      <div class="amenidad"><i class="fa-solid fa-dumbbell"></i> Gimnasio</div>
-      <div class="amenidad"><i class="fa-solid fa-person-swimming"></i> Piscina</div>
-      <div class="amenidad"><i class="fa-solid fa-shield-halved"></i> Seguridad 24/7</div>
-      <div class="amenidad"><i class="fa-solid fa-elevator"></i> Ascensor</div>
-      <div class="amenidad"><i class="fa-solid fa-bolt"></i> Planta eléctrica</div>
-      <div class="amenidad"><i class="fa-solid fa-droplet"></i> Cisterna</div>
-      <div class="amenidad"><i class="fa-solid fa-couch"></i> Amueblado</div>
+      <div class="amenidad">No hay amenidades registradas.</div>
     </div>
 
   </div>
@@ -1007,31 +986,23 @@ img { display: block; max-width: 100%; }
       <!-- Info propietario -->
       <div class="owner-info">
         <div class="owner-avatar">
-          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos Méndez" />
+          <div class="owner-avatar-placeholder" id="owner-avatar-placeholder">—</div>
           <div class="owner-verified"><i class="fa-solid fa-check"></i></div>
         </div>
         <div class="owner-details">
           <div class="owner-name">
-            Carlos Méndez
+            <span id="owner-name-text">Cargando…</span>
             <span class="badge-verified">✓ Verificado</span>
           </div>
           <div class="owner-meta">
             <i class="fa-solid fa-clock"></i>
-            Responde en menos de 1 hora
-          </div>
-          <div class="owner-rating">
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star-half-stroke"></i>
-            <span style="font-size:11px;color:var(--text-3);margin-left:2px">4.8 (23 reseñas)</span>
+            Información de respuesta no disponible
           </div>
         </div>
       </div>
 
       <!-- Estadísticas propietario -->
-      <div class="owner-stats">
+      <div class="owner-stats" style="display:none">
         <div class="owner-stat">
           <div class="owner-stat-val">12</div>
           <div class="owner-stat-label">Propiedades</div>
@@ -1056,14 +1027,14 @@ img { display: block; max-width: 100%; }
           </div>
           <p>
             <strong>Inicia sesión para contactar</strong><br/>
-            El número de WhatsApp del propietario solo es visible para usuarios registrados.
+            Debes iniciar sesión para enviar un mensaje al propietario.
           </p>
 
           <!-- Número oculto/borroso -->
           <div class="phone-hidden">
-            <i class="fa-brands fa-whatsapp"></i>
-            <span>+1 (809) </span>
-            <span class="phone-blur">XXX-XXXX</span>
+            <i class="fa-regular fa-comment-dots"></i>
+            <span>Mensajería </span>
+            <span class="phone-blur">privada</span>
           </div>
 
           <a href="../html/login.html" class="btn-login">
@@ -1078,17 +1049,17 @@ img { display: block; max-width: 100%; }
 
         <!-- ESTADO: Autenticado -->
         <div class="authenticated-actions" id="authenticated-actions">
-          <button class="btn-whatsapp" onclick="openWhatsAppModal()">
+          <button class="btn-whatsapp" onclick="openMensajeModal()">
             <!-- Icono WhatsApp SVG oficial -->
             <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
             </svg>
-            Contactar por WhatsApp
+            Enviar mensaje
           </button>
 
-          <button class="btn-llamar" onclick="showToast('Número: +1 (809) 555-0123')">
-            <i class="fa-solid fa-phone"></i>
-            Ver teléfono
+          <button class="btn-llamar" onclick="abrirWhatsAppPropietario()">
+            <i class="fa-brands fa-whatsapp"></i>
+            Contactar por WhatsApp
           </button>
 
           <div class="contact-note">
@@ -1110,8 +1081,8 @@ img { display: block; max-width: 100%; }
         <button class="share-btn" onclick="copyLink()">
           <i class="fa-solid fa-link"></i> Copiar enlace
         </button>
-        <button class="share-btn" onclick="showToast('Compartido en Facebook')">
-          <i class="fa-brands fa-facebook"></i>
+        <button class="share-btn" onclick="reportarPropiedad()">
+          <i class="fa-solid fa-flag"></i>
         </button>
       </div>
     </div>
@@ -1120,9 +1091,9 @@ img { display: block; max-width: 100%; }
 </div>
 
 <!-- ═══════════════════════════════════════
-     MODAL WHATSAPP
+     MODAL MENSAJE
 ═══════════════════════════════════════ -->
-<div class="modal-overlay" id="modal-whatsapp" onclick="closeModalOutside(event)">
+<div class="modal-overlay" id="modal-mensaje" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-header">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -1137,23 +1108,23 @@ img { display: block; max-width: 100%; }
     <div class="modal-body">
       <div class="modal-owner">
         <div class="modal-owner-avatar">
-          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos" />
+          <div class="owner-avatar-placeholder" id="modal-owner-avatar">—</div>
         </div>
         <div class="modal-owner-info">
-          <h4>Carlos Méndez</h4>
-          <p>+1 (809) 555-0123 · Propietario verificado</p>
+          <h4 id="modal-owner-name">Cargando…</h4>
+          <p>Propietario verificado</p>
         </div>
       </div>
-      <div class="modal-label">Mensaje automático</div>
-      <textarea class="modal-textarea" id="whatsapp-msg">Hola, estoy interesado en la propiedad que publicaste en Alquilao: "Moderno apartamento en Piantini". ¿Podría obtener más información y coordinar una visita?</textarea>
+      <div class="modal-label">Tu mensaje</div>
+      <textarea class="modal-textarea" id="mensaje-contenido" placeholder="Escribe tu mensaje"></textarea>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-        <a class="btn-send-whatsapp" id="whatsapp-link" href="#" target="_blank" onclick="sendWhatsApp()">
+        <button class="btn-send-whatsapp" type="button" onclick="enviarMensaje()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
           </svg>
-          Abrir WhatsApp
-        </a>
+          Enviar mensaje
+        </button>
       </div>
     </div>
   </div>
@@ -1184,22 +1155,25 @@ async function cargarPropiedad() {
   const id = params.get('id');
 
   if (!id) {
-    mostrarError('No se especificó una propiedad. Vuelve al inicio.');
+    mostrarEstadoError('No se especificó una propiedad. Vuelve al inicio.');
     return;
   }
+
+  document.querySelector('.page-layout')?.setAttribute('aria-busy', 'true');
 
   try {
     // 1. Datos de la propiedad
     const data = await API.getPropiedad(id);
 
     if (data.error || !data.id_propiedad) {
-      mostrarError('Propiedad no encontrada o no disponible.');
+      mostrarEstadoError('Propiedad no encontrada o no disponible.');
       return;
     }
 
     propiedadData = data;
 
     propietarioData = {
+      id:       data.id_propietario     || '',
       nombre:   data.propietario        || 'Propietario',
       telefono: (data.telefono_propietario || '').replace(/\D/g, ''), // solo dígitos para wa.me
       correo:   data.correo_propietario  || ''
@@ -1216,8 +1190,21 @@ async function cargarPropiedad() {
 
   } catch (err) {
     console.error('Error al cargar propiedad:', err);
-    mostrarError('Error de conexión. Intenta de nuevo.');
+    mostrarEstadoError('Error de conexión. Intenta de nuevo.');
+  } finally {
+    document.querySelector('.page-layout')?.removeAttribute('aria-busy');
   }
+}
+
+function textoSeguro(valor, alternativa = '—') {
+  const texto = typeof valor === 'string' ? valor.trim() : valor;
+  return texto === undefined || texto === null || texto === '' ? alternativa : String(texto);
+}
+
+function crearIcono(clase) {
+  const icono = document.createElement('i');
+  icono.className = clase;
+  return icono;
 }
 
 function rellenarPagina(p) {
@@ -1226,7 +1213,12 @@ function rellenarPagina(p) {
     style: 'currency', currency: 'DOP', minimumFractionDigits: 0
   }).format(p.precio);
   const elPrecio = document.querySelector('.prop-price');
-  if (elPrecio) elPrecio.innerHTML = `${precioRD}<span>/mes</span>`;
+  if (elPrecio) {
+    elPrecio.textContent = precioRD;
+    const periodo = document.createElement('span');
+    periodo.textContent = '/mes';
+    elPrecio.appendChild(periodo);
+  }
 
   // Título
   const elTitulo = document.querySelector('.prop-title');
@@ -1234,7 +1226,13 @@ function rellenarPagina(p) {
 
   // Ubicación
   const elLoc = document.querySelector('.prop-location');
-  if (elLoc) elLoc.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${p.direccion || ''}, ${p.sector || ''}, ${p.provincia || ''}`;
+  if (elLoc) {
+    const ubicacion = [p.direccion, p.sector, p.provincia]
+      .filter(valor => textoSeguro(valor, '') !== '')
+      .map(valor => textoSeguro(valor, ''))
+      .join(', ') || 'Ubicación no especificada';
+    elLoc.replaceChildren(crearIcono('fa-solid fa-location-dot'), document.createTextNode(` ${ubicacion}`));
+  }
 
   // Especificaciones
   const specs = document.querySelectorAll('.spec-val');
@@ -1260,29 +1258,40 @@ function rellenarPagina(p) {
   document.title = `${p.titulo || 'Propiedad'} — Alquilao`;
 
   // Propietario
-  const elNombre = document.querySelector('.owner-name');
-  if (elNombre) elNombre.innerHTML = `${p.propietario || 'Propietario'} <span class="badge-verified">✓ Verificado</span>`;
+  const nombrePropietario = textoSeguro(p.propietario, 'Propietario');
+  const ownerName = document.getElementById('owner-name-text');
+  const modalOwnerName = document.getElementById('modal-owner-name');
+  if (ownerName) ownerName.textContent = nombrePropietario;
+  if (modalOwnerName) modalOwnerName.textContent = nombrePropietario;
 
-  // Avatar propietario: inicial si no hay foto
-  const ownerImg = document.querySelector('.owner-avatar img');
-  if (ownerImg) {
-    ownerImg.style.display = 'none'; // ocultamos la foto quemada
+  const inicial = nombrePropietario.charAt(0).toUpperCase();
+  document.getElementById('owner-avatar-placeholder')?.replaceChildren(document.createTextNode(inicial));
+  document.getElementById('modal-owner-avatar')?.replaceChildren(document.createTextNode(inicial));
+}
+
+function obtenerUrlImagenSegura(url) {
+  if (!url) return null;
+  try {
+    const urlNormalizada = new URL(url, window.location.origin);
+    return ['http:', 'https:'].includes(urlNormalizada.protocol) ? urlNormalizada.href : null;
+  } catch {
+    return null;
   }
 }
 
 async function cargarImagenes(id_propiedad) {
   try {
-    const res  = await fetch(`/api/imagenes/${id_propiedad}`);
-    const data = await res.json();
-    const imgs = data.imagenes || [];
+    const data = await API.getImagenes(id_propiedad);
+    const imgs = (data.imagenes || [])
+      .map(imagen => ({ ...imagen, url: obtenerUrlImagenSegura(imagen.url) }))
+      .filter(imagen => imagen.url);
 
     const mainImg   = document.getElementById('main-img');
     const thumbsDiv = document.querySelector('.gallery-thumbs');
 
     if (imgs.length === 0) {
-      // Sin imágenes — mantener placeholder
-      if (mainImg) mainImg.src = 'https://via.placeholder.com/900x500?text=Sin+fotos';
-      if (thumbsDiv) thumbsDiv.innerHTML = '';
+      if (mainImg) mainImg.src = '../images/portada.jpeg';
+      if (thumbsDiv) thumbsDiv.replaceChildren();
       return;
     }
 
@@ -1295,15 +1304,29 @@ async function cargarImagenes(id_propiedad) {
       const resto = imgs.filter(i => i.url !== portada.url).slice(0, 3);
       const extras = imgs.length - 1 - resto.length;
 
-      thumbsDiv.innerHTML = resto.map(img => `
-        <div class="gallery-thumb" onclick="changeImg('${img.url}')">
-          <img src="${img.url}" alt="Foto propiedad" loading="lazy"/>
-        </div>
-      `).join('') + (extras > 0 ? `
-        <div class="gallery-thumb more" data-more="+${extras}">
-          <img src="${imgs[resto.length + 1]?.url || portada.url}" alt="más fotos"/>
-        </div>
-      ` : '');
+      thumbsDiv.replaceChildren();
+      resto.forEach(imagen => {
+        const miniatura = document.createElement('div');
+        miniatura.className = 'gallery-thumb';
+        miniatura.addEventListener('click', () => changeImg(imagen.url));
+        const imagenEl = document.createElement('img');
+        imagenEl.src = imagen.url;
+        imagenEl.alt = 'Foto de la propiedad';
+        imagenEl.loading = 'lazy';
+        miniatura.appendChild(imagenEl);
+        thumbsDiv.appendChild(miniatura);
+      });
+
+      if (extras > 0) {
+        const masFotos = document.createElement('div');
+        masFotos.className = 'gallery-thumb more';
+        masFotos.dataset.more = `+${extras}`;
+        const imagenExtra = document.createElement('img');
+        imagenExtra.src = imgs[resto.length + 1]?.url || portada.url;
+        imagenExtra.alt = 'Más fotos de la propiedad';
+        masFotos.appendChild(imagenExtra);
+        thumbsDiv.appendChild(masFotos);
+      }
     }
 
   } catch (err) {
@@ -1317,74 +1340,118 @@ function verificarSesionYMostrar() {
 
   const authReq  = document.getElementById('auth-required');
   const authOk   = document.getElementById('authenticated-actions');
-  const demoBar  = document.querySelector('.demo-bar');
-
-  // Ocultar la barra de demo — ya no la necesitamos
-  if (demoBar) demoBar.style.display = 'none';
-
   if (authReq) authReq.classList.toggle('visible', !isAuthenticated);
   if (authOk)  authOk.classList.toggle('visible',   isAuthenticated);
 }
 
-function mostrarError(msg) {
+function mostrarEstadoError(msg) {
   const layout = document.querySelector('.page-layout');
   if (layout) {
-    layout.innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-2)">
-        <i class="fa-solid fa-triangle-exclamation" style="font-size:48px;color:var(--text-3);margin-bottom:16px;display:block"></i>
-        <h2 style="margin-bottom:8px">${msg}</h2>
-        <a href="index.html" style="color:var(--blue);font-weight:600">← Volver al inicio</a>
-      </div>`;
+    const contenedor = document.createElement('div');
+    contenedor.style.cssText = 'grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-2)';
+    const icono = crearIcono('fa-solid fa-triangle-exclamation');
+    icono.style.cssText = 'font-size:48px;color:var(--text-3);margin-bottom:16px;display:block';
+    const titulo = document.createElement('h2');
+    titulo.style.marginBottom = '8px';
+    titulo.textContent = msg;
+    const enlace = document.createElement('a');
+    enlace.href = 'index.html';
+    enlace.style.cssText = 'color:var(--blue);font-weight:600';
+    enlace.textContent = '← Volver al inicio';
+    contenedor.append(icono, titulo, enlace);
+    layout.replaceChildren(contenedor);
   }
 }
 
 /* ═══════════════════════════════════════
-   ESTADO DE AUTENTICACIÓN (mantenido para compatibilidad)
+   MODAL MENSAJE
 ═══════════════════════════════════════ */
-function setAuthState(value) {
-  isAuthenticated = value;
-  const authReq = document.getElementById('auth-required');
-  const authOk  = document.getElementById('authenticated-actions');
-  if (authReq) authReq.classList.toggle('visible', !value);
-  if (authOk)  authOk.classList.toggle('visible',   value);
-}
-
-/* ═══════════════════════════════════════
-   MODAL WHATSAPP
-═══════════════════════════════════════ */
-function openWhatsAppModal() {
+function openMensajeModal() {
   if (!isAuthenticated) {
     showToast('Debes iniciar sesión para contactar al propietario');
     return;
   }
-  // Usar datos reales del propietario
+
+  if (!propiedadData.id_propiedad || !propietarioData.id) {
+    showToast('No se pudo identificar al propietario');
+    return;
+  }
+
   const msg = `Hola, estoy interesado en la propiedad "${propiedadData.titulo || 'en Alquilao'}". ¿Podría obtener más información y coordinar una visita?`;
-  document.getElementById('whatsapp-msg').value = msg;
-  document.getElementById('modal-whatsapp').classList.add('visible');
+  document.getElementById('mensaje-contenido').value = msg;
+  document.getElementById('modal-mensaje').classList.add('visible');
   document.body.style.overflow = 'hidden';
 }
 
+function abrirWhatsAppPropietario() {
+  if (!isAuthenticated) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const telefono = propietarioData.telefono;
+  if (!telefono) {
+    showToast('El propietario no tiene un número de WhatsApp disponible');
+    return;
+  }
+
+  const titulo = textoSeguro(propiedadData.titulo, 'esta propiedad');
+  const mensaje = `Hola, estoy interesado en ${titulo}. ¿Podría darme más información?`;
+  window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank', 'noopener');
+}
+
 function closeModal() {
-  document.getElementById('modal-whatsapp').classList.remove('visible');
+  document.getElementById('modal-mensaje').classList.remove('visible');
   document.body.style.overflow = '';
 }
 
 function closeModalOutside(e) {
-  if (e.target === document.getElementById('modal-whatsapp')) closeModal();
+  if (e.target === document.getElementById('modal-mensaje')) closeModal();
 }
 
-function sendWhatsApp() {
-  const msg = document.getElementById('whatsapp-msg').value.trim();
+async function enviarMensaje() {
+  const msg = document.getElementById('mensaje-contenido').value.trim();
   if (!msg) {
     showToast('Por favor escribe un mensaje');
     return;
   }
-  const encoded  = encodeURIComponent(msg);
-  // Usar teléfono real del propietario (solo dígitos)
-  const telefono = propietarioData.telefono || '18095550000';
-  const url      = `https://wa.me/${telefono}?text=${encoded}`;
-  document.getElementById('whatsapp-link').href = url;
-  setTimeout(() => { closeModal(); showToast('Abriendo WhatsApp...'); }, 300);
+
+  try {
+    const respuesta = await API.enviarMensaje({
+      id_receptor: propietarioData.id,
+      id_propiedad: propiedadData.id_propiedad,
+      contenido: msg
+    });
+
+    if (respuesta.error) throw new Error(respuesta.error);
+
+    closeModal();
+    showToast('Mensaje enviado correctamente');
+  } catch (error) {
+    showToast(error.message || 'No se pudo enviar el mensaje');
+  }
+}
+
+async function reportarPropiedad() {
+  if (!isAuthenticated) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const motivo = window.prompt('Indica el motivo del reporte:');
+  if (!motivo || !motivo.trim()) return;
+
+  try {
+    const respuesta = await API.crearReporte({
+      propiedadId: propiedadData.id_propiedad,
+      motivo: motivo.trim()
+    });
+
+    if (respuesta.error) throw new Error(respuesta.error);
+    showToast('Reporte enviado correctamente');
+  } catch (error) {
+    showToast(error.message || 'No se pudo enviar el reporte');
+  }
 }
 
 /* ═══════════════════════════════════════

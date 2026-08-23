@@ -262,6 +262,7 @@
   <p class="terms">Al registrarte, aceptas nuestros <a href="#">Términos de uso</a> y nuestra <a href="#">Política de privacidad.</a></p>
 </div>
 
+<script src="../js/api.js"></script>
 <script>
   function togglePass(id, btn) {
     const inp = document.getElementById(id);
@@ -321,37 +322,17 @@
     const passHash = await hashPass(pass);
 
     try {
-      // ── Conectar con backend ──
-      // const res = await fetch('/api/auth/registro', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ nombre, correo, telefono: tel, sector, password: passHash, rol: 'usuario' })
-      // });
-      // const data = await res.json();
-      // if (!res.ok) throw new Error(data.mensaje);
-      // sessionStorage.setItem('token', data.token);
-      // window.location.href = '../index.html';
+      const data = await API.registro({
+        nombre,
+        email: correo,
+        telefono: tel,
+        password: pass
+      });
 
-      const res = await fetch('http://localhost:3000/api/auth/registro', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ 
-    nombre, 
-    email: correo, 
-    telefono: tel, 
-    password: pass,
-    rol: 'usuario' 
-  })
-});
-const data = await res.json();
+      if (data.error) throw new Error(data.error || 'Error al crear cuenta');
 
-if (!res.ok) throw new Error(data.error || 'Error al crear cuenta');
-
-// Guardar sesión con el sistema central de seguridad
-Seguridad.guardarSesion(data.usuario, data.token);
-
-showAlert('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
-setTimeout(() => window.location.href = '../html/index.html', 1500);
+      showAlert('¡Cuenta creada exitosamente! Ahora inicia sesión.', 'success');
+      setTimeout(() => window.location.href = 'login.html', 1500);
 
     } catch(e) {
       showAlert(e.message || 'Error al crear cuenta.', 'error');

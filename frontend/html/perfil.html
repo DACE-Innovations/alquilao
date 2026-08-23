@@ -164,9 +164,8 @@
   </div>
 </div>
 
+<script src="../js/api.js"></script>
 <script>
-  // URL base centralizada de tu API
-  const API_URL = 'http://localhost:3000/api';
 
   window.addEventListener('DOMContentLoaded', async () => {
     // 1. Intentar capturar el token de sessionStorage o localStorage
@@ -178,20 +177,8 @@
     }
 
     try {
-      // 2. Hacer la petición real a tu backend para extraer el perfil activo
-      const response = await fetch(`${API_URL}/usuarios/perfil`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Token inválido o sesión expirada');
-      }
-
-      const usuario = await response.json();
+      const usuario = await API.getPerfil();
+      if (usuario.error) throw new Error(usuario.error);
       cargarUsuario(usuario);
 
     } catch (error) {
@@ -247,28 +234,14 @@
     
     if (!nombre || !correo) return showAlert('Nombre y correo son obligatorios.','error');
     
-    const token = Seguridad.getToken();
     const btn = document.getElementById('btn-guardar');
     
     btn.disabled = true; 
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
     try {
-      // 3. Petición PUT real al backend para actualizar los datos en SQL Server
-      const response = await fetch(`${API_URL}/usuarios/perfil`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ nombre, correo, telefono })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al actualizar perfil');
-      }
+      const data = await API.actualizarPerfil({ nombre, correo, telefono });
+      if (data.error) throw new Error(data.error);
 
       // Actualizar interfaz superior
       document.getElementById('topbar-nombre').textContent = nombre;

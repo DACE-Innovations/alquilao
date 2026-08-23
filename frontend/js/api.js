@@ -93,6 +93,20 @@ const API = {
     return await res.json();
   },
 
+  subirImagenes: async (idPropiedad, formData) => {
+    const res = await fetch(`${API_URL}/imagenes/${encodeURIComponent(idPropiedad)}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${getToken()}` },
+      body: formData
+    });
+    return await res.json();
+  },
+
+  getImagenes: async (idPropiedad) => {
+    const res = await fetch(`${API_URL}/imagenes/${encodeURIComponent(idPropiedad)}`);
+    return await res.json();
+  },
+
   // ── Perfil ──
   getPerfil: async () => {
     const res = await fetch(`${API_URL}/usuarios/perfil`, {
@@ -122,6 +136,26 @@ const API = {
         'Authorization': `Bearer ${getToken()}`
       },
       body: JSON.stringify(datos)
+    });
+    return await res.json();
+  },
+
+  // ── Mensajes ──
+  enviarMensaje: async (datos) => {
+    const res = await fetch(`${API_URL}/mensajes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(datos)
+    });
+    return await res.json();
+  },
+
+  getMensajes: async (idPropiedad) => {
+    const res = await fetch(`${API_URL}/mensajes/${encodeURIComponent(idPropiedad)}`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
     });
     return await res.json();
   },

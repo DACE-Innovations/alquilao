@@ -193,7 +193,7 @@
   }
 
   function verDetalle(id) {
-    window.location.href = `detalle-propiedad.html?id=${id}`;
+    window.location.href = `detalle-propiedad.html?id=${encodeURIComponent(id)}`;
   }
 
   function cerrarSesion() {

@@ -584,6 +584,7 @@
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../js/api.js"></script>
 
 <script>
 
@@ -597,6 +598,14 @@ let map = null;
 let markers = {};
 let favoritos = new Set();
 const DEFAULT_IMG = '../images/portada.jpeg';
+const CATEGORIAS_API = {
+  apartamento: 1,
+  casa: 2,
+  villa: 3,
+  local: 4,
+  oficina: 6,
+  solar: 7
+};
 
 function normalizarTexto(valor = '') {
   return String(valor)
@@ -616,30 +625,30 @@ function mapPropiedadApi(p) {
     titulo: p.titulo || 'Propiedad sin titulo',
     sector: normalizarTexto(sectorLabel),
     sectorLabel,
+    provincia: p.provincia || 'República Dominicana',
     precio: Number(p.precio) || 0,
     habitaciones: Number(p.habitaciones) || 0,
     banos: Number(p.banos) || 0,
     area: Number(p.metros_cuadrados) || 0,
-    operacion: 'alquiler',
+    disponible: Boolean(p.disponible),
     lat: Number(p.latitud) || 18.4800,
     lng: Number(p.longitud) || -69.9300,
     img: p.imagen_portada || DEFAULT_IMG
   };
 }
 
-async function cargarPropiedades() {
+async function cargarPropiedades(filtros = {}) {
   try {
-    const res = await fetch('http://localhost:3000/api/propiedades');
-    if (!res.ok) throw new Error('No se pudieron cargar las propiedades');
-
-    const data = await res.json();
+    const data = await API.getPropiedades(filtros);
+    if (data.error) throw new Error(data.error);
     propiedades = (data.propiedades || []).map(mapPropiedadApi);
   } catch (error) {
     console.error('Error cargando propiedades:', error);
     propiedades = [];
   }
 
-  applyFilters();
+  filteredProps = [...propiedades];
+  renderizarResultados();
 }
 
 // â”€â”€ INICIALIZAR MAPA â”€â”€
@@ -696,7 +705,7 @@ function createPopupHTML(prop) {
       <div class="popup-body">
         <div class="popup-price">RD$${formatPrice(prop.precio)}<span>/mes</span></div>
         <div class="popup-title">${prop.titulo}</div>
-        <div class="popup-loc"><i class="fa-solid fa-location-dot" style="color:#6B7280;font-size:10px"></i> ${prop.sectorLabel}</div>
+        <div class="popup-loc"><i class="fa-solid fa-location-dot" style="color:#6B7280;font-size:10px"></i> ${prop.sectorLabel}, ${prop.provincia}</div>
         <a href="detalle-propiedad.html?id=${encodeURIComponent(prop.id)}" class="popup-btn">Ver detalles</a>
       </div>
     </div>
@@ -721,7 +730,7 @@ function renderLista() {
          onclick="setActiveCard(${JSON.stringify(prop.id)})">
       <div class="prop-card-img">
         <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
-        <div class="prop-card-badge">${prop.operacion}</div>
+        <div class="prop-card-badge">${prop.disponible ? 'Disponible' : 'Alquilado'}</div>
         <button class="prop-card-fav ${favoritos.has(prop.id) ? 'active' : ''}" 
                 onclick="toggleFav(event, ${JSON.stringify(prop.id)})">
           <i class="fa-${favoritos.has(prop.id) ? 'solid' : 'regular'} fa-heart"></i>
@@ -732,7 +741,7 @@ function renderLista() {
         <div class="prop-card-title">${prop.titulo}</div>
         <div class="prop-card-loc">
           <i class="fa-solid fa-location-dot" style="font-size:10px"></i>
-          ${prop.sectorLabel}, Santo Domingo
+          ${prop.sectorLabel}, ${prop.provincia}
         </div>
         <div class="prop-card-features">
           ${prop.habitaciones > 0 ? `<div class="prop-feat"><i class="fa-solid fa-bed"></i> ${prop.habitaciones} hab.</div>` : ''}
@@ -763,7 +772,7 @@ function renderGrid() {
     <div class="prop-grid-card" onclick="window.location.href='detalle-propiedad.html?id=${encodeURIComponent(prop.id)}'">
       <div class="prop-grid-img">
         <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
-        <div class="prop-card-badge" style="position:absolute;top:10px;left:10px">${prop.operacion}</div>
+        <div class="prop-card-badge" style="position:absolute;top:10px;left:10px">${prop.disponible ? 'Disponible' : 'Alquilado'}</div>
         <button class="prop-card-fav ${favoritos.has(prop.id) ? 'active' : ''}"
                 style="position:absolute;top:10px;right:10px"
                 onclick="toggleFav(event, ${JSON.stringify(prop.id)})">
@@ -775,7 +784,7 @@ function renderGrid() {
         <div class="prop-grid-title">${prop.titulo}</div>
         <div class="prop-grid-loc">
           <i class="fa-solid fa-location-dot" style="font-size:10px"></i>
-          ${prop.sectorLabel}, Santo Domingo
+          ${prop.sectorLabel}, ${prop.provincia}
         </div>
         <div class="prop-grid-feats">
           ${prop.habitaciones > 0 ? `<div class="prop-feat"><i class="fa-solid fa-bed"></i> ${prop.habitaciones} hab.</div>` : ''}
@@ -788,29 +797,35 @@ function renderGrid() {
 }
 
 // â”€â”€ FILTROS â”€â”€
-function applyFilters() {
-  const search = document.getElementById('search-input').value.toLowerCase();
+function construirFiltros() {
   const tipo = document.getElementById('filter-tipo').value;
   const sector = document.getElementById('filter-sector').value;
   const precio = document.getElementById('filter-precio').value;
-  const hab = document.getElementById('filter-hab').value;
-  const sort = document.getElementById('sort-select').value;
+  const habitaciones = document.getElementById('filter-hab').value;
+  const busqueda = document.getElementById('search-input').value.trim();
+  const filtros = { pagina: 1, por_pagina: 12 };
 
-  filteredProps = propiedades.filter(p => {
-    if (search && !p.titulo.toLowerCase().includes(search) && !p.sectorLabel.toLowerCase().includes(search)) return false;
-    if (tipo && p.tipo !== tipo) return false;
-    if (sector && p.sector !== sector) return false;
-    if (precio) {
-      const [min, max] = precio.split('-').map(Number);
-      if (p.precio < min || p.precio > max) return false;
-    }
-    if (hab) {
-      const h = parseInt(hab);
-      if (h === 4) { if (p.habitaciones < 4) return false; }
-      else if (p.habitaciones !== h) return false;
-    }
-    return true;
-  });
+  if (tipo && CATEGORIAS_API[tipo]) filtros.id_categoria = CATEGORIAS_API[tipo];
+  if (busqueda) filtros.sector = busqueda;
+  else if (sector) filtros.sector = sector.replace(/_/g, ' ');
+
+  if (precio) {
+    const [precio_min, precio_max] = precio.split('-').map(Number);
+    filtros.precio_min = precio_min;
+    filtros.precio_max = precio_max;
+  }
+
+  if (habitaciones) filtros.habitaciones = Number(habitaciones);
+
+  return filtros;
+}
+
+async function applyFilters() {
+  await cargarPropiedades(construirFiltros());
+}
+
+function renderizarResultados() {
+  const sort = document.getElementById('sort-select').value;
 
   // Ordenar
   if (sort === 'precio-asc') filteredProps.sort((a, b) => a.precio - b.precio);
@@ -834,7 +849,7 @@ function clearFilters() {
   document.getElementById('filter-sector').value = '';
   document.getElementById('filter-precio').value = '';
   document.getElementById('filter-hab').value = '';
-  applyFilters();
+  cargarPropiedades();
 }
 
 // â”€â”€ CARD ACTIVA â”€â”€

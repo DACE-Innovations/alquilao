@@ -7,6 +7,10 @@ const app = express();
 
 // 2. Middlewares globales para LEER DATOS
 app.use(cors());
+app.use('/api', (req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -32,6 +36,7 @@ const favoritosRoutes      = require('./routes/favoritos.routes');
 const misPublicRoutes      = require('./routes/mis-publicaciones.routes');
 const adminRoutes          = require('./routes/admin.routes');
 const imagenesRoutes       = require('./routes/imagenes.routes');
+const mensajesRoutes       = require('./routes/mensajes.routes');
 
 app.use('/api/auth',              authRoutes);
 app.use('/api/propiedades',       propiedadesRoutes);
@@ -41,6 +46,7 @@ app.use('/api/favoritos',         favoritosRoutes);
 app.use('/api/mis-publicaciones', misPublicRoutes);
 app.use('/api/admin',             adminRoutes);
 app.use('/api/imagenes',          imagenesRoutes);
+app.use('/api/mensajes',          mensajesRoutes);
 
 // 7. Exportar
 module.exports = app;
