@@ -378,6 +378,23 @@
     width: 100%;
     height: 100%;
   }
+  .map-status {
+    display: none;
+    position: absolute;
+    z-index: 500;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 300px;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 4px 18px rgba(0,0,0,.15);
+    color: var(--gray-700);
+    font-size: 13px;
+    text-align: center;
+  }
+  .map-status.visible { display: block; }
 
   /* Vista solo mapa */
   .map-only .lista-panel { display: none; }
@@ -444,6 +461,8 @@
   .no-results i { font-size: 40px; margin-bottom: 12px; display: block; }
   .no-results h3 { font-size: 15px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; }
   .no-results p { font-size: 13px; }
+  .no-results.loading i { color: var(--blue); }
+  .no-results.error h3 { color: #B91C1C; }
 
   /* Leaflet marker personalizado */
   .custom-marker {
@@ -578,6 +597,7 @@
   <!-- MAPA -->
   <div class="map-panel" id="map-panel">
     <div id="mapa-leaflet" style="width:100%;height:100%;min-height:calc(100vh - 163px);"></div>
+    <div id="map-status" class="map-status" role="status" aria-live="polite"></div>
   </div>
 
 </div>
@@ -597,6 +617,8 @@ let activeCardId = null;
 let map = null;
 let markers = {};
 let favoritos = new Set();
+let estadoResultados = 'loading';
+let mensajeResultados = 'Cargando propiedades...';
 const DEFAULT_IMG = '../images/portada.jpeg';
 const CATEGORIAS_API = {
   apartamento: 1,
@@ -615,39 +637,82 @@ function normalizarTexto(valor = '') {
     .trim();
 }
 
+function escapeHTML(valor = '') {
+  return String(valor)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function numeroSeguro(valor) {
+  const numero = Number(valor);
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function coordenadaValida(lat, lng) {
+  return Number.isFinite(lat) && Number.isFinite(lng) &&
+    lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 &&
+    !(lat === 0 && lng === 0);
+}
+
+function imagenSegura(url) {
+  if (!url) return DEFAULT_IMG;
+  try {
+    const parsed = new URL(url, window.location.href);
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : DEFAULT_IMG;
+  } catch {
+    return DEFAULT_IMG;
+  }
+}
+
+function urlDetalle(id) {
+  return `detalle-propiedad.html?id=${encodeURIComponent(id)}`;
+}
+
 function mapPropiedadApi(p) {
-  const categoria = p.categoria || '';
+  const categoria = p.categoria || p.tipo || '';
   const sectorLabel = p.sector || 'Sin sector';
+  const lat = p.latitud === null || p.latitud === undefined ? NaN : Number(p.latitud);
+  const lng = p.longitud === null || p.longitud === undefined ? NaN : Number(p.longitud);
 
   return {
-    id: p.id_propiedad,
-    tipo: normalizarTexto(categoria).split(' ')[0] || 'apartamento',
+    id: String(p.id_propiedad || p.id || ''),
+    tipo: normalizarTexto(categoria),
     titulo: p.titulo || 'Propiedad sin titulo',
     sector: normalizarTexto(sectorLabel),
     sectorLabel,
     provincia: p.provincia || 'República Dominicana',
-    precio: Number(p.precio) || 0,
-    habitaciones: Number(p.habitaciones) || 0,
-    banos: Number(p.banos) || 0,
-    area: Number(p.metros_cuadrados) || 0,
+    precio: numeroSeguro(p.precio),
+    habitaciones: numeroSeguro(p.habitaciones),
+    banos: numeroSeguro(p.banos),
+    area: numeroSeguro(p.metros_cuadrados),
     disponible: Boolean(p.disponible),
-    lat: Number(p.latitud) || 18.4800,
-    lng: Number(p.longitud) || -69.9300,
-    img: p.imagen_portada || DEFAULT_IMG
+    lat,
+    lng,
+    tieneCoordenadas: coordenadaValida(lat, lng),
+    img: imagenSegura(p.imagen_portada || p.url_imagen)
   };
 }
 
 async function cargarPropiedades(filtros = {}) {
+  estadoResultados = 'loading';
+  mensajeResultados = 'Cargando propiedades...';
+  renderizarResultados();
   try {
     const data = await API.getPropiedades(filtros);
     if (data.error) throw new Error(data.error);
-    propiedades = (data.propiedades || []).map(mapPropiedadApi);
+    propiedades = (data.propiedades || []).map(mapPropiedadApi).filter(p => p.id);
+    estadoResultados = 'ready';
   } catch (error) {
     console.error('Error cargando propiedades:', error);
     propiedades = [];
+    estadoResultados = 'error';
+    mensajeResultados = 'No se pudieron cargar las propiedades. Intenta nuevamente.';
   }
 
-  filteredProps = [...propiedades];
+  filteredProps = filtrarEnCliente(propiedades);
   renderizarResultados();
 }
 
@@ -674,7 +739,7 @@ function renderMarkers() {
   Object.values(markers).forEach(m => map.removeLayer(m));
   markers = {};
 
-  filteredProps.forEach(prop => {
+  filteredProps.filter(prop => prop.tieneCoordenadas).forEach(prop => {
     const icon = L.divIcon({
       className: '',
       html: `<div class="custom-marker ${prop.id === activeCardId ? 'active-marker' : ''}">
@@ -697,16 +762,18 @@ function renderMarkers() {
 }
 
 function createPopupHTML(prop) {
+  const titulo = escapeHTML(prop.titulo);
+  const ubicacion = escapeHTML(`${prop.sectorLabel}, ${prop.provincia}`);
   return `
     <div>
       <div class="popup-img">
-        <img src="${prop.img}" alt="${prop.titulo}" />
+        <img src="${escapeHTML(prop.img)}" alt="${titulo}" />
       </div>
       <div class="popup-body">
         <div class="popup-price">RD$${formatPrice(prop.precio)}<span>/mes</span></div>
-        <div class="popup-title">${prop.titulo}</div>
-        <div class="popup-loc"><i class="fa-solid fa-location-dot" style="color:#6B7280;font-size:10px"></i> ${prop.sectorLabel}, ${prop.provincia}</div>
-        <a href="detalle-propiedad.html?id=${encodeURIComponent(prop.id)}" class="popup-btn">Ver detalles</a>
+        <div class="popup-title">${titulo}</div>
+        <div class="popup-loc"><i class="fa-solid fa-location-dot" style="color:#6B7280;font-size:10px"></i> ${ubicacion}</div>
+        <a href="${urlDetalle(prop.id)}" class="popup-btn">Ver detalles</a>
       </div>
     </div>
   `;
@@ -717,31 +784,41 @@ function renderLista() {
   const container = document.getElementById('lista-cards');
   const noResults = document.getElementById('no-results-lista');
 
-  if (filteredProps.length === 0) {
+  if (estadoResultados !== 'ready' || filteredProps.length === 0) {
     container.innerHTML = '';
+    noResults.className = `no-results visible ${estadoResultados}`;
+    noResults.innerHTML = estadoResultados === 'loading'
+      ? '<i class="fa-solid fa-spinner fa-spin"></i><h3>Cargando propiedades</h3><p>Espera un momento...</p>'
+      : estadoResultados === 'error'
+        ? `<i class="fa-solid fa-triangle-exclamation"></i><h3>Error al cargar</h3><p>${escapeHTML(mensajeResultados)}</p>`
+        : '<i class="fa-solid fa-house-circle-xmark"></i><h3>Sin resultados</h3><p>Intenta cambiar los filtros</p>';
     noResults.classList.add('visible');
     return;
   }
   noResults.classList.remove('visible');
 
-  container.innerHTML = filteredProps.map(prop => `
+  container.innerHTML = filteredProps.map(prop => {
+    const id = escapeHTML(prop.id);
+    const titulo = escapeHTML(prop.titulo);
+    const ubicacion = escapeHTML(`${prop.sectorLabel}, ${prop.provincia}`);
+    const imagen = escapeHTML(prop.img);
+    return `
     <div class="prop-card ${prop.id === activeCardId ? 'active' : ''}" 
-         id="card-${prop.id}" 
-         onclick="setActiveCard(${JSON.stringify(prop.id)})">
+         id="card-${id}" data-propiedad-id="${id}">
       <div class="prop-card-img">
-        <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
+        <img src="${imagen}" alt="${titulo}" loading="lazy" />
         <div class="prop-card-badge">${prop.disponible ? 'Disponible' : 'Alquilado'}</div>
         <button class="prop-card-fav ${favoritos.has(prop.id) ? 'active' : ''}" 
-                onclick="toggleFav(event, ${JSON.stringify(prop.id)})">
+                data-favorito-id="${id}" aria-label="Guardar favorito">
           <i class="fa-${favoritos.has(prop.id) ? 'solid' : 'regular'} fa-heart"></i>
         </button>
       </div>
       <div class="prop-card-body">
         <div class="prop-card-price">RD$${formatPrice(prop.precio)}<span>/mes</span></div>
-        <div class="prop-card-title">${prop.titulo}</div>
+        <div class="prop-card-title">${titulo}</div>
         <div class="prop-card-loc">
           <i class="fa-solid fa-location-dot" style="font-size:10px"></i>
-          ${prop.sectorLabel}, ${prop.provincia}
+          ${ubicacion}
         </div>
         <div class="prop-card-features">
           ${prop.habitaciones > 0 ? `<div class="prop-feat"><i class="fa-solid fa-bed"></i> ${prop.habitaciones} hab.</div>` : ''}
@@ -749,11 +826,12 @@ function renderLista() {
           <div class="prop-feat"><i class="fa-solid fa-vector-square"></i> ${prop.area}m²</div>
         </div>
         <div style="padding:8px 14px 12px">
-          <a href="detalle-propiedad.html?id=${encodeURIComponent(prop.id)}" class="popup-btn" style="display:block;text-align:center;padding:8px;border-radius:6px;background:var(--blue);color:#fff;font-size:12px;font-weight:600;text-decoration:none">Ver detalles</a>
+          <a href="${urlDetalle(prop.id)}" class="popup-btn" style="display:block;text-align:center;padding:8px;border-radius:6px;background:var(--blue);color:#fff;font-size:12px;font-weight:600;text-decoration:none">Ver detalles</a>
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // â”€â”€ RENDER GRID â”€â”€
@@ -761,30 +839,41 @@ function renderGrid() {
   const container = document.getElementById('grid-cards');
   const noResults = document.getElementById('no-results-grid');
 
-  if (filteredProps.length === 0) {
+  if (estadoResultados !== 'ready' || filteredProps.length === 0) {
     container.innerHTML = '';
+    noResults.className = `no-results visible ${estadoResultados}`;
+    noResults.innerHTML = estadoResultados === 'loading'
+      ? '<i class="fa-solid fa-spinner fa-spin"></i><h3>Cargando propiedades</h3><p>Espera un momento...</p>'
+      : estadoResultados === 'error'
+        ? `<i class="fa-solid fa-triangle-exclamation"></i><h3>Error al cargar</h3><p>${escapeHTML(mensajeResultados)}</p>`
+        : '<i class="fa-solid fa-house-circle-xmark"></i><h3>Sin resultados</h3><p>Intenta cambiar los filtros</p>';
     noResults.classList.add('visible');
     return;
   }
   noResults.classList.remove('visible');
 
-  container.innerHTML = filteredProps.map(prop => `
-    <div class="prop-grid-card" onclick="window.location.href='detalle-propiedad.html?id=${encodeURIComponent(prop.id)}'">
+  container.innerHTML = filteredProps.map(prop => {
+    const id = escapeHTML(prop.id);
+    const titulo = escapeHTML(prop.titulo);
+    const ubicacion = escapeHTML(`${prop.sectorLabel}, ${prop.provincia}`);
+    const imagen = escapeHTML(prop.img);
+    return `
+    <div class="prop-grid-card" data-propiedad-id="${id}">
       <div class="prop-grid-img">
-        <img src="${prop.img}" alt="${prop.titulo}" loading="lazy" />
+        <img src="${imagen}" alt="${titulo}" loading="lazy" />
         <div class="prop-card-badge" style="position:absolute;top:10px;left:10px">${prop.disponible ? 'Disponible' : 'Alquilado'}</div>
         <button class="prop-card-fav ${favoritos.has(prop.id) ? 'active' : ''}"
                 style="position:absolute;top:10px;right:10px"
-                onclick="toggleFav(event, ${JSON.stringify(prop.id)})">
+                data-favorito-id="${id}" aria-label="Guardar favorito">
           <i class="fa-${favoritos.has(prop.id) ? 'solid' : 'regular'} fa-heart"></i>
         </button>
       </div>
       <div class="prop-grid-body">
         <div class="prop-grid-price">RD$${formatPrice(prop.precio)}<span>/mes</span></div>
-        <div class="prop-grid-title">${prop.titulo}</div>
+        <div class="prop-grid-title">${titulo}</div>
         <div class="prop-grid-loc">
           <i class="fa-solid fa-location-dot" style="font-size:10px"></i>
-          ${prop.sectorLabel}, ${prop.provincia}
+          ${ubicacion}
         </div>
         <div class="prop-grid-feats">
           ${prop.habitaciones > 0 ? `<div class="prop-feat"><i class="fa-solid fa-bed"></i> ${prop.habitaciones} hab.</div>` : ''}
@@ -792,11 +881,30 @@ function renderGrid() {
           <div class="prop-feat"><i class="fa-solid fa-vector-square"></i> ${prop.area}m²</div>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // â”€â”€ FILTROS â”€â”€
+function filtrarEnCliente(lista) {
+  const tipo = document.getElementById('filter-tipo').value;
+  const sector = normalizarTexto(document.getElementById('filter-sector').value.replace(/_/g, ' '));
+  const precio = document.getElementById('filter-precio').value;
+  const habitaciones = Number(document.getElementById('filter-hab').value || 0);
+  const busqueda = normalizarTexto(document.getElementById('search-input').value);
+  const [precioMin, precioMax] = precio ? precio.split('-').map(Number) : [null, null];
+
+  return lista.filter(prop => {
+    const texto = normalizarTexto(`${prop.titulo} ${prop.sectorLabel} ${prop.provincia}`);
+    const coincideTipo = !tipo || prop.tipo.startsWith(tipo);
+    const coincideSector = !sector || normalizarTexto(prop.sectorLabel).includes(sector);
+    const coincideTexto = !busqueda || texto.includes(busqueda);
+    const coincidePrecio = !precio || (prop.precio >= precioMin && prop.precio <= precioMax);
+    const coincideHabitaciones = !habitaciones || (habitaciones === 4 ? prop.habitaciones >= 4 : prop.habitaciones === habitaciones);
+    return coincideTipo && coincideSector && coincideTexto && coincidePrecio && coincideHabitaciones;
+  });
+}
+
 function construirFiltros() {
   const tipo = document.getElementById('filter-tipo').value;
   const sector = document.getElementById('filter-sector').value;
@@ -815,13 +923,28 @@ function construirFiltros() {
     filtros.precio_max = precio_max;
   }
 
-  if (habitaciones) filtros.habitaciones = Number(habitaciones);
+  // El último rango significa "4 o más"; el filtro final se aplica en cliente.
+  if (habitaciones && Number(habitaciones) < 4) filtros.habitaciones = Number(habitaciones);
 
   return filtros;
 }
 
 async function applyFilters() {
   await cargarPropiedades(construirFiltros());
+}
+
+function renderEstadoMapa() {
+  const status = document.getElementById('map-status');
+  const propiedadesConCoordenadas = filteredProps.filter(p => p.tieneCoordenadas);
+  if (estadoResultados === 'loading') status.textContent = 'Cargando mapa...';
+  else if (estadoResultados === 'error') status.textContent = mensajeResultados;
+  else if (!filteredProps.length) status.textContent = 'No hay propiedades que coincidan con los filtros.';
+  else if (!propiedadesConCoordenadas.length) status.textContent = 'No hay coordenadas disponibles para mostrar en el mapa.';
+  else {
+    status.classList.remove('visible');
+    return;
+  }
+  status.classList.add('visible');
 }
 
 function renderizarResultados() {
@@ -831,14 +954,16 @@ function renderizarResultados() {
   if (sort === 'precio-asc') filteredProps.sort((a, b) => a.precio - b.precio);
   else if (sort === 'precio-desc') filteredProps.sort((a, b) => b.precio - a.precio);
 
-  document.getElementById('count-label').textContent = filteredProps.length;
+  document.getElementById('count-label').textContent = estadoResultados === 'ready' ? filteredProps.length : 0;
   renderLista();
   renderGrid();
   if (map) renderMarkers();
+  renderEstadoMapa();
 
   // Ajustar mapa a resultados
-  if (map && filteredProps.length > 0) {
-    const bounds = L.latLngBounds(filteredProps.map(p => [p.lat, p.lng]));
+  const propiedadesConCoordenadas = filteredProps.filter(p => p.tieneCoordenadas);
+  if (map && propiedadesConCoordenadas.length > 0) {
+    const bounds = L.latLngBounds(propiedadesConCoordenadas.map(p => [p.lat, p.lng]));
     map.fitBounds(bounds, { padding: [40, 40] });
   }
 }
@@ -871,12 +996,44 @@ function scrollToCard(id) {
 }
 
 // â”€â”€ FAVORITOS â”€â”€
-function toggleFav(e, id) {
+function tokenActual() {
+  return window.Seguridad ? Seguridad.getToken() : localStorage.getItem('alquilao_token');
+}
+
+async function cargarFavoritos() {
+  if (!tokenActual()) return;
+  try {
+    const data = await API.getFavoritos();
+    if (data.error) throw new Error(data.error);
+    favoritos = new Set((data.favoritos || []).map(f => String(f.id_propiedad || f.id)));
+    renderLista();
+    renderGrid();
+  } catch (error) {
+    console.warn('No se pudieron cargar los favoritos:', error);
+  }
+}
+
+async function toggleFav(e, id) {
   e.stopPropagation();
-  if (favoritos.has(id)) favoritos.delete(id);
-  else favoritos.add(id);
-  renderLista();
-  renderGrid();
+  if (!tokenActual()) {
+    if (window.confirm('Inicia sesión para guardar propiedades en favoritos. ¿Deseas iniciar sesión ahora?')) {
+      window.location.href = 'login.html';
+    }
+    return;
+  }
+
+  try {
+    const data = await API.toggleFavorito(id);
+    if (data.error) throw new Error(data.error);
+    if (data.accion === 'agregado') favoritos.add(id);
+    else if (data.accion === 'eliminado') favoritos.delete(id);
+    else await cargarFavoritos();
+    renderLista();
+    renderGrid();
+  } catch (error) {
+    console.error('No se pudo actualizar el favorito:', error);
+    window.alert('No se pudo actualizar el favorito. Intenta nuevamente.');
+  }
 }
 
 // â”€â”€ VISTAS â”€â”€
@@ -925,6 +1082,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filter-tipo').value = tipo;
   }
   initMap();
+  document.addEventListener('click', (event) => {
+    const favorito = event.target.closest('[data-favorito-id]');
+    if (favorito) {
+      toggleFav(event, favorito.dataset.favoritoId);
+      return;
+    }
+
+    const tarjeta = event.target.closest('[data-propiedad-id]');
+    if (tarjeta && !event.target.closest('a, button')) {
+      const id = tarjeta.dataset.propiedadId;
+      if (tarjeta.classList.contains('prop-grid-card')) window.location.href = urlDetalle(id);
+      else setActiveCard(id);
+    }
+  });
+  cargarFavoritos();
   cargarPropiedades();
 });
 </script>

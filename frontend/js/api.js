@@ -5,7 +5,10 @@
 //   + getMisPublicaciones()    → GET  /api/mis-publicaciones
 // Todo lo demás es idéntico a la versión original.
 
-const API_URL = 'http://localhost:3000/api';
+// Por defecto usa el mismo origen (por ejemplo, https://alquilao.do/api).
+// En despliegues donde la API viva en otro host se puede definir
+// `window.ALQUILAO_API_URL` antes de cargar este archivo.
+const API_URL = (window.ALQUILAO_API_URL || '/api').replace(/\/$/, '');
 
 const getToken = () => {
   if (window.Seguridad) return Seguridad.getToken();
@@ -169,7 +172,7 @@ const API = {
   },
 
   toggleFavorito: async (idPropiedad) => {
-    const res = await fetch(`${API_URL}/favoritos/${idPropiedad}`, {
+    const res = await fetch(`${API_URL}/favoritos/${encodeURIComponent(idPropiedad)}`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${getToken()}` }
     });
